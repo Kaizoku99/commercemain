@@ -1,0 +1,543 @@
+"use client";
+
+import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import {
+  m,
+  AnimatePresence,
+  useScroll,
+  useTransform,
+} from "framer-motion";
+import {
+  Heart,
+  Eye,
+  ShoppingBag,
+  Star,
+  ChevronLeft,
+  ChevronRight,
+  Play,
+  Pause,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import Price from "@/components/price";
+import type { Product } from "@/lib/shopify/types";
+import { getLocalizedProductTitle, getLocalizedProductHandle } from "@/lib/shopify/i18n-queries";
+
+interface EnhancedRelatedProductsCarouselProps {
+  products: Product[];
+  locale: "en" | "ar";
+  title?: string;
+  autoPlay?: boolean;
+  showDots?: boolean;
+  itemsPerView?: number;
+}
+
+interface ProductCardProps {
+  product: Product;
+  locale: "en" | "ar";
+  index: number;
+  onAddToCart: (productId: string) => void;
+  onToggleWishlist: (productId: string) => void;
+  isWishlisted: boolean;
+  isActive?: boolean;
+}
+
+function ProductCard({
+  product,
+  locale,
+  index,
+  onAddToCart,
+  onToggleWishlist,
+  isWishlisted,
+  isActive = false,
+}: ProductCardProps) {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const title = getLocalizedProductTitle(product, locale);
+  const handle = getLocalizedProductHandle(product, locale);
+  const price = product.priceRange.maxVariantPrice;
+  const isOnSale =
+    product.priceRange.minVariantPrice.amount !==
+    product.priceRange.maxVariantPrice.amount;
+  const isPremium =
+    product.tags?.includes("premium") ||
+    product.title.toLowerCase().includes("premium");
+
+  const discountPercentage = isOnSale
+    ? Math.round(
+      (1 -
+        parseFloat(product.priceRange.minVariantPrice.amount) /
+        parseFloat(product.priceRange.maxVariantPrice.amount)) *
+      100
+    )
+    : 0;
+
+  const cardVariants = {
+    hidden: { opacity: 0, scale: 0.9, y: 20 },
+    visible: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        delay: index * 0.1,
+        ease: "easeInOut" as const,
+      },
+    },
+    hover: {
+      scale: 1.02,
+      y: -5,
+      transition: {
+        duration: 0.3,
+        ease: "easeOut" as const,
+      },
+    },
+    active: {
+      scale: 0.98,
+      transition: { duration: 0.1 }
+    }
+  };
+
+  return (
+    <m.div
+      className="group relative bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-2xl hover:shadow-atp-black/15 hover:border-atp-gold/40 transition-all duration-700 flex-shrink-0"
+      style={{ width: "280px" }}
+      variants={cardVariants}
+      initial="hidden"
+      animate={isActive ? "active" : "visible"}
+      whileHover="hover"
+      onHoverStart={() => setIsHovered(true)}
+      onHoverEnd={() => setIsHovered(false)}
+    >
+      {/* Glow Effect */}
+      <div className="absolute -inset-0.5 bg-gradient-to-r from-atp-gold via-atp-gold/50 to-atp-gold rounded-3xl opacity-0 group-hover:opacity-20 transition-opacity duration-700 blur-sm" />
+
+      {/* Product Badges */}
+      <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
+        {isOnSale && (
+          <m.div
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ delay: 0.3, duration: 0.5, ease: "backOut" }}
+          >
+            <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-3 py-1 shadow-lg">
+              -{discountPercentage}%
+            </Badge>
+          </m.div>
+        )}
+        {isPremium && (
+          <m.div
+            initial={{ scale: 0, rotate: 180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ delay: 0.4, duration: 0.5, ease: "backOut" }}
+          >
+            <Badge className="bg-gradient-to-r from-atp-gold to-yellow-500 text-atp-black text-xs font-bold px-3 py-1 shadow-lg">
+              <Star className="w-2 h-2 mr-1 fill-current" />
+              {locale === "ar" ? "متميز" : "Premium"}
+            </Badge>
+          </m.div>
+        )}
+      </div>
+
+      {/* Action Buttons */}
+      <AnimatePresence>
+        {isHovered && (
+          <m.div
+            className="absolute top-4 right-4 z-20 flex flex-col gap-2"
+            initial={{ opacity: 0, x: 20, scale: 0.8 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: 20, scale: 0.8 }}
+            transition={{ duration: 0.3, staggerChildren: 0.1 }}
+          >
+            {[
+              {
+                icon: Heart,
+                onClick: () => onToggleWishlist(product.id),
+                className: isWishlisted
+                  ? "fill-red-500 text-red-500"
+                  : "text-gray-600",
+                bgClass: "hover:bg-red-50 hover:text-red-500",
+              },
+              {
+                icon: Eye,
+                onClick: () => { },
+                className: "text-gray-600",
+                bgClass: "hover:bg-blue-50 hover:text-blue-500",
+              },
+              {
+                icon: ShoppingBag,
+                onClick: () => onAddToCart(product.id),
+                className: "text-atp-black",
+                bgClass: "bg-atp-gold hover:bg-atp-black hover:text-atp-gold",
+              },
+            ].map((action, i) => (
+              <m.button
+                key={i}
+                className={`p-3 bg-white/95 backdrop-blur-sm rounded-full shadow-lg transition-all duration-300 ${action.bgClass}`}
+                whileHover={{ scale: 1.1, rotate: 5 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  action.onClick();
+                }}
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <action.icon className={`w-4 h-4 ${action.className}`} />
+              </m.button>
+            ))}
+          </m.div>
+        )}
+      </AnimatePresence>
+
+      <Link href={`/${locale}/product/${handle}`} className="block">
+        {/* Product Image */}
+        <div className="relative aspect-[4/5] overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100">
+          <m.div
+            className="w-full h-full"
+            whileHover={{ scale: 1.1 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
+            {product.featuredImage?.url ? (
+              <>
+                <Image
+                  src={product.featuredImage.url}
+                  alt={product.featuredImage.altText || title}
+                  fill
+                  className={`object-cover transition-all duration-700 ${imageLoaded ? "opacity-100 blur-0" : "opacity-0 blur-sm"
+                    }`}
+                  onLoad={() => setImageLoaded(true)}
+                  sizes="280px"
+                />
+                {!imageLoaded && (
+                  <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200 animate-pulse" />
+                )}
+              </>
+            ) : (
+              <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                <span className="text-gray-400 text-sm font-medium">
+                  No Image
+                </span>
+              </div>
+            )}
+          </m.div>
+
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+          {/* Quick View Button */}
+          <m.div
+            className="absolute bottom-4 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100"
+            initial={{ y: 20 }}
+            whileHover={{ y: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <Button
+              size="sm"
+              className="bg-white/90 text-gray-900 hover:bg-white backdrop-blur-sm font-medium px-4 py-2 rounded-full shadow-lg"
+            >
+              {locale === "ar" ? "عرض سريع" : "Quick View"}
+            </Button>
+          </m.div>
+        </div>
+
+        {/* Product Info */}
+        <div className="p-5 space-y-4">
+          <div className="space-y-3">
+            <h3 className="font-bold text-gray-900 text-base leading-tight line-clamp-2 group-hover:text-atp-gold transition-colors duration-300">
+              {title}
+            </h3>
+
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                {isOnSale ? (
+                  <div className="flex items-center gap-2">
+                    <Price
+                      amount={product.priceRange.minVariantPrice.amount}
+                      currencyCode={
+                        product.priceRange.minVariantPrice.currencyCode
+                      }
+                      className="font-bold text-red-600 text-lg"
+                    />
+                    <Price
+                      amount={product.priceRange.maxVariantPrice.amount}
+                      currencyCode={
+                        product.priceRange.maxVariantPrice.currencyCode
+                      }
+                      className="text-sm text-gray-500 line-through"
+                    />
+                  </div>
+                ) : (
+                  <Price
+                    amount={price.amount}
+                    currencyCode={price.currencyCode}
+                    className="font-bold text-gray-900 text-lg"
+                  />
+                )}
+              </div>
+
+              {/* Rating */}
+              <div className="flex items-center gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`w-3 h-3 ${i < 4
+                      ? "fill-yellow-400 text-yellow-400"
+                      : "text-gray-300"
+                      }`}
+                  />
+                ))}
+                <span className="text-xs text-gray-500 ml-1 font-medium">
+                  (4.0)
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Link>
+    </m.div>
+  );
+}
+
+export function EnhancedRelatedProductsCarousel({
+  products,
+  locale,
+  title,
+  autoPlay = true,
+  showDots = true,
+  itemsPerView = 4,
+}: EnhancedRelatedProductsCarouselProps) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [wishlistedItems, setWishlistedItems] = useState<Set<string>>(
+    new Set()
+  );
+  const [isPlaying, setIsPlaying] = useState(autoPlay);
+  const [isLoading, setIsLoading] = useState(true);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"],
+  });
+
+  const y = useTransform(scrollYProgress, [0, 1], [50, -50]);
+  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 1200);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (isPlaying && products.length > itemsPerView) {
+      intervalRef.current = setInterval(() => {
+        setCurrentIndex((prev) =>
+          prev >= products.length - itemsPerView ? 0 : prev + 1
+        );
+      }, 4000);
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [isPlaying, products.length, itemsPerView]);
+
+  const handleAddToCart = async (productId: string) => {
+    console.log("Add to cart:", productId);
+  };
+
+  const handleToggleWishlist = (productId: string) => {
+    setWishlistedItems((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(productId)) {
+        newSet.delete(productId);
+      } else {
+        newSet.add(productId);
+      }
+      return newSet;
+    });
+  };
+
+  const goToSlide = (index: number) => {
+    setCurrentIndex(
+      Math.max(0, Math.min(index, products.length - itemsPerView))
+    );
+  };
+
+  const nextSlide = () => {
+    setCurrentIndex((prev) =>
+      prev >= products.length - itemsPerView ? 0 : prev + 1
+    );
+  };
+
+  const prevSlide = () => {
+    setCurrentIndex((prev) =>
+      prev <= 0 ? products.length - itemsPerView : prev - 1
+    );
+  };
+
+  const toggleAutoPlay = () => {
+    setIsPlaying(!isPlaying);
+  };
+
+  if (!products.length) return null;
+
+  const sectionTitle =
+    title || (locale === "ar" ? "المنتجات ذات الصلة" : "Related Products");
+  const canGoPrev = currentIndex > 0;
+  const canGoNext = currentIndex < products.length - itemsPerView;
+
+  return (
+    <m.section
+      ref={containerRef}
+      className="py-20 bg-gradient-to-br from-gray-50 via-white to-gray-50 relative overflow-hidden"
+      style={{ y, opacity }}
+    >
+      {/* Background Pattern */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_25%_25%,_theme(colors.atp.gold)_0%,_transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_75%,_theme(colors.atp.gold)_0%,_transparent_50%)]" />
+      </div>
+
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative">
+        {/* Header */}
+        <m.div
+          className="flex items-center justify-between mb-16"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <div>
+            <h2
+              className={`text-4xl md:text-5xl font-bold text-gray-900 mb-3 ${locale === "ar" ? "font-arabic" : ""
+                }`}
+            >
+              {sectionTitle}
+            </h2>
+            <p className="text-gray-600 text-lg max-w-2xl">
+              {locale === "ar"
+                ? "اكتشف المنتجات المشابهة المختارة بعناية لك"
+                : "Discover carefully curated similar products just for you"}
+            </p>
+          </div>
+
+          {/* Controls */}
+          <div className="flex items-center gap-4">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={toggleAutoPlay}
+              className="rounded-full border-2 hover:border-atp-gold hover:text-atp-gold"
+            >
+              {isPlaying ? (
+                <Pause className="w-4 h-4" />
+              ) : (
+                <Play className="w-4 h-4" />
+              )}
+            </Button>
+
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={prevSlide}
+                disabled={!canGoPrev}
+                className="rounded-full border-2 hover:border-atp-gold hover:text-atp-gold disabled:opacity-50"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={nextSlide}
+                disabled={!canGoNext}
+                className="rounded-full border-2 hover:border-atp-gold hover:text-atp-gold disabled:opacity-50"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </Button>
+            </div>
+          </div>
+        </m.div>
+
+        {/* Carousel */}
+        <div className="relative">
+          <div className="overflow-hidden">
+            <AnimatePresence mode="wait">
+              <m.div
+                key={currentIndex}
+                className="flex gap-6"
+                initial={{ x: 300, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: -300, opacity: 0 }}
+                transition={{ duration: 0.6, ease: "easeInOut" }}
+              >
+                {products
+                  .slice(currentIndex, currentIndex + itemsPerView)
+                  .map((product, index) => (
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      locale={locale}
+                      index={index}
+                      onAddToCart={handleAddToCart}
+                      onToggleWishlist={handleToggleWishlist}
+                      isWishlisted={wishlistedItems.has(product.id)}
+                      isActive={index === 1} // Highlight the second item
+                    />
+                  ))}
+              </m.div>
+            </AnimatePresence>
+          </div>
+        </div>
+
+        {/* Dots Indicator */}
+        {showDots && products.length > itemsPerView && (
+          <m.div
+            className="flex justify-center items-center gap-3 mt-12"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            {[...Array(Math.ceil(products.length - itemsPerView + 1))].map(
+              (_, index) => (
+                <button
+                  key={index}
+                  onClick={() => goToSlide(index)}
+                  className={`transition-all duration-300 rounded-full ${index === currentIndex
+                    ? "bg-atp-gold w-8 h-3"
+                    : "bg-gray-300 hover:bg-gray-400 w-3 h-3"
+                    }`}
+                />
+              )
+            )}
+          </m.div>
+        )}
+
+        {/* View All Button */}
+        <m.div
+          className="text-center mt-16"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+        >
+          <Button
+            asChild
+            size="lg"
+            className="bg-gradient-to-r from-atp-gold to-yellow-500 hover:from-atp-black hover:to-gray-900 text-atp-black hover:text-white font-bold px-10 py-4 rounded-full transition-all duration-500 shadow-lg hover:shadow-2xl transform hover:scale-105"
+          >
+            <Link href={`/${locale}/products`}>
+              {locale === "ar" ? "عرض جميع المنتجات" : "Explore All Products"}
+            </Link>
+          </Button>
+        </m.div>
+      </div>
+    </m.section>
+  );
+}

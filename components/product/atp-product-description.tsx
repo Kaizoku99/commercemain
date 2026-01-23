@@ -1,0 +1,284 @@
+"use client";
+
+import { useRef } from "react";
+import { useInventoryQuantity } from "@/lib/hooks/use-inventory-quantity";
+import { ATPAddToCart } from "@/components/cart/atp-add-to-cart";
+import { EnhancedMemberPricing } from "@/components/membership/enhanced-member-pricing";
+import { FreeDeliveryIndicator } from "@/components/membership/free-delivery-indicator";
+import Price from "@/components/price";
+import Prose from "@/components/prose";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { TrustBadges } from "@/components/ui/trust-badges";
+import { ProductReviews } from "@/components/reviews/product-reviews";
+import { useAtpMembership } from "@/hooks/use-atp-membership";
+import { useRTL } from "@/hooks/use-rtl";
+import { useSelectedVariant } from "@/hooks/use-selected-variant";
+import { useTranslations } from "next-intl";
+import type { Product } from "@/lib/shopify/types";
+import {
+  getLocalizedProductTitle,
+  getLocalizedProductDescription,
+  getLocalizedProductDescriptionHtml,
+} from "@/lib/shopify/i18n-queries";
+import { Award, Leaf, Shield, Star } from "lucide-react";
+import { VariantSelector } from "./variant-selector";
+import { QuantitySelector, QuantityProvider } from "./quantity-selector";
+import { StickyAddToCart } from "./sticky-add-to-cart";
+import { UrgencySignals } from "./urgency-signals";
+import { TabbyPromo } from "./tabby-promo";
+import { TamaraWidget } from "./tamara-widget";
+import { ProductDescriptionAccordion } from "./product-description-accordion";
+
+export function ATPProductDescription({
+  product,
+  locale,
+}: {
+  product: Product;
+  locale: "en" | "ar";
+}) {
+  const { isActive: isMember } = useAtpMembership();
+  const t = useTranslations('product');
+  const { isRTL } = useRTL();
+  const { price, selectedVariant } = useSelectedVariant(product);
+  const addToCartRef = useRef<HTMLDivElement>(null);
+
+  // Fetch real inventory quantity from Shopify Admin API
+  const { quantity: inventoryQuantity, isLoading: inventoryLoading } = useInventoryQuantity(
+    selectedVariant?.id
+  );
+
+  // Get localized content
+  const localizedTitle = getLocalizedProductTitle(product, locale);
+  const localizedDescription = getLocalizedProductDescription(product, locale);
+  const localizedDescriptionHtml = getLocalizedProductDescriptionHtml(
+    product,
+    locale
+  );
+
+  // Determine product category for specialized badges
+  const isWellnessProduct = product.tags.some((tag) =>
+    ["skincare", "supplements", "wellness", "natural"].includes(
+      tag.toLowerCase()
+    )
+  );
+  const isTechProduct = product.tags.some((tag) =>
+    ["water-technology", "soil-technology", "tech", "professional"].includes(
+      tag.toLowerCase()
+    )
+  );
+
+  return (
+    <QuantityProvider>
+      <div className={isRTL ? "font-arabic" : ""}>
+        <div
+          className={`mb-6 flex flex-col border-b pb-6 dark:border-neutral-700 ${isRTL ? "text-right" : ""
+            }`}
+        >
+          <div
+            className={`flex items-center gap-2 mb-3 ${isRTL ? "flex-row-reverse justify-end" : ""
+              }`}
+          >
+            {isWellnessProduct && (
+              <Badge
+                variant="secondary"
+                className="bg-atp-wellness-green/20 text-atp-black"
+              >
+                <Leaf className="w-3 h-3 mr-1" />
+                {t('wellness')}
+              </Badge>
+            )}
+            {isTechProduct && (
+              <Badge
+                variant="secondary"
+                className="bg-blue-500/20 text-blue-700"
+              >
+                <Award className="w-3 h-3 mr-1" />
+                {t('professional')}
+              </Badge>
+            )}
+            {product.tags.includes("premium") && (
+              <Badge className="bg-atp-gold text-atp-black">
+                <Star className="w-3 h-3 mr-1" />
+                {t('premium')}
+              </Badge>
+            )}
+          </div>
+
+          <h1 className="mb-4 text-4xl md:text-5xl font-bold text-foreground">
+            {localizedTitle}
+          </h1>
+
+          {/* Enhanced ATP Member Pricing Display */}
+          <div className={`mb-6 ${isRTL ? "text-right" : ""}`}>
+            <EnhancedMemberPricing
+              originalPrice={price.amount}
+              serviceId="cosmetics-supplements"
+              currencyCode={price.currencyCode}
+              showFreeDelivery={true}
+              showMembershipCTA={true}
+              productType="product"
+            />
+          </div>
+
+          {/* Tabby Promo - Buy Now, Pay Later */}
+          <div className={`mb-4 ${isRTL ? "text-right" : ""}`}>
+            <TabbyPromo
+              price={price.amount}
+              currencyCode={price.currencyCode}
+              locale={locale}
+              publicKey={process.env.NEXT_PUBLIC_TABBY_PUBLIC_KEY || ""}
+              merchantCode={
+                price.currencyCode === "SAR"
+                  ? "ksa"
+                  : price.currencyCode === "KWD"
+                    ? "KW"
+                    : "default"
+              }
+            />
+          </div>
+
+          {/* Tamara Widget - Buy Now, Pay Later */}
+          <div className={`mb-4 ${isRTL ? "text-right" : ""}`}>
+            <TamaraWidget
+              price={price.amount}
+              currencyCode={price.currencyCode}
+              locale={locale}
+              publicKey={process.env.NEXT_PUBLIC_TAMARA_PUBLIC_KEY || ""}
+              countryCode={
+                price.currencyCode === "SAR"
+                  ? "SA"
+                  : price.currencyCode === "KWD"
+                    ? "KW"
+                    : price.currencyCode === "BHD"
+                      ? "BH"
+                      : "AE"
+              }
+            />
+          </div>
+
+          {/* Product Quality Indicators */}
+          <div
+            className={`flex flex-wrap gap-2 mb-4 ${isRTL ? "flex-row-reverse justify-end" : ""
+              }`}
+          >
+            {isWellnessProduct && (
+              <>
+                <div
+                  className={`flex items-center gap-1 text-xs text-muted-foreground ${isRTL ? "flex-row-reverse" : ""
+                    }`}
+                >
+                  <Shield className="w-3 h-3" />
+                  {t('labTested')}
+                </div>
+                <div
+                  className={`flex items-center gap-1 text-xs text-muted-foreground ${isRTL ? "flex-row-reverse" : ""
+                    }`}
+                >
+                  <Leaf className="w-3 h-3" />
+                  {t('naturalIngredients')}
+                </div>
+              </>
+            )}
+            {isTechProduct && (
+              <>
+                <div
+                  className={`flex items-center gap-1 text-xs text-muted-foreground ${isRTL ? "flex-row-reverse" : ""
+                    }`}
+                >
+                  <Award className="w-3 h-3" />
+                  {t('germanEngineering')}
+                </div>
+                <div
+                  className={`flex items-center gap-1 text-xs text-muted-foreground ${isRTL ? "flex-row-reverse" : ""
+                    }`}
+                >
+                  <Shield className="w-3 h-3" />
+                  {t('professionalGrade')}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Variant Selector (only show if there are actual variants with options) */}
+        {product.options.length > 0 &&
+          product.options.some((option) => option.values.length > 1) && (
+            <div className="mb-6">
+              <VariantSelector
+                options={product.options}
+                variants={product.variants}
+              />
+            </div>
+          )}
+
+        {/* Quantity Selector */}
+        <div className="mb-4">
+          <QuantitySelector productId={product.id} />
+        </div>
+
+        {/* Urgency Signals - Stock Indicator (Real inventory from Shopify Admin API) */}
+        {selectedVariant && !inventoryLoading && (
+          <div className="mb-4">
+            <UrgencySignals
+              quantityAvailable={
+                // If not available for sale, show 0
+                // Otherwise, use the real inventory count from Admin API
+                !selectedVariant.availableForSale
+                  ? 0
+                  : inventoryQuantity
+              }
+              lowStockThreshold={5}
+            />
+          </div>
+        )}
+
+        {/* Add to Cart Button - with ref for sticky CTA */}
+        <div className="mb-4" ref={addToCartRef}>
+          <ATPAddToCart product={product} />
+        </div>
+
+        {/* Trust Badges - below Add to Cart */}
+        <div className="mb-6 border-b pb-6 dark:border-neutral-700">
+          <TrustBadges variant="horizontal" />
+        </div>
+
+        {/* Free Delivery Indicator for Members */}
+        {isMember && (
+          <div className="mb-6">
+            <FreeDeliveryIndicator variant="card" />
+          </div>
+        )}
+
+        {/* Product Description - Structured Accordion Layout */}
+        {(localizedDescriptionHtml || product.descriptionHtml) && (
+          <div className="mb-6">
+            <ProductDescriptionAccordion
+              descriptionHtml={localizedDescriptionHtml || product.descriptionHtml}
+              isRTL={isRTL}
+              className={isRTL ? "text-right" : ""}
+            />
+          </div>
+        )}
+
+        {/* Product Reviews - Social Proof Section */}
+        <div className="mt-8 pt-8 border-t dark:border-neutral-700">
+          <ProductReviews
+            productId={product.id}
+            productTitle={localizedTitle}
+          />
+        </div>
+      </div>
+
+      {/* Sticky Add to Cart for Mobile */}
+      {selectedVariant && (
+        <StickyAddToCart
+          product={product}
+          selectedVariant={selectedVariant}
+          triggerRef={addToCartRef}
+        />
+      )}
+    </QuantityProvider>
+  );
+}
+

@@ -1,0 +1,389 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* ATP Group Services luxury black/gold color scheme */
+  --background: oklch(1 0 0); /* Pure white */
+  --foreground: oklch(0 0 0); /* Deep black */
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0 0 0);
+  --primary: oklch(0 0 0); /* Deep black for primary elements */
+  --primary-foreground: oklch(1 0 0); /* White text on black */
+  --secondary: oklch(0.98 0 0); /* Subtle gray background */
+  --secondary-foreground: oklch(0 0 0);
+  --muted: oklch(0.98 0 0);
+  --muted-foreground: oklch(0.4 0 0);
+  --accent: oklch(0.7 0.15 85); /* Elegant gold accent */
+  --accent-foreground: oklch(0 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.9 0 0);
+  --input: oklch(0.98 0 0);
+  --ring: oklch(0.7 0.15 85); /* Gold focus ring */
+  --chart-1: oklch(0.7 0.15 85); /* Gold */
+  --chart-2: oklch(0 0 0); /* Black */
+  --chart-3: oklch(0.4 0 0); /* Dark gray */
+  --chart-4: oklch(0.8 0 0); /* Light gray */
+  --chart-5: oklch(0.6 0.1 120); /* Subtle wellness green */
+  --radius: 0.5rem;
+  --sidebar: oklch(0 0 0); /* Black sidebar */
+  --sidebar-foreground: oklch(1 0 0);
+  --sidebar-primary: oklch(0.7 0.15 85); /* Gold */
+  --sidebar-primary-foreground: oklch(0 0 0);
+  --sidebar-accent: oklch(0.1 0 0);
+  --sidebar-accent-foreground: oklch(1 0 0);
+  --sidebar-border: oklch(0.2 0 0);
+  --sidebar-ring: oklch(0.7 0.15 85);
+
+  /* ATP-specific custom properties */
+  --atp-gold: oklch(0.7 0.15 85);
+  --atp-black: oklch(0 0 0);
+  --atp-white: oklch(1 0 0);
+  --atp-gray-light: oklch(0.98 0 0);
+  --atp-wellness-green: oklch(0.95 0.02 120);
+  --font-inter: "Inter", sans-serif;
+  --font-cairo: "Cairo", sans-serif;
+}
+
+.dark {
+  /* Dark mode with inverted luxury aesthetic */
+  --background: oklch(0.05 0 0); /* Very dark background */
+  --foreground: oklch(1 0 0); /* White text */
+  --card: oklch(0.08 0 0);
+  --card-foreground: oklch(1 0 0);
+  --popover: oklch(0.05 0 0);
+  --popover-foreground: oklch(1 0 0);
+  --primary: oklch(0.7 0.15 85); /* Gold primary in dark mode */
+  --primary-foreground: oklch(0 0 0);
+  --secondary: oklch(0.1 0 0);
+  --secondary-foreground: oklch(1 0 0);
+  --muted: oklch(0.1 0 0);
+  --muted-foreground: oklch(0.6 0 0);
+  --accent: oklch(0.7 0.15 85); /* Gold accent */
+  --accent-foreground: oklch(0 0 0);
+  --destructive: oklch(0.6 0.2 25);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.15 0 0);
+  --input: oklch(0.1 0 0);
+  --ring: oklch(0.7 0.15 85);
+  --chart-1: oklch(0.7 0.15 85);
+  --chart-2: oklch(1 0 0);
+  --chart-3: oklch(0.6 0 0);
+  --chart-4: oklch(0.3 0 0);
+  --chart-5: oklch(0.6 0.1 120);
+  --sidebar: oklch(0.02 0 0);
+  --sidebar-foreground: oklch(1 0 0);
+  --sidebar-primary: oklch(0.7 0.15 85);
+  --sidebar-primary-foreground: oklch(0 0 0);
+  --sidebar-accent: oklch(0.08 0 0);
+  --sidebar-accent-foreground: oklch(1 0 0);
+  --sidebar-border: oklch(0.15 0 0);
+  --sidebar-ring: oklch(0.7 0.15 85);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  /* ATP custom color utilities */
+  --color-atp-gold: var(--atp-gold);
+  --color-atp-black: var(--atp-black);
+  --color-atp-white: var(--atp-white);
+  --color-atp-gray-light: var(--atp-gray-light);
+  --color-atp-wellness-green: var(--atp-wellness-green);
+  --font-sans: var(--font-inter);
+  --font-arabic: var(--font-cairo);
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+
+  /* ATP-specific utility classes */
+  .atp-gold {
+    color: var(--color-atp-gold);
+  }
+
+  .bg-atp-gold {
+    background-color: var(--color-atp-gold);
+  }
+
+  .border-atp-gold {
+    border-color: var(--color-atp-gold);
+  }
+
+  .atp-gradient {
+    background: linear-gradient(135deg, var(--color-atp-black) 0%, var(--color-atp-gold) 100%);
+  }
+
+  .atp-text-gradient {
+    background: linear-gradient(135deg, var(--color-atp-black) 0%, var(--color-atp-gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* RTL-specific utility classes and Arabic typography */
+  .rtl {
+    direction: rtl;
+  }
+
+  .ltr {
+    direction: ltr;
+  }
+
+  /* Arabic text styling */
+  .font-arabic {
+    font-family: var(--font-arabic), sans-serif;
+  }
+
+  /* RTL-aware spacing utilities */
+  .ms-auto-rtl {
+    margin-inline-start: auto;
+  }
+
+  .me-auto-rtl {
+    margin-inline-end: auto;
+  }
+
+  .ps-rtl-4 {
+    padding-inline-start: 1rem;
+  }
+
+  .pe-rtl-4 {
+    padding-inline-end: 1rem;
+  }
+
+  /* RTL-aware flexbox utilities */
+  .flex-row-rtl {
+    flex-direction: row;
+  }
+
+  .flex-row-reverse-rtl {
+    flex-direction: row-reverse;
+  }
+
+  /* RTL-aware text alignment */
+  .text-start-rtl {
+    text-align: start;
+  }
+
+  .text-end-rtl {
+    text-align: end;
+  }
+
+  /* RTL-aware border utilities */
+  .border-s-rtl {
+    border-inline-start-width: 1px;
+  }
+
+  .border-e-rtl {
+    border-inline-end-width: 1px;
+  }
+
+  /* Arabic number formatting */
+  .arabic-numerals {
+    font-variant-numeric: normal;
+  }
+
+  /* Enhanced Arabic text rendering */
+  .arabic-text {
+    font-family: var(--font-arabic), sans-serif;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: "liga" 1, "calt" 1, "kern" 1;
+    line-height: 1.6;
+  }
+
+  /* RTL-specific component adjustments */
+  [dir="rtl"] .atp-card {
+    text-align: right;
+  }
+
+  [dir="rtl"] .atp-button-primary,
+  [dir="rtl"] .atp-button-gold {
+    text-align: center;
+  }
+
+  /* RTL navigation adjustments */
+  [dir="rtl"] .navbar-menu {
+    flex-direction: row-reverse;
+  }
+
+  /* RTL form adjustments */
+  [dir="rtl"] input,
+  [dir="rtl"] textarea,
+  [dir="rtl"] select {
+    text-align: right;
+  }
+
+  [dir="rtl"] input[type="email"],
+  [dir="rtl"] input[type="url"] {
+    text-align: left;
+  }
+
+  /* Enhanced RTL utilities */
+  .rtl-grid {
+    direction: rtl;
+  }
+
+  /* RTL-aware positioning */
+  [dir="rtl"] .left-0 {
+    left: auto;
+    right: 0;
+  }
+
+  [dir="rtl"] .right-0 {
+    right: auto;
+    left: 0;
+  }
+
+  /* RTL-aware transforms */
+  [dir="rtl"] .translate-x-full {
+    transform: translateX(-100%);
+  }
+
+  [dir="rtl"] .-translate-x-full {
+    transform: translateX(100%);
+  }
+
+  /* RTL-aware margins and padding */
+  [dir="rtl"] .ml-auto {
+    margin-left: auto;
+    margin-right: 0;
+  }
+
+  [dir="rtl"] .mr-auto {
+    margin-right: auto;
+    margin-left: 0;
+  }
+
+  /* RTL-aware text alignment for specific components */
+  [dir="rtl"] .text-left {
+    text-align: right;
+  }
+
+  [dir="rtl"] .text-right {
+    text-align: left;
+  }
+
+  /* RTL-aware flex utilities */
+  [dir="rtl"] .justify-start {
+    justify-content: flex-end;
+  }
+
+  [dir="rtl"] .justify-end {
+    justify-content: flex-start;
+  }
+
+  /* RTL-aware border radius */
+  [dir="rtl"] .rounded-l-lg {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+  }
+
+  [dir="rtl"] .rounded-r-lg {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-top-left-radius: 0.5rem;
+    border-bottom-left-radius: 0.5rem;
+  }
+
+  /* Arabic font optimizations */
+  .arabic {
+    font-family: var(--font-arabic), sans-serif;
+    font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+    text-rendering: optimizeLegibility;
+    line-height: 1.7;
+  }
+
+  .english {
+    font-family: var(--font-sans), sans-serif;
+    font-feature-settings: "kern" 1, "liga" 1;
+    text-rendering: optimizeLegibility;
+    line-height: 1.6;
+  }
+
+  /* RTL-aware animations */
+  @keyframes slideInRight {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideInLeft {
+    from {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  [dir="rtl"] .animate-slide-in-left {
+    animation: slideInRight 0.3s ease-out;
+  }
+
+  [dir="rtl"] .animate-slide-in-right {
+    animation: slideInLeft 0.3s ease-out;
+  }
+
+  [dir="ltr"] .animate-slide-in-left {
+    animation: slideInLeft 0.3s ease-out;
+  }
+
+  [dir="ltr"] .animate-slide-in-right {
+    animation: slideInRight 0.3s ease-out;
+  }
+}

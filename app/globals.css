@@ -1,0 +1,859 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@theme {
+  /* ATP brand colors - strategic gold usage */
+  --color-atp-gold: #d4af37;
+  --color-atp-black: #000000;
+  --color-atp-charcoal: #1a1a1a;
+  --color-atp-white: #ffffff;
+  --color-atp-off-white: #fafafa;
+  --color-atp-light-gray: #f5f5f5;
+  
+  /* Shadcn/UI colors */
+  --color-background: #ffffff;
+  --color-foreground: #000000;
+  --color-card: #ffffff;
+  --color-card-foreground: #000000;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #000000;
+  --color-primary: #000000;
+  --color-primary-foreground: #ffffff;
+  --color-secondary: #fafafa;
+  --color-secondary-foreground: #000000;
+  --color-muted: #f5f5f5;
+  --color-muted-foreground: #1a1a1a;
+  --color-accent: #fafafa;
+  --color-accent-foreground: #000000;
+  --color-destructive: #dc2626;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #f5f5f5;
+  --color-input: #f5f5f5;
+  --color-ring: #000000;
+  
+  /* Font families */
+  --font-family-sans: var(--font-inter), system-ui, sans-serif;
+  --font-family-serif: var(--font-cairo), serif;
+  
+  /* Custom breakpoint */
+  --breakpoint-3xl: 1920px;
+  
+  /* Border radius */
+  --radius: 0.5rem;
+  
+  /* Animation timing tokens */
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+  --duration-slower: 600ms;
+  
+  /* Easing curves */
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  
+  /* Fluid typography scale */
+  --font-size-fluid-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+  --font-size-fluid-sm: clamp(0.875rem, 0.8rem + 0.25vw, 1rem);
+  --font-size-fluid-base: clamp(1rem, 0.9rem + 0.5vw, 1.125rem);
+  --font-size-fluid-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+  --font-size-fluid-xl: clamp(1.5rem, 1.2rem + 1.5vw, 2.5rem);
+  --font-size-fluid-2xl: clamp(2rem, 1.5rem + 2.5vw, 4rem);
+  --font-size-fluid-3xl: clamp(2.5rem, 2rem + 3vw, 5rem);
+  
+  /* Shadow tokens for elevation */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-hover: 0 25px 50px -12px rgb(0 0 0 / 0.15);
+  --shadow-glow: 0 0 20px rgb(212 175 55 / 0.3);
+}
+
+@variant dark (&:is(.dark *));
+
+/* Define group utilities for Tailwind v4 */
+@utility group {
+  position: relative;
+}
+
+@utility group-hover {
+  .group:hover &;
+}
+
+:root {
+  /* Updated to premium monochromatic color scheme with strategic gold */
+  --background: #ffffff;
+  --foreground: #000000;
+  --card: #ffffff;
+  --card-foreground: #000000;
+  --popover: #ffffff;
+  --popover-foreground: #000000;
+  --primary: #000000;
+  --primary-foreground: #ffffff;
+  --secondary: #fafafa;
+  --secondary-foreground: #000000;
+  --muted: #f5f5f5;
+  --muted-foreground: #1a1a1a;
+  --accent: #fafafa;
+  --accent-foreground: #000000;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #f5f5f5;
+  --input: #f5f5f5;
+  --ring: #000000;
+  --chart-1: #000000;
+  --chart-2: #1a1a1a;
+  --chart-3: #f5f5f5;
+  --chart-4: #fafafa;
+  --chart-5: #d4af37;
+  --radius: 0.5rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #000000;
+  --sidebar-primary: #000000;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #fafafa;
+  --sidebar-accent-foreground: #000000;
+  --sidebar-border: #f5f5f5;
+  --sidebar-ring: #000000;
+}
+
+.dark {
+  /* Dark mode with inverted monochromatic scheme */
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #1a1a1a;
+  --card-foreground: #ffffff;
+  --popover: #1a1a1a;
+  --popover-foreground: #ffffff;
+  --primary: #ffffff;
+  --primary-foreground: #000000;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #ffffff;
+  --muted: #1a1a1a;
+  --muted-foreground: #f5f5f5;
+  --accent: #1a1a1a;
+  --accent-foreground: #ffffff;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #1a1a1a;
+  --input: #1a1a1a;
+  --ring: #ffffff;
+  --chart-1: #ffffff;
+  --chart-2: #f5f5f5;
+  --chart-3: #1a1a1a;
+  --chart-4: #d4af37;
+  --chart-5: #fafafa;
+  --sidebar: #000000;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #ffffff;
+  --sidebar-primary-foreground: #000000;
+  --sidebar-accent: #1a1a1a;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #1a1a1a;
+  --sidebar-ring: #ffffff;
+}
+
+/* Removed @theme inline as it's now handled by the @theme directive above */
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+    /* Added premium typography and smooth scrolling */
+    font-feature-settings: "kern" 1, "liga" 1;
+    scroll-behavior: smooth;
+    /* Mobile optimizations */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Improved focus indicators for accessibility */
+  :focus-visible {
+    outline: 2px solid var(--atp-gold);
+    outline-offset: 2px;
+  }
+
+  /* Remove focus outline on click, keep for keyboard navigation */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* Enhanced focus for interactive elements */
+  a:focus-visible,
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid var(--atp-gold);
+    outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgba(212, 175, 55, 0.2);
+  }
+
+  /* Premium typography hierarchy */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-bold tracking-tight;
+    font-feature-settings: "kern" 1, "liga" 1;
+  }
+
+  h1 {
+    @apply text-4xl md:text-6xl lg:text-7xl;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl lg:text-5xl;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl;
+  }
+
+  /* Premium selection styling */
+  ::selection {
+    @apply bg-atp-gold/20 text-foreground;
+  }
+}
+
+/* ATP luxury utility classes for premium design elements */
+@utility text-atp-gold {
+  color: var(--color-atp-gold);
+}
+
+@utility bg-atp-gold {
+  background-color: var(--color-atp-gold);
+}
+
+@utility border-atp-gold {
+  border-color: var(--color-atp-gold);
+}
+
+@utility text-atp-black {
+  color: var(--color-atp-black);
+}
+
+@utility bg-atp-black {
+  background-color: var(--color-atp-black);
+}
+
+@utility text-atp-charcoal {
+  color: var(--color-atp-charcoal);
+}
+
+@utility bg-atp-charcoal {
+  background-color: var(--color-atp-charcoal);
+}
+
+@utility text-atp-white {
+  color: var(--color-atp-white);
+}
+
+@utility bg-atp-white {
+  background-color: var(--color-atp-white);
+}
+
+@utility bg-atp-off-white {
+  background-color: var(--color-atp-off-white);
+}
+
+@utility bg-atp-light-gray {
+  background-color: var(--color-atp-light-gray);
+}
+
+/* Premium component styles */
+@utility btn-premium {
+  background-color: var(--color-atp-black);
+  color: var(--color-atp-white);
+  border: 2px solid var(--color-atp-black);
+  padding: 0.75rem 2rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  transition: color 0.3s, background-color 0.3s, border-color 0.3s;
+}
+
+@utility btn-premium-outline {
+  background-color: transparent;
+  color: var(--color-atp-black);
+  border: 2px solid var(--color-atp-black);
+  padding: 0.75rem 2rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  transition: color 0.3s, background-color 0.3s, border-color 0.3s;
+}
+
+@utility btn-atp-gold {
+  background-color: var(--color-atp-gold);
+  color: var(--color-atp-black);
+  border: 2px solid var(--color-atp-gold);
+  padding: 0.75rem 2rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  transition: color 0.3s, background-color 0.3s, border-color 0.3s;
+}
+
+@utility card-premium {
+  background-color: var(--color-atp-white);
+  border: 1px solid var(--color-atp-light-gray);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+}
+
+/* Card hover effect - lift and shadow */
+@utility card-hover {
+  transition: transform var(--duration-normal) var(--ease-smooth),
+              box-shadow var(--duration-normal) var(--ease-smooth);
+  
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-hover);
+  }
+}
+
+/* Interactive scale effects */
+@utility hover-scale {
+  transition: transform var(--duration-fast) var(--ease-smooth);
+  
+  &:hover {
+    transform: scale(1.02);
+  }
+  
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+/* Fluid typography utilities */
+@utility text-fluid-xs {
+  font-size: var(--font-size-fluid-xs);
+}
+
+@utility text-fluid-sm {
+  font-size: var(--font-size-fluid-sm);
+}
+
+@utility text-fluid-base {
+  font-size: var(--font-size-fluid-base);
+}
+
+@utility text-fluid-lg {
+  font-size: var(--font-size-fluid-lg);
+}
+
+@utility text-fluid-xl {
+  font-size: var(--font-size-fluid-xl);
+}
+
+@utility text-fluid-2xl {
+  font-size: var(--font-size-fluid-2xl);
+}
+
+@utility text-fluid-3xl {
+  font-size: var(--font-size-fluid-3xl);
+}
+
+/* Animation duration utilities */
+@utility duration-fast {
+  transition-duration: var(--duration-fast);
+}
+
+@utility duration-normal {
+  transition-duration: var(--duration-normal);
+}
+
+@utility duration-slow {
+  transition-duration: var(--duration-slow);
+}
+
+@utility duration-slower {
+  transition-duration: var(--duration-slower);
+}
+
+/* Easing utilities */
+@utility ease-spring {
+  transition-timing-function: var(--ease-spring);
+}
+
+@utility ease-smooth {
+  transition-timing-function: var(--ease-smooth);
+}
+
+@utility ease-out-expo {
+  transition-timing-function: var(--ease-out-expo);
+}
+
+/* Shadow utilities */
+@utility shadow-hover {
+  box-shadow: var(--shadow-hover);
+}
+
+@utility shadow-glow {
+  box-shadow: var(--shadow-glow);
+}
+
+/* Image hover zoom effect */
+@utility img-zoom {
+  overflow: hidden;
+  
+  img {
+    transition: transform var(--duration-slow) var(--ease-smooth);
+  }
+  
+  &:hover img {
+    transform: scale(1.05);
+  }
+}
+
+@utility section-padding {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+}
+
+@utility container-premium {
+  max-width: 80rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* Premium animations and transitions */
+@layer components {
+  .fade-in-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+  }
+
+  .fade-in-left {
+    animation: fadeInLeft 0.8s ease-out forwards;
+  }
+
+  .fade-in-right {
+    animation: fadeInRight 0.8s ease-out forwards;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Mobile-first responsive utilities - now handled by Tailwind plugin */
+
+/* Mobile-specific animations and keyframes */
+@keyframes mobileSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile-specific component styles */
+@layer components {
+  .mobile-fade-in {
+    animation: mobileSlideUp 0.6s ease-out forwards;
+  }
+  
+  .mobile-tap-highlight {
+    -webkit-tap-highlight-color: rgba(212, 175, 55, 0.2);
+  }
+}
+
+/* Mobile-specific media queries */
+@media (max-width: 640px) {
+  /* Ensure proper spacing on small screens */
+  .container {
+    @apply px-4;
+  }
+  
+  /* Mobile-optimized text scaling */
+  html {
+    font-size: 16px; /* Ensure minimum readable size */
+  }
+  
+  /* Mobile navigation improvements */
+  .navbar {
+    @apply py-3;
+  }
+  
+  /* Mobile hero adjustments */
+  .hero-title {
+    @apply text-3xl leading-tight;
+  }
+  
+  .hero-subtitle {
+    @apply text-base leading-relaxed;
+  }
+  
+  /* Mobile button adjustments */
+  .btn-group {
+    @apply flex-col space-y-3 space-x-0;
+  }
+  
+  /* Mobile card grid */
+  .product-grid {
+    @apply grid-cols-1 gap-4;
+  }
+}
+
+/* Tablet-specific optimizations */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .product-grid {
+    @apply grid-cols-2 gap-6;
+  }
+  
+  .hero-title {
+    @apply text-5xl;
+  }
+  
+  .hero-subtitle {
+    @apply text-lg;
+  }
+}
+
+/* High-DPI display optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .logo img,
+  .product-image img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Dark mode mobile optimizations */
+@media (prefers-color-scheme: dark) {
+  .mobile-card {
+    @apply bg-gray-900 border-gray-800;
+  }
+  
+  .mobile-input {
+    @apply bg-gray-800 border-gray-700 text-white;
+  }
+}
+
+/* RTL Support for Membership Components - using standard CSS for RTL */
+[dir="rtl"] .rtl-mr-auto {
+  margin-right: auto;
+}
+
+[dir="rtl"] .rtl-ml-auto {
+  margin-left: auto;
+}
+
+[dir="rtl"] .rtl-text-right {
+  text-align: right;
+}
+
+[dir="rtl"] .rtl-text-left {
+  text-align: left;
+}
+
+[dir="rtl"] .rtl-flex-row-reverse {
+  flex-direction: row-reverse;
+}
+
+[dir="rtl"] .rtl-right-0 {
+  right: 0;
+}
+
+[dir="rtl"] .rtl-left-0 {
+  left: 0;
+}
+
+/* RTL spacing utilities */
+[dir="rtl"] .rtl\:space-x-reverse > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 1;
+}
+
+[dir="rtl"] .rtl\:mr-0 {
+  margin-right: 0;
+}
+
+[dir="rtl"] .rtl\:ml-auto {
+  margin-left: auto;
+}
+
+/* ============================================
+   ACCESSIBILITY IMPROVEMENTS
+   ============================================ */
+
+/* Touch target size - minimum 44x44px per WCAG 2.1 */
+@utility touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Focus visible improvements for keyboard navigation */
+@layer base {
+  *:focus-visible {
+    outline: 2px solid var(--color-atp-gold);
+    outline-offset: 2px;
+  }
+
+  /* Remove default focus for mouse users */
+  *:focus:not(:focus-visible) {
+    outline: none;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .animate-pulse,
+  .animate-spin,
+  .animate-bounce {
+    animation: none !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --color-atp-gold: #ffd700;
+    --border: #000000;
+    --ring: #ffd700;
+  }
+  
+  .btn-premium,
+  .btn-atp-gold {
+    border-width: 3px;
+  }
+}
+
+/* Screen reader only utility */
+@utility sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Visible on focus (for skip links) */
+@utility focus-visible-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.focus-visible-only:focus-visible {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 0.5rem 1rem;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* RTL-specific membership component styles */
+@layer components {
+  /* Membership card RTL support */
+  .membership-card {
+    @apply transition-all duration-300;
+  }
+  
+  [dir="rtl"] .membership-card {
+    @apply text-right;
+  }
+  
+  [dir="ltr"] .membership-card {
+    @apply text-left;
+  }
+  
+  /* Membership pricing RTL support */
+  .membership-pricing {
+    @apply flex items-center gap-2;
+  }
+  
+  [dir="rtl"] .membership-pricing {
+    @apply flex-row-reverse;
+  }
+  
+  /* Membership badge RTL support */
+  .membership-badge {
+    @apply inline-flex items-center gap-1;
+  }
+  
+  [dir="rtl"] .membership-badge {
+    @apply flex-row-reverse;
+  }
+  
+  /* Membership dashboard RTL support */
+  .membership-dashboard-grid {
+    @apply grid gap-6;
+  }
+  
+  [dir="rtl"] .membership-dashboard-grid .stat-card {
+    @apply text-right;
+  }
+  
+  [dir="ltr"] .membership-dashboard-grid .stat-card {
+    @apply text-left;
+  }
+  
+  /* Membership form RTL support */
+  .membership-form {
+    @apply space-y-4;
+  }
+  
+  [dir="rtl"] .membership-form .form-group {
+    @apply text-right;
+  }
+  
+  [dir="ltr"] .membership-form .form-group {
+    @apply text-left;
+  }
+  
+  /* Membership benefits list RTL support */
+  .membership-benefits-list {
+    @apply space-y-3;
+  }
+  
+  [dir="rtl"] .membership-benefits-list .benefit-item {
+    @apply flex-row-reverse text-right;
+  }
+  
+  [dir="ltr"] .membership-benefits-list .benefit-item {
+    @apply flex-row text-left;
+  }
+  
+  /* Membership renewal RTL support */
+  .membership-renewal {
+    @apply space-y-4;
+  }
+  
+  [dir="rtl"] .membership-renewal .renewal-actions {
+    @apply flex-row-reverse;
+  }
+  
+  [dir="ltr"] .membership-renewal .renewal-actions {
+    @apply flex-row;
+  }
+  
+  /* Arabic font optimization for membership content */
+  [dir="rtl"] .membership-content {
+    font-family: var(--font-cairo), system-ui, sans-serif;
+    line-height: 1.7;
+    letter-spacing: 0.01em;
+  }
+  
+  [dir="ltr"] .membership-content {
+    font-family: var(--font-inter), system-ui, sans-serif;
+    line-height: 1.6;
+    letter-spacing: -0.01em;
+  }
+  
+  /* Currency display RTL support */
+  .currency-display {
+    @apply inline-flex items-center gap-1;
+  }
+  
+  [dir="rtl"] .currency-display {
+    @apply flex-row-reverse;
+  }
+  
+  /* Membership status indicator RTL support */
+  .membership-status {
+    @apply inline-flex items-center gap-2;
+  }
+  
+  [dir="rtl"] .membership-status {
+    @apply flex-row-reverse;
+  }
+}
+
+/* Arabic numeral support for membership pricing */
+@utility arabic-numerals {
+  font-variant-numeric: normal;
+  font-feature-settings: "tnum" 0;
+}
+
+/* Shake animation for form validation errors */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .mobile-fade-in,
+  .fade-in-up,
+  .animate-shake,
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

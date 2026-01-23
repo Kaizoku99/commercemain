@@ -1,0 +1,211 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import { m, AnimatePresence } from "framer-motion";
+import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
+import {
+  STORE_PAYMENT_METHODS,
+  getPaymentMethodsByLocale,
+  type PaymentMethodConfig,
+} from "@/lib/shopify/payment-methods-config";
+
+interface PaymentMethodsProps {
+  className?: string;
+}
+
+export default function PaymentMethods({
+  className = "",
+}: PaymentMethodsProps) {
+  const locale = useLocale();
+  const isRTL = locale === 'ar';
+  const t = useTranslations('common');
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethodConfig[]>(
+    []
+  );
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Define translated messages
+  const paymentMethodsText = t('weAccept');
+  const paymentUnavailableText = t('paymentUnavailable');
+  const cachedMethodsText = t('cachedPaymentMethods');
+
+  useEffect(() => {
+    async function fetchPaymentMethods() {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const response = await fetch(`/api/payment-methods?locale=${locale}`);
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch payment methods");
+        }
+
+        const data = await response.json();
+        setPaymentMethods(data.paymentMethods || []);
+      } catch (err) {
+        console.error("Error fetching payment methods:", err);
+        setError("Failed to load payment methods");
+
+        // Fallback to your store's payment methods filtered by locale
+        setPaymentMethods(getPaymentMethodsByLocale(locale));
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchPaymentMethods();
+  }, [locale]);
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+      },
+    },
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20, scale: 0.9 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: 0.3,
+        ease: [0.4, 0, 0.2, 1] as const, // easeOut as cubic bezier tuple
+      },
+    },
+  };
+
+  if (isLoading) {
+    return (
+      <div className={className}>
+        <h4 className="text-sm font-medium text-neutral-400 mb-4 text-center">
+          {paymentMethodsText}
+        </h4>
+        <div
+          className={`flex flex-wrap gap-3 justify-center ${isRTL ? "flex-row-reverse" : ""
+            }`}
+        >
+          {Array.from({ length: 6 }).map((_, index) => (
+            <div
+              key={index}
+              className="bg-neutral-700 rounded-md animate-pulse w-12 h-8"
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error && paymentMethods.length === 0) {
+    return (
+      <div className={className}>
+        <h4 className="text-sm font-medium text-neutral-400 mb-4 text-center">
+          {paymentMethodsText}
+        </h4>
+        <p className="text-xs text-neutral-500 text-center">
+          {paymentUnavailableText}
+        </p>
+      </div>
+    );
+  }
+
+  // Helper to check if URL is external (CDN) or data URL
+  const isExternalUrl = (url: string) => url.startsWith('http://') || url.startsWith('https://');
+
+  return (
+    <div className={className}>
+      <h4 className="text-sm font-medium text-neutral-400 mb-4 text-center">
+        {paymentMethodsText}
+      </h4>
+      <AnimatePresence>
+        <m.div
+          className={`flex flex-wrap gap-2.5 justify-center items-center ${isRTL ? "flex-row-reverse" : ""
+            }`}
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {paymentMethods
+            .filter((method) => method.enabled && method.logo)
+            .map((method, index) => (
+              <m.div
+                key={`${method.name}-${index}`}
+                className="bg-white rounded-md p-1.5 flex items-center justify-center w-12 h-8 hover:scale-105 transition-transform duration-200"
+                variants={itemVariants}
+                whileHover={{ scale: 1.08 }}
+                whileTap={{ scale: 0.95 }}
+                data-payment-method={method.name}
+              >
+                {isExternalUrl(method.logo) ? (
+                  <img
+                    src={method.logo}
+                    alt={method.name}
+                    className="object-contain w-8 h-5"
+                    loading="lazy"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      const container = target.closest(
+                        "[data-payment-method]"
+                      ) as HTMLElement;
+                      if (container) {
+                        container.style.display = "none";
+                      }
+                    }}
+                  />
+                ) : method.logo.startsWith('data:') ? (
+                  <img
+                    src={method.logo}
+                    alt={method.name}
+                    className="object-contain w-8 h-5"
+                    loading="lazy"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      const container = target.closest(
+                        "[data-payment-method]"
+                      ) as HTMLElement;
+                      if (container) {
+                        container.style.display = "none";
+                      }
+                    }}
+                  />
+                ) : (
+                  <Image
+                    src={method.logo}
+                    alt={method.name}
+                    width={32}
+                    height={20}
+                    className="object-contain w-8 h-5"
+                    loading="lazy"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      const container = target.closest(
+                        "[data-payment-method]"
+                      ) as HTMLElement;
+                      if (container) {
+                        container.style.display = "none";
+                      }
+                    }}
+                  />
+                )}
+              </m.div>
+            ))}
+        </m.div>
+      </AnimatePresence>
+
+      {error && (
+        <p className="text-xs text-neutral-500 text-center mt-2">
+          {cachedMethodsText}
+        </p>
+      )}
+    </div>
+  );
+}

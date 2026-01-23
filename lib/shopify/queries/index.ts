@@ -1,0 +1,710 @@
+export const createCartMutation = `
+  mutation cartCreate {
+    cartCreate {
+      cart {
+        id
+        checkoutUrl
+        cost {
+          totalAmount {
+            amount
+            currencyCode
+          }
+          subtotalAmount {
+            amount
+            currencyCode
+          }
+        }
+        lines(first: 100) {
+          edges {
+            node {
+              id
+              quantity
+              cost {
+                totalAmount {
+                  amount
+                  currencyCode
+                }
+              }
+              merchandise {
+                ... on ProductVariant {
+                  id
+                  title
+                  selectedOptions {
+                    name
+                    value
+                  }
+                  product {
+                    id
+                    handle
+                    title
+                    featuredImage {
+                      id
+                      altText
+                      url
+                      width
+                      height
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        totalQuantity
+      }
+    }
+  }
+`
+
+export const addToCartMutation = `
+  mutation cartLinesAdd($cartId: ID!, $lines: [CartLineInput!]!) {
+    cartLinesAdd(cartId: $cartId, lines: $lines) {
+      cart {
+        id
+        checkoutUrl
+        cost {
+          totalAmount {
+            amount
+            currencyCode
+          }
+          subtotalAmount {
+            amount
+            currencyCode
+          }
+        }
+        lines(first: 100) {
+          edges {
+            node {
+              id
+              quantity
+              cost {
+                totalAmount {
+                  amount
+                  currencyCode
+                }
+              }
+              merchandise {
+                ... on ProductVariant {
+                  id
+                  title
+                  selectedOptions {
+                    name
+                    value
+                  }
+                  product {
+                    id
+                    handle
+                    title
+                    featuredImage {
+                      id
+                      altText
+                      url
+                      width
+                      height
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        totalQuantity
+      }
+    }
+  }
+`
+
+export const removeFromCartMutation = `
+  mutation cartLinesRemove($cartId: ID!, $lineIds: [ID!]!) {
+    cartLinesRemove(cartId: $cartId, lineIds: $lineIds) {
+      cart {
+        id
+        checkoutUrl
+        cost {
+          totalAmount {
+            amount
+            currencyCode
+          }
+          subtotalAmount {
+            amount
+            currencyCode
+          }
+        }
+        lines(first: 100) {
+          edges {
+            node {
+              id
+              quantity
+              cost {
+                totalAmount {
+                  amount
+                  currencyCode
+                }
+              }
+              merchandise {
+                ... on ProductVariant {
+                  id
+                  title
+                  selectedOptions {
+                    name
+                    value
+                  }
+                  product {
+                    id
+                    handle
+                    title
+                    featuredImage {
+                      id
+                      altText
+                      url
+                      width
+                      height
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        totalQuantity
+      }
+    }
+  }
+`
+
+export const editCartItemsMutation = `
+  mutation cartLinesUpdate($cartId: ID!, $lines: [CartLineUpdateInput!]!) {
+    cartLinesUpdate(cartId: $cartId, lines: $lines) {
+      cart {
+        id
+        checkoutUrl
+        cost {
+          totalAmount {
+            amount
+            currencyCode
+          }
+          subtotalAmount {
+            amount
+            currencyCode
+          }
+        }
+        lines(first: 100) {
+          edges {
+            node {
+              id
+              quantity
+              cost {
+                totalAmount {
+                  amount
+                  currencyCode
+                }
+              }
+              merchandise {
+                ... on ProductVariant {
+                  id
+                  title
+                  selectedOptions {
+                    name
+                    value
+                  }
+                  product {
+                    id
+                    handle
+                    title
+                    featuredImage {
+                      id
+                      altText
+                      url
+                      width
+                      height
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+        totalQuantity
+      }
+    }
+  }
+`
+
+export const getCartQuery = `
+  query getCart($cartId: ID!) {
+    cart(id: $cartId) {
+      id
+      checkoutUrl
+      cost {
+        totalAmount {
+          amount
+          currencyCode
+        }
+        subtotalAmount {
+          amount
+          currencyCode
+        }
+      }
+      lines(first: 100) {
+        edges {
+          node {
+            id
+            quantity
+            cost {
+              totalAmount {
+                amount
+                currencyCode
+              }
+            }
+            merchandise {
+              ... on ProductVariant {
+                id
+                title
+                selectedOptions {
+                  name
+                  value
+                }
+                product {
+                  id
+                  handle
+                  title
+                  featuredImage {
+                    id
+                    altText
+                    url
+                    width
+                    height
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      totalQuantity
+    }
+  }
+`
+
+export const getCollectionQuery = `
+  query getCollection($handle: String!, $language: LanguageCode, $country: CountryCode) @inContext(language: $language, country: $country) {
+    collection(handle: $handle) {
+      id
+      handle
+      title
+      description
+      seo {
+        description
+        title
+      }
+      updatedAt
+    }
+  }
+`
+
+export const getCollectionProductsQuery = `
+  query getCollectionProducts(
+    $handle: String!
+    $sortKey: ProductCollectionSortKeys
+    $reverse: Boolean
+    $language: LanguageCode
+    $country: CountryCode
+  ) @inContext(language: $language, country: $country) {
+    collection(handle: $handle) {
+      products(first: 100, sortKey: $sortKey, reverse: $reverse) {
+        edges {
+          node {
+            id
+            handle
+            title
+            description
+            tags
+            priceRange {
+              maxVariantPrice {
+                amount
+                currencyCode
+              }
+              minVariantPrice {
+                amount
+                currencyCode
+              }
+            }
+            compareAtPriceRange {
+              maxVariantPrice {
+                amount
+                currencyCode
+              }
+              minVariantPrice {
+                amount
+                currencyCode
+              }
+            }
+            featuredImage {
+              id
+              altText
+              url
+              width
+              height
+            }
+            images(first: 20) {
+              edges {
+                node {
+                  id
+                  altText
+                  url
+                  width
+                  height
+                }
+              }
+            }
+            variants(first: 250) {
+              edges {
+                node {
+                  id
+                  title
+                  availableForSale
+                  selectedOptions {
+                    name
+                    value
+                  }
+                  price {
+                    amount
+                    currencyCode
+                  }
+                  compareAtPrice {
+                    amount
+                    currencyCode
+                  }
+                }
+              }
+            }
+            # Fetch translations for multilingual support
+            translations(locales: ["ar", "en"]) {
+              key
+              value
+              locale
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
+export const getCollectionsQuery = `
+  query getCollections($language: LanguageCode, $country: CountryCode) @inContext(language: $language, country: $country) {
+    collections(first: 100, sortKey: TITLE) {
+      edges {
+        node {
+          id
+          handle
+          title
+          description
+          seo {
+            description
+            title
+          }
+          updatedAt
+        }
+      }
+    }
+  }
+`
+
+export const getMenuQuery = `
+  query getMenu($handle: String!) {
+    menu(handle: $handle) {
+      items {
+        title
+        url
+      }
+    }
+  }
+`
+
+export const getPageQuery = `
+  query getPage($handle: String!) {
+    pageByHandle(handle: $handle) {
+      id
+      title
+      handle
+      body
+      bodySummary
+      seo {
+        description
+        title
+      }
+      createdAt
+      updatedAt
+    }
+  }
+`
+
+export const getPagesQuery = `
+  query getPages {
+    pages(first: 100) {
+      edges {
+        node {
+          id
+          title
+          handle
+          bodySummary
+          createdAt
+          updatedAt
+        }
+      }
+    }
+  }
+`
+
+export const getProductQuery = `
+  query getProduct($handle: String!, $language: LanguageCode, $country: CountryCode) @inContext(language: $language, country: $country) {
+    product(handle: $handle) {
+      id
+      handle
+      title
+      description
+      descriptionHtml
+      tags
+      priceRange {
+        maxVariantPrice {
+          amount
+          currencyCode
+        }
+        minVariantPrice {
+          amount
+          currencyCode
+        }
+      }
+      compareAtPriceRange {
+        maxVariantPrice {
+          amount
+          currencyCode
+        }
+        minVariantPrice {
+          amount
+          currencyCode
+        }
+      }
+      featuredImage {
+        id
+        altText
+        url
+        width
+        height
+      }
+      images(first: 20) {
+        edges {
+          node {
+            id
+            altText
+            url
+            width
+            height
+          }
+        }
+      }
+      variants(first: 250) {
+        edges {
+          node {
+            id
+            title
+            availableForSale
+            selectedOptions {
+              name
+              value
+            }
+            price {
+              amount
+              currencyCode
+            }
+            compareAtPrice {
+              amount
+              currencyCode
+            }
+          }
+        }
+      }
+      seo {
+        description
+        title
+      }
+      updatedAt
+      createdAt
+      # Fetch translations for multilingual support
+      translations(locales: ["ar", "en"]) {
+        key
+        value
+        locale
+      }
+      # Arabic metafield fallbacks
+      titleAr: metafield(namespace: "i18n", key: "title_ar") {
+        value
+      }
+      descriptionAr: metafield(namespace: "i18n", key: "description_ar") {
+        value
+      }
+      descriptionHtmlAr: metafield(namespace: "i18n", key: "description_html_ar") {
+        value
+      }
+    }
+  }
+`
+
+export const getProductRecommendationsQuery = `
+  query getProductRecommendations($productId: ID!, $language: LanguageCode, $country: CountryCode) @inContext(language: $language, country: $country) {
+    productRecommendations(productId: $productId) {
+      id
+      handle
+      title
+      description
+      tags
+      priceRange {
+        maxVariantPrice {
+          amount
+          currencyCode
+        }
+        minVariantPrice {
+          amount
+          currencyCode
+        }
+      }
+      compareAtPriceRange {
+        maxVariantPrice {
+          amount
+          currencyCode
+        }
+        minVariantPrice {
+          amount
+          currencyCode
+        }
+      }
+      featuredImage {
+        id
+        altText
+        url
+        width
+        height
+      }
+      images(first: 20) {
+        edges {
+          node {
+            id
+            altText
+            url
+            width
+            height
+          }
+        }
+      }
+      variants(first: 250) {
+        edges {
+          node {
+            id
+            title
+            availableForSale
+            selectedOptions {
+              name
+              value
+            }
+            price {
+              amount
+              currencyCode
+            }
+            compareAtPrice {
+              amount
+              currencyCode
+            }
+          }
+        }
+      }
+      # Fetch translations for multilingual support
+      translations(locales: ["ar", "en"]) {
+        key
+        value
+        locale
+      }
+    }
+  }
+`
+
+export const getProductsQuery = `
+  query getProducts($sortKey: ProductSortKeys, $reverse: Boolean, $query: String, $language: LanguageCode, $country: CountryCode) @inContext(language: $language, country: $country) {
+    products(first: 100, sortKey: $sortKey, reverse: $reverse, query: $query) {
+      edges {
+        node {
+          id
+          handle
+          title
+          description
+          tags
+          priceRange {
+            maxVariantPrice {
+              amount
+              currencyCode
+            }
+            minVariantPrice {
+              amount
+              currencyCode
+            }
+          }
+          compareAtPriceRange {
+            maxVariantPrice {
+              amount
+              currencyCode
+            }
+            minVariantPrice {
+              amount
+              currencyCode
+            }
+          }
+          featuredImage {
+            id
+            altText
+            url
+            width
+            height
+          }
+          images(first: 20) {
+            edges {
+              node {
+                id
+                altText
+                url
+                width
+                height
+              }
+            }
+          }
+          variants(first: 250) {
+            edges {
+              node {
+                id
+                title
+                availableForSale
+                selectedOptions {
+                  name
+                  value
+                }
+                price {
+                  amount
+                  currencyCode
+                }
+                compareAtPrice {
+                  amount
+                  currencyCode
+                }
+              }
+            }
+          }
+          # Fetch translations for multilingual support
+          translations(locales: ["ar", "en"]) {
+            key
+            value
+            locale
+          }
+        }
+      }
+    }
+  }
+`
