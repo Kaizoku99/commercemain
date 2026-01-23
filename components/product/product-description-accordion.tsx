@@ -235,7 +235,7 @@ export function ProductDescriptionAccordion({
                     <AccordionItem
                         key={section.id}
                         value={section.id}
-                        className="border border-neutral-200 dark:border-neutral-700 rounded-xl mb-3 overflow-hidden bg-gradient-to-b from-white to-neutral-50 dark:from-neutral-900 dark:to-neutral-900/50 shadow-sm hover:shadow-md transition-shadow duration-200"
+                        className="border border-neutral-200 dark:border-neutral-200 rounded-xl mb-3 overflow-hidden bg-gradient-to-b from-white to-neutral-50 shadow-sm hover:shadow-md transition-shadow duration-200"
                     >
                         <AccordionTrigger
                             className={cn(
@@ -248,38 +248,38 @@ export function ProductDescriptionAccordion({
                                 "flex items-center gap-3",
                                 isRTL && "flex-row-reverse"
                             )}>
-                                <div className="p-2 rounded-lg bg-neutral-100 dark:bg-neutral-800">
+                                <div className="p-2 rounded-lg bg-neutral-100 dark:bg-neutral-100">
                                     {section.icon}
                                 </div>
-                                <span className="text-neutral-900 dark:text-neutral-100">{section.title}</span>
+                                <span className="text-neutral-900 dark:text-neutral-900">{section.title}</span>
                             </div>
                         </AccordionTrigger>
                         <AccordionContent className="px-5 pb-5 pt-0">
                             {/* Divider */}
-                            <div className="h-px bg-gradient-to-r from-transparent via-neutral-200 dark:via-neutral-700 to-transparent mb-4" />
+                            <div className="h-px bg-gradient-to-r from-transparent via-neutral-200 dark:via-neutral-200 to-transparent mb-4" />
 
                             {/* Content with enhanced typography */}
                             <div
                                 className={cn(
                                     // Base prose styling
-                                    "text-[15px] leading-[1.8] text-neutral-600 dark:text-neutral-400",
+                                    "text-[15px] leading-[1.8] text-neutral-600 dark:text-neutral-600",
 
                                     // Headings inside content
-                                    "[&_h1]:text-lg [&_h1]:font-bold [&_h1]:text-neutral-800 dark:[&_h1]:text-neutral-200 [&_h1]:mt-4 [&_h1]:mb-2",
-                                    "[&_h2]:text-base [&_h2]:font-semibold [&_h2]:text-neutral-700 dark:[&_h2]:text-neutral-300 [&_h2]:mt-3 [&_h2]:mb-2",
-                                    "[&_h3]:text-base [&_h3]:font-medium [&_h3]:text-neutral-700 dark:[&_h3]:text-neutral-300 [&_h3]:mt-2 [&_h3]:mb-1",
+                                    "[&_h1]:text-lg [&_h1]:font-bold [&_h1]:text-neutral-800 dark:[&_h1]:text-neutral-800 [&_h1]:mt-4 [&_h1]:mb-2",
+                                    "[&_h2]:text-base [&_h2]:font-semibold [&_h2]:text-neutral-700 dark:[&_h2]:text-neutral-700 [&_h2]:mt-3 [&_h2]:mb-2",
+                                    "[&_h3]:text-base [&_h3]:font-medium [&_h3]:text-neutral-700 dark:[&_h3]:text-neutral-700 [&_h3]:mt-2 [&_h3]:mb-1",
 
                                     // Paragraphs
                                     "[&_p]:mb-3 [&_p]:leading-relaxed",
 
                                     // Bold/strong text styling
-                                    "[&_strong]:font-semibold [&_strong]:text-neutral-800 dark:[&_strong]:text-neutral-200",
+                                    "[&_strong]:font-semibold [&_strong]:text-neutral-800 dark:[&_strong]:text-neutral-800",
 
                                     // Lists - styled bullets
                                     "[&_ul]:list-none [&_ul]:my-3 [&_ul]:space-y-2",
                                     "[&_ul>li]:relative [&_ul>li]:pl-5",
                                     "[&_ul>li]:before:content-['•'] [&_ul>li]:before:absolute [&_ul>li]:before:left-0 [&_ul>li]:before:text-amber-500 [&_ul>li]:before:font-bold",
-                                    "[&_li]:text-neutral-600 dark:[&_li]:text-neutral-400 [&_li]:leading-relaxed",
+                                    "[&_li]:text-neutral-600 dark:[&_li]:text-neutral-600 [&_li]:leading-relaxed",
 
                                     // Ordered lists
                                     "[&_ol]:list-decimal [&_ol]:my-3 [&_ol]:pl-5 [&_ol]:space-y-2",

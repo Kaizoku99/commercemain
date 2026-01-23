@@ -2,56 +2,79 @@
 
 import type React from "react";
 import clsx from "clsx";
-import { m, HTMLMotionProps } from "framer-motion";
+import { m, HTMLMotionProps, useReducedMotion } from "framer-motion";
+import { staggerFast, staggerItem, getAccessibleVariants, defaultViewport } from "@/lib/animations";
 
-function Grid(
-  props: HTMLMotionProps<"ul"> & { variant?: "default" | "luxury" }
-) {
-  const { variant = "luxury", ...restProps } = props;
+interface GridProps extends HTMLMotionProps<"ul"> {
+  /** Grid variant style */
+  variant?: "default" | "luxury" | "collection";
+  /** Number of columns on mobile (1 for single column, 2 for two columns) */
+  mobileColumns?: 1 | 2;
+  /** RTL layout support */
+  isRTL?: boolean;
+}
+
+function Grid(props: GridProps) {
+  const { 
+    variant = "luxury", 
+    mobileColumns = 1,
+    isRTL = false,
+    ...restProps 
+  } = props;
+  
+  const shouldReduceMotion = useReducedMotion();
 
   return (
     <m.ul
       {...restProps}
       className={clsx(
-        "grid gap-6",
+        "grid gap-4 md:gap-6",
         {
+          // Single column mobile (luxury/collection default)
           "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4":
-            variant === "luxury",
+            (variant === "luxury" || variant === "collection") && mobileColumns === 1,
+          // Two column mobile option
+          "grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4":
+            (variant === "luxury" || variant === "collection") && mobileColumns === 2,
+          // Default variant
           "grid-flow-row gap-4": variant === "default",
         },
         props.className
       )}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.6, staggerChildren: 0.1 }}
+      dir={isRTL ? "rtl" : "ltr"}
+      variants={staggerFast}
+      initial="hidden"
+      whileInView="visible"
+      viewport={defaultViewport}
     >
       {props.children}
     </m.ul>
   );
 }
 
-function GridItem(props: HTMLMotionProps<"li"> & { index?: number }) {
-  const { index = 0, ...restProps } = props;
+interface GridItemProps extends HTMLMotionProps<"li"> {
+  /** Item index for staggered animation delay */
+  index?: number;
+  /** Priority item (first 4) - gets reduced animation delay */
+  priority?: boolean;
+}
+
+function GridItem(props: GridItemProps) {
+  const { index = 0, priority = false, ...restProps } = props;
+  const shouldReduceMotion = useReducedMotion();
+
+  // Use simpler animation for reduced motion preference
+  const itemVariants = getAccessibleVariants(staggerItem, shouldReduceMotion);
 
   return (
     <m.li
       {...restProps}
       className={clsx(
-        "group relative overflow-hidden transition-all duration-500 ease-out",
-        "hover:scale-[1.02] hover:shadow-2xl hover:shadow-atp-black/10",
+        "group relative overflow-hidden transition-colors duration-300",
         props.className
       )}
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{
-        duration: 0.6,
-        delay: index * 0.1,
-        ease: "easeOut",
-      }}
-      whileHover={{
-        y: -8,
-        transition: { duration: 0.3, ease: "easeOut" },
-      }}
+      variants={itemVariants}
+      // Removed excessive hover animations - let individual cards handle their own
     >
       {props.children}
     </m.li>

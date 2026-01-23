@@ -41,12 +41,43 @@
 
   /* ATP-specific custom properties */
   --atp-gold: oklch(0.7 0.15 85);
+  --atp-gold-light: oklch(0.85 0.12 85);
+  --atp-gold-dark: oklch(0.55 0.18 85);
   --atp-black: oklch(0 0 0);
   --atp-white: oklch(1 0 0);
   --atp-gray-light: oklch(0.98 0 0);
   --atp-wellness-green: oklch(0.95 0.02 120);
-  --font-inter: "Inter", sans-serif;
-  --font-cairo: "Cairo", sans-serif;
+
+  /* Typography - New luxury font stack */
+  --font-display: "Cinzel", serif;
+  --font-sans: "DM Sans", sans-serif;
+  --font-arabic: "Tajawal", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* Fluid Typography Scale - Mobile-first responsive sizing */
+  --text-hero: clamp(2.25rem, 7vw, 5rem);
+  --text-display: clamp(1.875rem, 5vw, 3.5rem);
+  --text-heading: clamp(1.5rem, 3.5vw, 2.25rem);
+  --text-subheading: clamp(1.25rem, 2.5vw, 1.75rem);
+  --text-body-lg: clamp(1rem, 1.5vw, 1.125rem);
+  --text-body: clamp(0.875rem, 1.2vw, 1rem);
+  --text-small: clamp(0.75rem, 1vw, 0.875rem);
+  --text-caption: clamp(0.625rem, 0.8vw, 0.75rem);
+
+  /* Spacing Scale */
+  --space-xs: clamp(0.25rem, 0.5vw, 0.5rem);
+  --space-sm: clamp(0.5rem, 1vw, 0.75rem);
+  --space-md: clamp(1rem, 2vw, 1.5rem);
+  --space-lg: clamp(1.5rem, 3vw, 2.5rem);
+  --space-xl: clamp(2rem, 4vw, 4rem);
+  --space-2xl: clamp(3rem, 6vw, 6rem);
+
+  /* Animation Timing */
+  --ease-luxury: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 300ms;
+  --duration-slow: 500ms;
 }
 
 .dark {
@@ -125,13 +156,18 @@
 
   /* ATP custom color utilities */
   --color-atp-gold: var(--atp-gold);
+  --color-atp-gold-light: var(--atp-gold-light);
+  --color-atp-gold-dark: var(--atp-gold-dark);
   --color-atp-black: var(--atp-black);
   --color-atp-white: var(--atp-white);
   --color-atp-gray-light: var(--atp-gray-light);
   --color-atp-wellness-green: var(--atp-wellness-green);
-  --font-sans: var(--font-inter);
-  --font-arabic: var(--font-cairo);
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  
+  /* Font families */
+  --font-display: var(--font-display);
+  --font-sans: var(--font-sans);
+  --font-arabic: var(--font-arabic);
+  --font-mono: var(--font-mono);
 }
 
 @layer base {
@@ -164,6 +200,120 @@
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  /* ========================================
+     LUXURY TYPOGRAPHY SYSTEM
+     ======================================== */
+  
+  /* Display font for headings - Cinzel serif */
+  .font-display {
+    font-family: var(--font-display), serif;
+    font-feature-settings: "kern" 1, "liga" 1;
+    text-rendering: optimizeLegibility;
+    letter-spacing: 0.02em;
+  }
+
+  /* Body font - DM Sans */
+  .font-body {
+    font-family: var(--font-sans), sans-serif;
+    font-feature-settings: "kern" 1, "liga" 1;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Fluid typography utility classes */
+  .text-hero {
+    font-size: var(--text-hero);
+    line-height: 1.1;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .text-display {
+    font-size: var(--text-display);
+    line-height: 1.15;
+    font-weight: 500;
+    letter-spacing: 0.015em;
+  }
+
+  .text-heading {
+    font-size: var(--text-heading);
+    line-height: 1.25;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  .text-subheading {
+    font-size: var(--text-subheading);
+    line-height: 1.35;
+    font-weight: 500;
+  }
+
+  .text-body-lg {
+    font-size: var(--text-body-lg);
+    line-height: 1.6;
+  }
+
+  .text-body {
+    font-size: var(--text-body);
+    line-height: 1.6;
+  }
+
+  .text-small {
+    font-size: var(--text-small);
+    line-height: 1.5;
+  }
+
+  .text-caption {
+    font-size: var(--text-caption);
+    line-height: 1.4;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+
+  /* ========================================
+     SKELETON SHIMMER ANIMATION
+     ======================================== */
+  
+  @keyframes skeleton-shimmer {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+
+  .skeleton-atp {
+    background: linear-gradient(
+      90deg,
+      var(--atp-gray-light) 0%,
+      oklch(0.96 0.02 85) 50%,
+      var(--atp-gray-light) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.6s ease-in-out infinite;
+  }
+
+  /* Gold-tinted shimmer for premium feel */
+  .skeleton-gold {
+    background: linear-gradient(
+      90deg,
+      var(--atp-gray-light) 0%,
+      oklch(0.92 0.08 85) 50%,
+      var(--atp-gray-light) 100%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.8s ease-in-out infinite;
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton-atp,
+    .skeleton-gold {
+      animation: none;
+      background: var(--atp-gray-light);
+    }
   }
 
   /* RTL-specific utility classes and Arabic typography */

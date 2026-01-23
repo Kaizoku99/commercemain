@@ -72,7 +72,7 @@ export function ATPProductDescription({
     <QuantityProvider>
       <div className={isRTL ? "font-arabic" : ""}>
         <div
-          className={`mb-6 flex flex-col border-b pb-6 dark:border-neutral-700 ${isRTL ? "text-right" : ""
+          className={`mb-6 flex flex-col border-b border-atp-light-gray pb-6 ${isRTL ? "text-right" : ""
             }`}
         >
           <div
@@ -239,7 +239,7 @@ export function ATPProductDescription({
         </div>
 
         {/* Trust Badges - below Add to Cart */}
-        <div className="mb-6 border-b pb-6 dark:border-neutral-700">
+        <div className="mb-6 border-b border-atp-light-gray pb-6">
           <TrustBadges variant="horizontal" />
         </div>
 
@@ -262,7 +262,7 @@ export function ATPProductDescription({
         )}
 
         {/* Product Reviews - Social Proof Section */}
-        <div className="mt-8 pt-8 border-t dark:border-neutral-700">
+        <div className="mt-8 pt-8 border-t border-atp-light-gray">
           <ProductReviews
             productId={product.id}
             productTitle={localizedTitle}

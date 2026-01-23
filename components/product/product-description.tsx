@@ -11,14 +11,14 @@ export function ProductDescription({ product }: { product: Product }) {
 
   return (
     <QuantityProvider>
-      <div className="mb-6 flex flex-col border-b pb-6 dark:border-neutral-700">
+      <div className="mb-6 flex flex-col border-b border-atp-light-gray pb-6">
         <h1 className="mb-4 text-5xl font-medium">{product.title}</h1>
         <div className="mb-6">
           <div className="flex items-baseline gap-2">
             <Price
               amount={price.amount}
               currencyCode={price.currencyCode}
-              className="text-4xl font-bold text-gray-900 dark:text-white"
+              className="text-4xl font-bold text-foreground"
             />
             {product.priceRange.minVariantPrice.amount !==
               product.priceRange.maxVariantPrice.amount && (
@@ -27,7 +27,7 @@ export function ProductDescription({ product }: { product: Product }) {
                 <Price
                   amount={product.priceRange.minVariantPrice.amount}
                   currencyCode={product.priceRange.minVariantPrice.currencyCode}
-                  className="text-4xl font-bold text-gray-900 dark:text-white"
+                  className="text-4xl font-bold text-foreground"
                 />
               </>
             )}
@@ -58,7 +58,7 @@ export function ProductDescription({ product }: { product: Product }) {
       {/* Product Description */}
       {product.descriptionHtml ? (
         <Prose
-          className="mb-6 text-sm leading-tight dark:text-white/[60%]"
+          className="mb-6 text-sm leading-tight text-muted-foreground"
           html={product.descriptionHtml}
         />
       ) : null}

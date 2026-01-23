@@ -12,21 +12,32 @@ import Footer from "@/components/layout/footer";
 import { WelcomeToast } from "@/components/welcome-toast";
 import { getCart } from "@/lib/shopify/server";
 import { Toaster } from "sonner";
-import { Inter, Cairo } from "next/font/google";
+import { Cinzel, DM_Sans, Tajawal } from "next/font/google";
 import { StructuredData } from "@/components/structured-data";
 import { SkipToContentSimple } from "@/components/ui/skip-navigation";
 import { baseUrl } from "@/lib/utils";
 
-const inter = Inter({
+// Luxury display font for headings - elegant serif with refined character
+const cinzel = Cinzel({
   subsets: ["latin"],
   display: "swap",
-  variable: "--font-inter",
+  variable: "--font-display",
+  weight: ["400", "500", "600", "700"],
 });
 
-const cairo = Cairo({
+// Modern sans-serif for English body text - excellent readability
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-sans",
+});
+
+// Arabic-optimized font with excellent RTL support
+const tajawal = Tajawal({
   subsets: ["arabic", "latin"],
   display: "swap",
-  variable: "--font-cairo",
+  variable: "--font-arabic",
+  weight: ["300", "400", "500", "700"],
 });
 
 interface LocaleLayoutProps {
@@ -106,8 +117,9 @@ export default async function LocaleLayout({
       />
 
       <div
-        className={`bg-atp-white text-atp-black selection:bg-atp-gold/20 selection:text-atp-black ${isRTL ? "rtl arabic font-cairo" : "ltr english font-inter"
-          } ${inter.variable} ${cairo.variable}`}
+        className={`bg-atp-white text-atp-black selection:bg-atp-gold/20 selection:text-atp-black antialiased ${
+          isRTL ? "rtl arabic" : "ltr english"
+        } ${cinzel.variable} ${dmSans.variable} ${tajawal.variable}`}
         dir={isRTL ? 'rtl' : 'ltr'}
       >
         <NextIntlClientProvider messages={messages}>

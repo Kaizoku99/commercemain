@@ -2,9 +2,13 @@
 
 import Grid from "@/components/grid";
 import ProductGridItems from "@/components/layout/product-grid-items";
-import { motion } from "framer-motion";
+import CollectionHero from "@/components/collection/collection-hero";
+import CollectionStats from "@/components/collection/collection-stats";
+import { CollectionPageSkeleton } from "@/components/product/product-card-skeleton";
+import { m, useReducedMotion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import { staggerSlow, fadeInUp, getAccessibleVariants, defaultViewport } from "@/lib/animations";
 
 interface CollectionResultsProps {
   products: any[];
@@ -19,7 +23,8 @@ export default function CollectionResults({
 }: CollectionResultsProps) {
   const [isLoading, setIsLoading] = useState(true);
   const t = useTranslations('collection');
-  const tProduct = useTranslations('product');
+  const shouldReduceMotion = useReducedMotion();
+  const isRTL = locale === 'ar';
   
   useEffect(() => {
     // Simulate loading for smooth transition
@@ -28,112 +33,89 @@ export default function CollectionResults({
   }, []);
 
   if (isLoading) {
-    return (
-      <div className="space-y-12">
-        <section className="bg-atp-white py-12">
-          <div className="container-premium">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-              <div className="space-y-2">
-                <div className="h-12 bg-atp-light-gray rounded animate-pulse"></div>
-                <div className="h-4 bg-atp-light-gray rounded w-24 mx-auto animate-pulse"></div>
-              </div>
-              <div className="space-y-2">
-                <div className="h-12 bg-atp-light-gray rounded animate-pulse"></div>
-                <div className="h-4 bg-atp-light-gray rounded w-24 mx-auto animate-pulse"></div>
-              </div>
-              <div className="space-y-2">
-                <div className="h-12 bg-atp-light-gray rounded animate-pulse"></div>
-                <div className="h-4 bg-atp-light-gray rounded w-24 mx-auto animate-pulse"></div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section className="bg-atp-off-white py-16">
-          <div className="container-premium">
-            <div className="text-center mb-16">
-              <div className="h-12 bg-atp-light-gray rounded w-96 mx-auto mb-6 animate-pulse"></div>
-              <div className="h-1 bg-atp-light-gray rounded w-24 mx-auto mb-6 animate-pulse"></div>
-              <div className="h-6 bg-atp-light-gray rounded w-96 mx-auto animate-pulse"></div>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="bg-atp-white rounded-lg shadow-sm border border-atp-light-gray p-4 animate-pulse"
-                >
-                  <div className="aspect-square bg-atp-light-gray rounded-md mb-4"></div>
-                  <div className="h-4 bg-atp-light-gray rounded mb-2"></div>
-                  <div className="h-4 bg-atp-light-gray rounded w-2/3"></div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      </div>
-    );
+    return <CollectionPageSkeleton isRTL={isRTL} />;
   }
 
-  return (
-    <div className="space-y-12">
-      {/* Feature Highlights Section */}
-      <section className="bg-atp-white py-12">
-        <div className="container-premium">
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center"
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-          >
-            <div className="space-y-2">
-              <h3 className="text-4xl font-bold text-atp-black">
-                {t('productCount', { count: products.length })}
-              </h3>
-              <p className="text-atp-charcoal uppercase tracking-wide text-sm">
-                {t('premiumProducts')}
-              </p>
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-4xl font-bold text-atp-black">100%</h3>
-              <p className="text-atp-charcoal uppercase tracking-wide text-sm">
-                {t('naturalIngredients')}
-              </p>
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-4xl font-bold text-atp-gold">ATP</h3>
-              <p className="text-atp-charcoal uppercase tracking-wide text-sm">
-                {t('certifiedQuality')}
-              </p>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+  // Prepare stats data
+  const stats = [
+    { 
+      value: products.length, 
+      suffix: "+", 
+      label: t('premiumProducts') 
+    },
+    { 
+      value: 100, 
+      suffix: "%", 
+      label: t('naturalIngredients') 
+    },
+    { 
+      value: 98, 
+      suffix: "%", 
+      label: t('customerSatisfaction') || "Satisfaction" 
+    },
+    { 
+      value: 10, 
+      suffix: "K+", 
+      label: t('happyCustomers') || "Happy Customers" 
+    },
+  ];
 
-      {/* Our Premium Collection Section */}
-      <section className="bg-atp-off-white py-20">
-        <div className="container-premium">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
+  // Default hero image - can be overridden by collection.image
+  const heroImage = {
+    src: collection?.image?.url || "/skincare-hero-banner.jpg",
+    alt: collection?.title || t('ourPremiumCollection'),
+    mobileSrc: collection?.image?.url || "/skincare-hero-banner.jpg",
+  };
+
+  return (
+    <div className="space-y-0">
+      {/* Collection Hero */}
+      <CollectionHero
+        title={collection?.title || t('ourPremiumCollection')}
+        subtitle={t('premiumWellness') || "Premium Wellness"}
+        description={collection?.description || t('discoverCuratedSelection')}
+        image={heroImage}
+        isRTL={isRTL}
+      />
+
+      {/* Stats Section */}
+      <CollectionStats stats={stats} isRTL={isRTL} />
+
+      {/* Products Section */}
+      <section className="bg-atp-white py-16 md:py-24">
+        <div className="container mx-auto px-4">
+          <m.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={defaultViewport}
+            variants={staggerSlow}
+            className="text-center mb-12 md:mb-16"
           >
-            <h2 className="text-4xl md:text-5xl font-serif font-bold text-atp-black mb-6">
-              {collection?.title || t('ourPremiumCollection')}
-            </h2>
-            <div className="w-24 h-1 bg-atp-gold mx-auto mb-6"></div>
-            <p className="text-lg text-atp-charcoal max-w-2xl mx-auto">
-              {collection?.description || t('discoverCuratedSelection')}
-            </p>
-          </motion.div>
+            <m.h2 
+              className="font-display text-heading md:text-display text-atp-black mb-4"
+              variants={getAccessibleVariants(fadeInUp, shouldReduceMotion)}
+            >
+              {t('exploreCollection') || "Explore Collection"}
+            </m.h2>
+            <m.div 
+              className="w-24 h-1 bg-atp-gold mx-auto mb-4"
+              variants={getAccessibleVariants(fadeInUp, shouldReduceMotion)}
+            />
+            <m.p 
+              className="text-body-lg text-atp-charcoal max-w-2xl mx-auto"
+              variants={getAccessibleVariants(fadeInUp, shouldReduceMotion)}
+            >
+              {t('discoverCuratedSelection')}
+            </m.p>
+          </m.div>
 
           {/* Products Grid */}
           {products.length === 0 ? (
-            <p className="py-3 text-lg text-center">{t('noProductsFound')}</p>
+            <p className="py-12 text-lg text-center text-atp-charcoal">
+              {t('noProductsFound')}
+            </p>
           ) : (
-            <Grid variant="luxury">
+            <Grid variant="collection" mobileColumns={1} isRTL={isRTL}>
               <ProductGridItems
                 products={products}
                 locale={locale}
