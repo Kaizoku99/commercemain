@@ -31,6 +31,7 @@ import {
   ShopifyCollectionsOperation,
   ShopifyCreateCartOperation,
   ShopifyMenuOperation,
+  ShopifyMenuItem,
   ShopifyPageOperation,
   ShopifyPagesOperation,
   ShopifyProductOperation,
@@ -650,7 +651,7 @@ export async function getCollections(
   }
 }
 
-export async function getMenu(handle: string): Promise<Menu[]> {
+export async function getMenuItems(handle: string): Promise<ShopifyMenuItem[]> {
   const res = await shopifyFetch<ShopifyMenuOperation>({
     query: getMenuQuery,
     variables: {
@@ -658,15 +659,26 @@ export async function getMenu(handle: string): Promise<Menu[]> {
     }
   });
 
-  return (
-    res.body?.data?.menu?.items.map((item: { title: string; url: string }) => ({
+  return res.body?.data?.menu?.items || [];
+}
+
+export async function getMenu(handle: string): Promise<Menu[]> {
+  const items = await getMenuItems(handle);
+
+  return items.map((item) => {
+    const url = item.url || '';
+    const path = url
+      ? url
+          .replace(domain, '')
+          .replace('/collections', '/search')
+          .replace('/pages', '')
+      : '/';
+
+    return {
       title: item.title,
-      path: item.url
-        .replace(domain, '')
-        .replace('/collections', '/search')
-        .replace('/pages', '')
-    })) || []
-  );
+      path
+    };
+  });
 }
 
 export async function getPage(handle: string): Promise<Page> {

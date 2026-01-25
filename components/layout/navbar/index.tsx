@@ -5,11 +5,22 @@ import MobileMenu from "./mobile-menu";
 import { NavbarLinks } from "./navbar-links";
 import { NavbarActions } from "./navbar-actions";
 import { getLocale, getTranslations } from 'next-intl/server';
+import { getMenuItems } from "@/lib/shopify/server";
+import type { ShopifyMenuItem } from "@/lib/shopify/types";
 
 export async function Navbar() {
   const locale = await getLocale();
   const t = await getTranslations('navbar'); // Fetch translations on server if needed for static parts
   const isRTL = locale === 'ar';
+
+  const menuHandle = process.env.SHOPIFY_NAV_MENU_HANDLE || "atp-menu";
+  let menuItems: ShopifyMenuItem[] = [];
+
+  try {
+    menuItems = await getMenuItems(menuHandle);
+  } catch (error) {
+    console.warn('[Navbar] Failed to fetch Shopify menu:', error);
+  }
 
   // Define simplified menu structure for MobileMenu
   // Note: MobileMenu might still be client-side and expect full props. 
@@ -21,7 +32,7 @@ export async function Navbar() {
   const aboutUsText = t('aboutUs');
   const contactUsText = t('contactUs');
 
-  const menuItems = [
+  const fallbackMenuItems = [
     { title: atpMembershipText, path: `/${locale}/atp-membership`, handle: "atp-membership" },
     { title: skincareSupplementsText, path: `/${locale}/skincare-supplements`, handle: "skincare-supplements" },
     { title: waterSoilTechText, path: `/${locale}/water-soil-technology`, handle: "water-soil-technology" },
@@ -37,7 +48,7 @@ export async function Navbar() {
           {/* Mobile menu */}
           <div className="block flex-none md:hidden">
             <Suspense fallback={null}>
-              <MobileMenu menu={menuItems} />
+              <MobileMenu menuItems={menuItems} fallbackMenu={fallbackMenuItems} />
             </Suspense>
           </div>
 
@@ -56,7 +67,7 @@ export async function Navbar() {
           </div>
 
           <div className="hidden md:flex flex-col items-center flex-1 mx-8">
-            <NavbarLinks locale={locale} />
+            <NavbarLinks locale={locale} menuItems={menuItems} fallbackMenu={fallbackMenuItems} />
           </div>
 
           <div className="relative">

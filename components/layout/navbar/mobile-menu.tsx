@@ -4,18 +4,33 @@ import { Dialog, Transition } from "@headlessui/react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname, useSearchParams } from "next/navigation"
-import { Fragment, Suspense, useEffect, useState } from "react"
+import { Fragment, Suspense, useEffect, useMemo, useState } from "react"
 import { useCustomer } from "@/hooks/use-customer"
 import { LanguageSwitcher } from "@/components/language-switcher"
 
 import { Bars3Icon, XMarkIcon, HomeIcon, UserIcon, PhoneIcon, InformationCircleIcon, ArrowRightOnRectangleIcon } from "@heroicons/react/24/outline"
 import { FaFacebookF, FaInstagram, FaTiktok, FaSnapchatGhost } from "react-icons/fa"
-import type { Menu } from "@/lib/shopify/types"
+import type { Menu, ShopifyMenuItem } from "@/lib/shopify/types"
 import { useTranslations } from "next-intl"
 import { useLocale } from "next-intl"
 import Search, { SearchSkeleton } from "./search"
 
-export default function MobileMenu({ menu }: { menu: Menu[] }) {
+type FallbackMenuItem = {
+  title: string;
+  path: string;
+  handle?: string;
+};
+
+type MobileMenuItem = Menu & {
+  icon?: typeof HomeIcon;
+};
+
+interface MobileMenuProps {
+  menuItems?: ShopifyMenuItem[];
+  fallbackMenu?: FallbackMenuItem[];
+}
+
+export default function MobileMenu({ menuItems, fallbackMenu }: MobileMenuProps) {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const t = useTranslations('navbar')
@@ -27,7 +42,7 @@ export default function MobileMenu({ menu }: { menu: Menu[] }) {
   const openMobileMenu = () => setIsOpen(true)
   const closeMobileMenu = () => setIsOpen(false)
 
-  const localizedMenu: Menu[] = [
+  const localizedMenu: MobileMenuItem[] = [
     {
       title: t('home'),
       path: `/${locale}`,
@@ -56,6 +71,133 @@ export default function MobileMenu({ menu }: { menu: Menu[] }) {
       icon: PhoneIcon,
     },
   ]
+
+  const normalizeMenuUrl = (url?: string | null) => {
+    if (!url) return ""
+    try {
+      return new URL(url).pathname
+    } catch {
+      return url
+    }
+  }
+
+  const translationKeyByHandle: Record<string, string> = {
+    "atp-membership": "atpMembership",
+    "skincare-supplements": "skincareSupplements",
+    "water-soil-technology": "waterSoilTechnology",
+    "ems": "emsTraining",
+    "ems-training": "emsTraining",
+    "about": "aboutUs",
+    "contact": "contactUs",
+  }
+
+  const getMenuSlug = (item: ShopifyMenuItem) => {
+    const urlPath = normalizeMenuUrl(item.url)
+    const cleanPath = urlPath.split("?")[0]?.split("#")[0] || ""
+    const segments = cleanPath.split("/").filter(Boolean)
+
+    if (segments[0] === "collections" && segments[1]) return segments[1]
+    if (segments[0] === "products" && segments[1]) return segments[1]
+    if (segments[0] === "pages" && segments[1]) return segments[1]
+
+    if (segments.length > 0) return segments[segments.length - 1]
+
+    const resource = item.resource
+    if (resource && "handle" in resource && typeof resource.handle === "string") {
+      return resource.handle
+    }
+
+    return item.title
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "")
+  }
+
+  const getMenuLabel = (item: ShopifyMenuItem) => {
+    const slug = getMenuSlug(item)
+    const key = translationKeyByHandle[slug]
+    return key ? t(key) : item.title
+  }
+
+  const getMenuPath = (item: ShopifyMenuItem) => {
+    const resource = item.resource
+    if (resource?.__typename === "Collection" && "handle" in resource) {
+      return `/search/${resource.handle}`
+    }
+    if (resource?.__typename === "Product" && "handle" in resource) {
+      return `/product/${resource.handle}`
+    }
+    if (resource?.__typename === "Page" && "handle" in resource) {
+      return `/${resource.handle}`
+    }
+
+    const urlPath = normalizeMenuUrl(item.url)
+    if (urlPath.startsWith("/collections/")) {
+      const handle = urlPath.split("/")[2]
+      return handle ? `/search/${handle}` : urlPath
+    }
+    if (urlPath.startsWith("/products/")) {
+      const handle = urlPath.split("/")[2]
+      return handle ? `/product/${handle}` : urlPath
+    }
+    if (urlPath.startsWith("/pages/")) {
+      const handle = urlPath.split("/")[2]
+      return handle ? `/${handle}` : urlPath
+    }
+    return urlPath || "/"
+  }
+
+  const withLocale = (path: string) => {
+    if (path.startsWith("http") || path.startsWith("mailto:") || path.startsWith("#")) {
+      return path
+    }
+    if (path.startsWith(`/${locale}`)) {
+      return path
+    }
+    const normalized = path.startsWith("/") ? path : `/${path}`
+    return `/${locale}${normalized}`
+  }
+
+  const iconByHandle: Record<string, typeof HomeIcon> = {
+    home: HomeIcon,
+    about: InformationCircleIcon,
+    contact: PhoneIcon,
+  }
+
+  const shopifyMenuLinks = useMemo(() => {
+    if (!menuItems || menuItems.length === 0) return [] as MobileMenuItem[]
+
+    return menuItems.map((item) => {
+      const slug = getMenuSlug(item)
+      return {
+        title: getMenuLabel(item),
+        path: withLocale(getMenuPath(item)),
+        icon: iconByHandle[slug],
+      }
+    })
+  }, [menuItems, locale, t])
+
+  const fallbackMenuItems = useMemo(() => {
+    if (fallbackMenu && fallbackMenu.length > 0) {
+      return fallbackMenu.map((item) => ({
+        title: item.title,
+        path: item.path,
+      })) as MobileMenuItem[]
+    }
+    return localizedMenu
+  }, [fallbackMenu, localizedMenu])
+
+  const resolvedMenu = useMemo(() => {
+    if (shopifyMenuLinks.length > 0) {
+      const homePath = `/${locale}`
+      const filtered = shopifyMenuLinks.filter((item) => item.path !== homePath)
+      return [
+        { title: t('home'), path: homePath, icon: HomeIcon },
+        ...filtered,
+      ]
+    }
+    return fallbackMenuItems
+  }, [shopifyMenuLinks, fallbackMenuItems, locale, t])
 
   // Social media links
   const socialLinks = [
@@ -169,9 +311,9 @@ export default function MobileMenu({ menu }: { menu: Menu[] }) {
                 {/* Navigation Menu */}
                 <div className="flex-1 overflow-y-auto">
                   <div className="p-6">
-                    {localizedMenu.length ? (
+                    {resolvedMenu.length ? (
                       <ul className={`space-y-2 ${isRTL ? "text-right" : ""}`}>
-                        {localizedMenu.map((item: any) => {
+                        {resolvedMenu.map((item: any) => {
                           const IconComponent = item.icon;
                           return (
                             <li key={item.path}>

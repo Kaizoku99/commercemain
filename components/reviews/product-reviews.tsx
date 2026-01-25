@@ -1,7 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Star, ThumbsUp, ThumbsDown, Flag, User } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
+import { Star, ThumbsUp, ThumbsDown, Flag, User, X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react'
+import { m, AnimatePresence, useReducedMotion } from 'framer-motion'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -14,6 +16,7 @@ import { Progress } from '@/components/ui/progress'
 import { useCustomer } from '@/hooks/use-customer'
 import { cn } from '@/lib/utils'
 import { useTranslations, useLocale } from 'next-intl'
+import { overlayVariants, modalVariants, transitions } from '@/lib/animations/variants'
 
 interface Review {
   id: string
@@ -58,10 +61,51 @@ export function ProductReviews({ productId, productTitle, className }: ProductRe
   const [showWriteReview, setShowWriteReview] = useState(false)
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'highest' | 'lowest' | 'helpful'>('newest')
   const [filterBy, setFilterBy] = useState<'all' | '5' | '4' | '3' | '2' | '1'>('all')
+  
+  // Lightbox state
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [lightboxImages, setLightboxImages] = useState<string[]>([])
+  const [lightboxIndex, setLightboxIndex] = useState(0)
+  const prefersReducedMotion = useReducedMotion()
 
   const { customer } = useCustomer()
   const t = useTranslations('reviews')
   const locale = useLocale()
+  const isRTL = locale === 'ar'
+
+  // Lightbox handlers
+  const openLightbox = useCallback((images: string[], startIndex: number) => {
+    setLightboxImages(images)
+    setLightboxIndex(startIndex)
+    setLightboxOpen(true)
+    document.body.style.overflow = 'hidden'
+  }, [])
+
+  const closeLightbox = useCallback(() => {
+    setLightboxOpen(false)
+    document.body.style.overflow = ''
+  }, [])
+
+  const navigateLightbox = useCallback((direction: 'prev' | 'next') => {
+    setLightboxIndex(prev => {
+      if (direction === 'next') {
+        return (prev + 1) % lightboxImages.length
+      }
+      return (prev - 1 + lightboxImages.length) % lightboxImages.length
+    })
+  }, [lightboxImages.length])
+
+  // Keyboard navigation for lightbox
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!lightboxOpen) return
+      if (e.key === 'Escape') closeLightbox()
+      if (e.key === 'ArrowLeft') navigateLightbox(isRTL ? 'next' : 'prev')
+      if (e.key === 'ArrowRight') navigateLightbox(isRTL ? 'prev' : 'next')
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [lightboxOpen, closeLightbox, navigateLightbox, isRTL])
 
   useEffect(() => {
     fetchReviews()
@@ -319,16 +363,27 @@ export function ProductReviews({ productId, productTitle, className }: ProductRe
                     <p className="text-gray-700 leading-relaxed">{review.content}</p>
                   </div>
 
-                  {/* Review Images */}
+                  {/* Review Images with Lightbox */}
                   {review.images && review.images.length > 0 && (
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-wrap">
                       {review.images.map((image, index) => (
-                        <img
+                        <button
                           key={index}
-                          src={image}
-                          alt={`Review image ${index + 1}`}
-                          className="w-16 h-16 object-cover rounded border"
-                        />
+                          onClick={() => openLightbox(review.images!, index)}
+                          className="relative w-16 h-16 rounded-lg overflow-hidden border border-gray-200 hover:border-atp-gold transition-colors group cursor-zoom-in"
+                          aria-label={`View image ${index + 1}`}
+                        >
+                          <Image
+                            src={image}
+                            alt={`Review image ${index + 1}`}
+                            fill
+                            className="object-cover group-hover:scale-110 transition-transform duration-300"
+                            sizes="64px"
+                          />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                            <ZoomIn className="w-4 h-4 text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </div>
+                        </button>
                       ))}
                     </div>
                   )}
@@ -376,6 +431,120 @@ export function ProductReviews({ productId, productTitle, className }: ProductRe
           }}
         />
       )}
+
+      {/* Photo Lightbox Modal */}
+      <AnimatePresence>
+        {lightboxOpen && lightboxImages.length > 0 && (
+          <m.div
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
+            {/* Backdrop */}
+            <m.div
+              className="absolute inset-0 bg-black/95 backdrop-blur-sm"
+              variants={overlayVariants}
+              onClick={closeLightbox}
+            />
+            
+            {/* Modal Content */}
+            <m.div
+              className="relative z-10 max-w-5xl w-full max-h-[90vh] flex items-center justify-center"
+              variants={modalVariants}
+            >
+              {/* Close Button */}
+              <button
+                onClick={closeLightbox}
+                className="absolute top-4 right-4 z-20 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+                aria-label="Close lightbox"
+              >
+                <X className="w-6 h-6" />
+              </button>
+
+              {/* Navigation Arrows */}
+              {lightboxImages.length > 1 && (
+                <>
+                  <button
+                    onClick={() => navigateLightbox(isRTL ? 'next' : 'prev')}
+                    className={cn(
+                      "absolute top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors",
+                      isRTL ? "right-4" : "left-4"
+                    )}
+                    aria-label="Previous image"
+                  >
+                    <ChevronLeft className="w-6 h-6" />
+                  </button>
+                  <button
+                    onClick={() => navigateLightbox(isRTL ? 'prev' : 'next')}
+                    className={cn(
+                      "absolute top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors",
+                      isRTL ? "left-4" : "right-4"
+                    )}
+                    aria-label="Next image"
+                  >
+                    <ChevronRight className="w-6 h-6" />
+                  </button>
+                </>
+              )}
+
+              {/* Image */}
+              <div className="relative w-full h-[70vh] flex items-center justify-center">
+                <m.div
+                  key={lightboxIndex}
+                  initial={prefersReducedMotion ? {} : { opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={transitions.normal}
+                  className="relative w-full h-full"
+                >
+                  <Image
+                    src={lightboxImages[lightboxIndex] || ''}
+                    alt={`Review image ${lightboxIndex + 1}`}
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 768px) 100vw, 80vw"
+                    priority
+                  />
+                </m.div>
+              </div>
+
+              {/* Image Counter */}
+              {lightboxImages.length > 1 && (
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white px-4 py-2 rounded-full text-sm font-medium">
+                  {lightboxIndex + 1} / {lightboxImages.length}
+                </div>
+              )}
+
+              {/* Thumbnail Strip */}
+              {lightboxImages.length > 1 && (
+                <div className="absolute bottom-16 left-1/2 -translate-x-1/2 flex gap-2">
+                  {lightboxImages.map((img, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setLightboxIndex(idx)}
+                      className={cn(
+                        "w-12 h-12 rounded-lg overflow-hidden border-2 transition-all",
+                        idx === lightboxIndex 
+                          ? "border-atp-gold scale-110" 
+                          : "border-transparent opacity-60 hover:opacity-100"
+                      )}
+                    >
+                      <Image
+                        src={img}
+                        alt={`Thumbnail ${idx + 1}`}
+                        width={48}
+                        height={48}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </m.div>
+          </m.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

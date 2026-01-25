@@ -87,6 +87,58 @@ export type Menu = {
   path: string;
 };
 
+export type ShopifyMenuItemResource =
+  | {
+      __typename: 'Collection';
+      handle: string;
+      title: string;
+    }
+  | {
+      __typename: 'Product';
+      handle: string;
+      title: string;
+    }
+  | {
+      __typename: 'Page';
+      handle: string;
+      title: string;
+    }
+  | {
+      __typename: 'Article';
+      handle: string;
+      title: string;
+    }
+  | {
+      __typename: 'Blog';
+      handle: string;
+      title: string;
+    }
+  | {
+      __typename: 'ShopPolicy';
+      handle: string;
+      title: string;
+    }
+  | {
+      __typename: 'Metaobject';
+      handle: string;
+      type: string;
+    }
+  | {
+      __typename: string;
+    }
+  | null;
+
+export type ShopifyMenuItem = {
+  id: string;
+  title: string;
+  url: string | null;
+  type: string;
+  tags: string[];
+  resourceId: string | null;
+  resource?: ShopifyMenuItemResource;
+  items: ShopifyMenuItem[];
+};
+
 export type Money = {
   amount: string;
   currencyCode: string;
@@ -288,10 +340,9 @@ export type ShopifyCollectionsOperation = {
 export type ShopifyMenuOperation = {
   data: {
     menu?: {
-      items: {
-        title: string;
-        url: string;
-      }[];
+      handle: string;
+      title: string;
+      items: ShopifyMenuItem[];
     };
   };
   variables: {
@@ -744,4 +795,3 @@ export const getWarningCategory = (code: CartWarningCode): CartWarningCategory =
   if (code.startsWith('PAYMENTS_')) return 'payment';
   return 'other';
 };
-

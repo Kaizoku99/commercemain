@@ -15,6 +15,8 @@ import { Toaster } from "sonner";
 import { Cinzel, DM_Sans, Tajawal } from "next/font/google";
 import { StructuredData, LocalBusinessStructuredData } from "@/components/structured-data";
 import { SkipToContentSimple } from "@/components/ui/skip-navigation";
+import { BackToTop } from "@/components/ui/back-to-top";
+import { PageTransitionProvider } from "@/components/ui/page-transition-provider";
 import { baseUrl } from "@/lib/utils";
 
 // Luxury display font for headings - elegant serif with refined character
@@ -155,7 +157,9 @@ export default async function LocaleLayout({
                 <SkipToContentSimple label={isRTL ? 'انتقل إلى المحتوى الرئيسي' : 'Skip to main content'} />
                 <Navbar />
                 <main id="main-content" className="min-h-screen pb-16 md:pb-0" tabIndex={-1}>
-                  {children}
+                  <PageTransitionProvider>
+                    {children}
+                  </PageTransitionProvider>
                   <Toaster
                     closeButton
                     theme="light"
@@ -172,6 +176,7 @@ export default async function LocaleLayout({
                 </main>
                 <Footer />
                 <MobileBottomNav />
+                <BackToTop threshold={400} showProgress />
               </MembershipProvider>
             </CartNotificationProvider>
           </CartProvider>

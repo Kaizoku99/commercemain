@@ -412,11 +412,58 @@ export const getCollectionsQuery = `
 `
 
 export const getMenuQuery = `
+  fragment MenuItemFields on MenuItem {
+    id
+    title
+    url
+    type
+    tags
+    resourceId
+    resource {
+      __typename
+      ... on Collection {
+        handle
+        title
+      }
+      ... on Product {
+        handle
+        title
+      }
+      ... on Page {
+        handle
+        title
+      }
+      ... on Article {
+        handle
+        title
+      }
+      ... on Blog {
+        handle
+        title
+      }
+      ... on ShopPolicy {
+        handle
+        title
+      }
+      ... on Metaobject {
+        handle
+        type
+      }
+    }
+  }
+
   query getMenu($handle: String!) {
     menu(handle: $handle) {
+      handle
+      title
       items {
-        title
-        url
+        ...MenuItemFields
+        items {
+          ...MenuItemFields
+          items {
+            ...MenuItemFields
+          }
+        }
       }
     }
   }

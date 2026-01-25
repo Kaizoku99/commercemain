@@ -2,14 +2,11 @@
 
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import Image from "next/image";
 import { useState, useRef, useMemo, useCallback, useEffect } from "react";
-import { AnimatePresence, m } from "framer-motion";
+import { MegaMenu, menuCategories } from "./mega-menu";
 import { fetchCollectionProducts } from "@/components/cart/actions";
 import { createLogger } from "@/lib/logger";
-import { getLocalizedProductHandle } from "@/lib/shopify/i18n-queries";
-import { DirhamSymbol } from "@/components/icons/dirham-symbol";
-import type { Product } from "@/lib/shopify/types";
+import type { Product, ShopifyMenuItem } from "@/lib/shopify/types";
 
 // Helper for collection mapping (moved from index.tsx)
 const collectionMapping = {
@@ -134,20 +131,28 @@ const getMockProductsForCollection = (menuHandle: string): Product[] => {
 
 interface NavbarLinksProps {
     locale: string;
+    menuItems?: ShopifyMenuItem[];
+    fallbackMenu?: { title: string; path: string; handle: string }[];
 }
 
-export function NavbarLinks({ locale }: NavbarLinksProps) {
+type NavMenuItem = {
+    title: string;
+    path: string;
+    handle: string;
+    item?: ShopifyMenuItem;
+};
+
+export function NavbarLinks({ locale, menuItems, fallbackMenu }: NavbarLinksProps) {
     const t = useTranslations('navbar');
     const [hoveredMenu, setHoveredMenu] = useState<string | null>(null);
     const [menuProducts, setMenuProducts] = useState<Record<string, Product[]>>({});
     const [loadingProducts, setLoadingProducts] = useState<Record<string, boolean>>({});
     const [hoverTimeout, setHoverTimeout] = useState<NodeJS.Timeout | null>(null);
 
-    const menuRefs = useRef<Record<string, HTMLDivElement | null>>({});
-    const dropdownRef = useRef<HTMLDivElement | null>(null);
     const isHoveringDropdown = useRef(false);
 
     const navLogger = useMemo(() => createLogger('[NavbarLinks]'), []);
+
 
     const atpMembershipText = t('atpMembership');
     const skincareSupplementsText = t('skincareSupplements');
@@ -156,51 +161,255 @@ export function NavbarLinks({ locale }: NavbarLinksProps) {
     const aboutUsText = t('aboutUs');
     const contactUsText = t('contactUs');
 
-    // Define menu items
-    const topRowMenu = useMemo(
-        () => [
-            {
-                title: atpMembershipText,
-                path: `/${locale}/atp-membership`,
-                handle: "atp-membership",
-            },
-            {
-                title: skincareSupplementsText,
-                path: `/${locale}/skincare-supplements`,
-                handle: "skincare-supplements",
-            },
-            {
-                title: waterSoilTechText,
-                path: `/${locale}/water-soil-technology`,
-                handle: "water-soil-technology",
-            },
-        ],
-        [locale, atpMembershipText, skincareSupplementsText, waterSoilTechText]
+    const withLocale = useCallback(
+        (path: string) => {
+            if (path.startsWith("http") || path.startsWith("mailto:") || path.startsWith("#")) {
+                return path;
+            }
+            if (path.startsWith(`/${locale}`)) {
+                return path;
+            }
+            const normalized = path.startsWith("/") ? path : `/${path}`;
+            return `/${locale}${normalized}`;
+        },
+        [locale]
     );
 
-    const bottomRowMenu = useMemo(
-        () => [
-            {
-                title: emsTrainingText,
-                path: `/${locale}/ems`,
-                handle: "ems-training",
-            },
-            {
-                title: aboutUsText,
-                path: `/${locale}/about`,
-                handle: "about",
-            },
-            {
-                title: contactUsText,
-                path: `/${locale}/contact`,
-                handle: "contact",
-            },
-        ],
-        [locale, emsTrainingText, aboutUsText, contactUsText]
+    const normalizeMenuUrl = useCallback((url?: string | null) => {
+        if (!url) return "";
+        try {
+            return new URL(url).pathname;
+        } catch {
+            return url;
+        }
+    }, []);
+
+    const getMenuSlug = useCallback((item: ShopifyMenuItem) => {
+        const urlPath = normalizeMenuUrl(item.url);
+        const cleanPath = urlPath.split("?")[0]?.split("#")[0] || "";
+        const segments = cleanPath.split("/").filter(Boolean);
+
+        if (segments[0] === "collections" && segments[1]) return segments[1];
+        if (segments[0] === "products" && segments[1]) return segments[1];
+        if (segments[0] === "pages" && segments[1]) return segments[1];
+
+        if (segments.length > 0) return segments[segments.length - 1];
+
+        const resource = item.resource;
+        if (resource && "handle" in resource && typeof resource.handle === "string") {
+            return resource.handle;
+        }
+
+        return item.title
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/(^-|-$)/g, "");
+    }, [normalizeMenuUrl]);
+
+    const translationKeyByHandle: Record<string, string> = {
+        "atp-membership": "atpMembership",
+        "skincare-supplements": "skincareSupplements",
+        "water-soil-technology": "waterSoilTechnology",
+        "ems": "emsTraining",
+        "ems-training": "emsTraining",
+        "about": "aboutUs",
+        "contact": "contactUs",
+    };
+
+    const getMenuLabel = useCallback((item: ShopifyMenuItem) => {
+        const slug = getMenuSlug(item);
+        const key = translationKeyByHandle[slug];
+        return key ? t(key) : item.title;
+    }, [getMenuSlug, t]);
+
+    const getMenuPath = useCallback((item: ShopifyMenuItem) => {
+        const resource = item.resource;
+        if (resource?.__typename === "Collection" && "handle" in resource) {
+            return `/search/${resource.handle}`;
+        }
+        if (resource?.__typename === "Product" && "handle" in resource) {
+            return `/product/${resource.handle}`;
+        }
+        if (resource?.__typename === "Page" && "handle" in resource) {
+            return `/${resource.handle}`;
+        }
+
+        const urlPath = normalizeMenuUrl(item.url);
+        if (urlPath.startsWith("/collections/")) {
+            const handle = urlPath.split("/")[2];
+            return handle ? `/search/${handle}` : urlPath;
+        }
+        if (urlPath.startsWith("/products/")) {
+            const handle = urlPath.split("/")[2];
+            return handle ? `/product/${handle}` : urlPath;
+        }
+        if (urlPath.startsWith("/pages/")) {
+            const handle = urlPath.split("/")[2];
+            return handle ? `/${handle}` : urlPath;
+        }
+        return urlPath || "/";
+    }, [normalizeMenuUrl]);
+
+    const buildNavItem = useCallback((item: ShopifyMenuItem): NavMenuItem => {
+        const handle = getMenuSlug(item);
+        return {
+            title: getMenuLabel(item),
+            path: withLocale(getMenuPath(item)),
+            handle,
+            item,
+        };
+    }, [getMenuLabel, getMenuPath, getMenuSlug, withLocale]);
+
+    const fallbackMenuItems = useMemo(
+        () => fallbackMenu && fallbackMenu.length > 0
+            ? fallbackMenu
+            : [
+                {
+                    title: atpMembershipText,
+                    path: `/${locale}/atp-membership`,
+                    handle: "atp-membership",
+                },
+                {
+                    title: skincareSupplementsText,
+                    path: `/${locale}/skincare-supplements`,
+                    handle: "skincare-supplements",
+                },
+                {
+                    title: waterSoilTechText,
+                    path: `/${locale}/water-soil-technology`,
+                    handle: "water-soil-technology",
+                },
+                {
+                    title: emsTrainingText,
+                    path: `/${locale}/ems`,
+                    handle: "ems-training",
+                },
+                {
+                    title: aboutUsText,
+                    path: `/${locale}/about`,
+                    handle: "about",
+                },
+                {
+                    title: contactUsText,
+                    path: `/${locale}/contact`,
+                    handle: "contact",
+                },
+            ],
+        [
+            fallbackMenu,
+            locale,
+            atpMembershipText,
+            skincareSupplementsText,
+            waterSoilTechText,
+            emsTrainingText,
+            aboutUsText,
+            contactUsText,
+        ]
     );
+
+    const menuSource = useMemo(
+        () => (menuItems && menuItems.length > 0 ? menuItems : null),
+        [menuItems]
+    );
+
+    const shopifyNavItems = useMemo(
+        () => (menuSource ? menuSource.map(buildNavItem) : []),
+        [menuSource, buildNavItem]
+    );
+
+    const splitIndex = Math.ceil(
+        (menuSource ? shopifyNavItems.length : fallbackMenuItems.length) / 2
+    );
+
+    const topRowMenu = menuSource
+        ? shopifyNavItems.slice(0, splitIndex)
+        : fallbackMenuItems.slice(0, splitIndex);
+
+    const bottomRowMenu = menuSource
+        ? shopifyNavItems.slice(splitIndex)
+        : fallbackMenuItems.slice(splitIndex);
+
+    const menuItemByHandle = useMemo(() => {
+        const map: Record<string, ShopifyMenuItem> = {};
+        shopifyNavItems.forEach((navItem) => {
+            if (navItem.item) {
+                map[navItem.handle] = navItem.item;
+            }
+        });
+        return map;
+    }, [shopifyNavItems]);
+
+    const extractCollectionHandle = useCallback((item: ShopifyMenuItem) => {
+        const resource = item.resource;
+        if (resource?.__typename === "Collection" && "handle" in resource) {
+            return resource.handle;
+        }
+
+        const urlPath = normalizeMenuUrl(item.url);
+        if (urlPath.startsWith("/collections/")) {
+            return urlPath.split("/")[2] || null;
+        }
+        if (urlPath.startsWith("/search/")) {
+            return urlPath.split("/")[2] || null;
+        }
+
+        return null;
+    }, [normalizeMenuUrl]);
+
+    const findCollectionHandle = useCallback((item: ShopifyMenuItem): string | null => {
+        const direct = extractCollectionHandle(item);
+        if (direct) return direct;
+        for (const child of item.items || []) {
+            const nested = findCollectionHandle(child);
+            if (nested) return nested;
+        }
+        return null;
+    }, [extractCollectionHandle]);
+
+    const buildCategoryFromItem = useCallback((item: ShopifyMenuItem) => {
+        const title = getMenuLabel(item);
+        const href = getMenuPath(item);
+        const subcategories = (item.items || []).map((child) => ({
+            title: getMenuLabel(child),
+            titleAr: getMenuLabel(child),
+            href: getMenuPath(child),
+        }));
+
+        return {
+            id: getMenuSlug(item),
+            title,
+            titleAr: title,
+            href,
+            subcategories,
+        };
+    }, [getMenuLabel, getMenuPath, getMenuSlug]);
+
+    const activeCategory = useMemo(() => {
+        if (hoveredMenu && menuItemByHandle[hoveredMenu]) {
+            return buildCategoryFromItem(menuItemByHandle[hoveredMenu]);
+        }
+        return menuCategories.find((item) => item.id === hoveredMenu) ?? null;
+    }, [hoveredMenu, menuItemByHandle, buildCategoryFromItem]);
+
+    const activeProducts = useMemo(
+        () => (activeCategory ? (menuProducts[activeCategory.id] ?? []) : []),
+        [activeCategory, menuProducts]
+    );
+
+    const isMegaMenuOpen = useMemo(() => {
+        if (!activeCategory) return false;
+        const hasSubcategories = !!activeCategory.subcategories?.length;
+        const hasProducts = !!menuProducts[activeCategory.id]?.length;
+        const isLoading = !!loadingProducts[activeCategory.id];
+        return hasSubcategories || hasProducts || isLoading;
+    }, [activeCategory, menuProducts, loadingProducts]);
 
     const fetchMenuProducts = useCallback(async (menuHandle: string) => {
-        const collectionHandle = collectionMapping[menuHandle as keyof typeof collectionMapping];
+        const menuItem = menuItemByHandle[menuHandle];
+        const collectionHandle = menuItem
+            ? findCollectionHandle(menuItem)
+            : collectionMapping[menuHandle as keyof typeof collectionMapping];
+
         if (!collectionHandle || menuProducts[menuHandle] || loadingProducts[menuHandle]) {
             return;
         }
@@ -222,7 +431,7 @@ export function NavbarLinks({ locale }: NavbarLinksProps) {
         } finally {
             setLoadingProducts((prev) => ({ ...prev, [menuHandle]: false }));
         }
-    }, [menuProducts, loadingProducts, navLogger]);
+    }, [menuItemByHandle, findCollectionHandle, menuProducts, loadingProducts, navLogger]);
 
     const handleMenuEnter = useCallback((menuHandle: string) => {
         if (hoverTimeout) {
@@ -258,10 +467,17 @@ export function NavbarLinks({ locale }: NavbarLinksProps) {
     }, []);
 
     useEffect(() => {
-        if (hoveredMenu && collectionMapping[hoveredMenu as keyof typeof collectionMapping]) {
+        if (!hoveredMenu) return;
+
+        const menuItem = menuItemByHandle[hoveredMenu];
+        const collectionHandle = menuItem
+            ? findCollectionHandle(menuItem)
+            : collectionMapping[hoveredMenu as keyof typeof collectionMapping];
+
+        if (collectionHandle) {
             fetchMenuProducts(hoveredMenu);
         }
-    }, [hoveredMenu, fetchMenuProducts]);
+    }, [hoveredMenu, menuItemByHandle, findCollectionHandle, fetchMenuProducts]);
 
     useEffect(() => {
         return () => {
@@ -276,7 +492,6 @@ export function NavbarLinks({ locale }: NavbarLinksProps) {
                 {topRowMenu.map((item) => (
                     <div
                         key={item.path}
-                        ref={(el) => { if (el) menuRefs.current[item.handle] = el; }}
                         className="relative"
                         onMouseEnter={() => handleMenuEnter(item.handle)}
                         onMouseLeave={() => handleMenuLeave(item.handle)}
@@ -297,7 +512,6 @@ export function NavbarLinks({ locale }: NavbarLinksProps) {
                 {bottomRowMenu.map((item) => (
                     <div
                         key={item.path}
-                        ref={(el) => { if (el) menuRefs.current[item.handle] = el; }}
                         className="relative"
                         onMouseEnter={() => handleMenuEnter(item.handle)}
                         onMouseLeave={() => handleMenuLeave(item.handle)}
@@ -313,103 +527,18 @@ export function NavbarLinks({ locale }: NavbarLinksProps) {
                 ))}
             </div>
 
-            {/* Improved dropdown with better hover management */}
-            <AnimatePresence>
-                {hoveredMenu &&
-                    (menuProducts[hoveredMenu] || loadingProducts[hoveredMenu]) && (
-                        <m.div
-                            key={hoveredMenu}
-                            ref={dropdownRef}
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            transition={{ duration: 0.2, ease: "easeOut" }}
-                            className="absolute top-full left-0 w-full bg-gradient-to-b from-black via-gray-950 to-black border-t border-yellow-400/30 shadow-2xl z-50 backdrop-blur-sm"
-                            onMouseEnter={handleDropdownEnter}
-                            onMouseLeave={handleDropdownLeave}
-                            style={{
-                                marginTop: "-2px",
-                                paddingTop: "2px",
-                            }}
-                        >
-                            <div className="max-w-7xl mx-auto px-4 lg:px-6 py-12">
-                                <div className="text-center mb-10">
-                                    <h3 className="text-2xl font-serif text-yellow-400 tracking-widest uppercase mb-2">
-                                        {topRowMenu.find((item) => item.handle === hoveredMenu)?.title ||
-                                            bottomRowMenu.find((item) => item.handle === hoveredMenu)?.title}
-                                    </h3>
-                                    <div className="w-24 h-px bg-gradient-to-r from-transparent via-yellow-400 to-transparent mx-auto"></div>
-                                </div>
-
-                                {loadingProducts[hoveredMenu] ? (
-                                    <div className="flex justify-center items-center py-16">
-                                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-400"></div>
-                                    </div>
-                                ) : (
-                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-6">
-                                        {menuProducts[hoveredMenu]?.map((product) => (
-                                            <Link
-                                                key={product.id}
-                                                href={`/${locale}/product/${getLocalizedProductHandle(product, locale as 'en' | 'ar')}`}
-                                                className="group flex flex-col items-center text-center hover:bg-gradient-to-b hover:from-gray-900/50 hover:to-gray-800/30 p-6 rounded-2xl transition-all duration-700 border border-transparent hover:border-yellow-400/40 hover:shadow-2xl hover:shadow-yellow-400/10 transform hover:-translate-y-2"
-                                            >
-                                                <div className="relative w-28 h-28 mb-4 overflow-hidden rounded-2xl bg-gradient-to-br from-gray-900 to-gray-800 ring-1 ring-gray-700 group-hover:ring-yellow-400/50 transition-all duration-500">
-                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10"></div>
-                                                    <Image
-                                                        src={product.featuredImage?.url || "/placeholder.svg"}
-                                                        alt={product.featuredImage?.altText || product.title}
-                                                        width={112}
-                                                        height={112}
-                                                        className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-700 filter group-hover:brightness-110"
-                                                    />
-                                                    <div className="absolute inset-0 bg-yellow-400/0 group-hover:bg-yellow-400/5 transition-all duration-500"></div>
-
-                                                    {hoveredMenu === "atp-membership" && (
-                                                        <div className="absolute top-2 right-2 bg-gradient-to-r from-yellow-400 to-yellow-500 text-black text-xs px-2 py-1 rounded-full font-bold">
-                                                            ATP
-                                                        </div>
-                                                    )}
-                                                </div>
-
-                                                <span className="text-xs text-gray-300 group-hover:text-yellow-400 transition-colors duration-500 font-medium tracking-wider uppercase leading-relaxed line-clamp-2">
-                                                    {product.title}
-                                                </span>
-
-                                                <div className="mt-2 text-yellow-400 font-semibold text-sm flex items-center gap-1">
-                                                    <DirhamSymbol className="w-3 h-3 text-yellow-400" />
-                                                    <span>
-                                                        {new Intl.NumberFormat("en-AE", {
-                                                            minimumFractionDigits: 0,
-                                                            maximumFractionDigits: 2,
-                                                        }).format(parseFloat(product.priceRange.minVariantPrice.amount))}
-                                                    </span>
-                                                </div>
-
-                                                <div className="w-0 h-px bg-yellow-400 group-hover:w-12 transition-all duration-500 mt-3"></div>
-                                            </Link>
-                                        ))}
-                                    </div>
-                                )}
-
-                                <div className="mt-12 pt-8 border-t border-gray-800/50">
-                                    <div className="text-center">
-                                        <Link
-                                            href={(() => {
-                                                const topItem = topRowMenu.find((item) => item.handle === hoveredMenu);
-                                                const bottomItem = bottomRowMenu.find((item) => item.handle === hoveredMenu);
-                                                return topItem ? topItem.path : bottomItem ? bottomItem.path : `/${locale}`;
-                                            })()}
-                                            className="inline-flex items-center text-sm text-gray-400 hover:text-yellow-400 transition-colors duration-300 tracking-wide uppercase font-medium group"
-                                        >
-                                            {t('viewAllProducts')}
-                                            <span className="ml-2 transform group-hover:translate-x-1 transition-transform duration-300">→</span>
-                                        </Link>
-                                    </div>
-                                </div>
-                            </div>
-                        </m.div>
-                    )}
-            </AnimatePresence>
+            {activeCategory && (
+                <MegaMenu
+                    category={activeCategory}
+                    products={activeProducts}
+                    isLoading={!!loadingProducts[activeCategory.id]}
+                    isOpen={isMegaMenuOpen}
+                    onClose={() => setHoveredMenu(null)}
+                    onMouseEnter={handleDropdownEnter}
+                    onMouseLeave={handleDropdownLeave}
+                    locale={locale}
+                />
+            )}
         </div>
     );
 }
