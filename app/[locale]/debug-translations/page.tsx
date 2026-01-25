@@ -4,6 +4,9 @@ import {
   getLocalizedProductDescription,
 } from "@/lib/shopify/i18n-queries";
 
+// Force dynamic rendering - this page uses no-store fetch for fresh Shopify data
+export const dynamic = 'force-dynamic';
+
 export default async function DebugTranslationsPage({
   params,
 }: {

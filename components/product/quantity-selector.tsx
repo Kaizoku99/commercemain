@@ -1,12 +1,11 @@
 "use client"
 
 import { createContext, useContext, useState, ReactNode } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Minus, Plus } from "lucide-react"
 import { useCart } from "@/components/cart/cart-context"
 import { useTranslations } from "next-intl"
+import { m, LazyMotion, domAnimation } from "framer-motion"
 
 // Context for sharing quantity state
 interface QuantityContextType {
@@ -71,36 +70,64 @@ export function QuantitySelector({ productId, className }: QuantitySelectorProps
   const t = useTranslations('product')
 
   return (
-    <div className={`space-y-2 ${className}`}>
-      <Label className="text-sm font-medium text-gray-600">
-        {t('quantity')} {cartQuantity > 0 && `(${cartQuantity} ${t('inCart')})`}
-      </Label>
-      <div className="flex items-center border border-gray-200 rounded-lg w-fit">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={decrementQuantity}
-          disabled={quantity <= 1}
-          className="h-10 w-10 p-0 hover:bg-gray-100 disabled:opacity-50"
-        >
-          <Minus className="h-4 w-4" />
-        </Button>
-        <Input
-          type="number"
-          min="1"
-          value={quantity}
-          onChange={handleInputChange}
-          className="h-10 w-16 text-center border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-        />
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={incrementQuantity}
-          className="h-10 w-10 p-0 hover:bg-gray-100"
-        >
-          <Plus className="h-4 w-4" />
-        </Button>
+    <LazyMotion features={domAnimation}>
+      <div className={`space-y-2 ${className}`}>
+        <div className="flex items-center justify-between mb-2">
+          <Label className="text-sm font-medium text-neutral-400">
+            {t('quantity')}
+          </Label>
+          {cartQuantity > 0 && (
+            <m.span 
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="text-xs text-[#d4af37] font-medium bg-[#d4af37]/10 px-2 py-0.5 rounded-full border border-[#d4af37]/20"
+            >
+              {cartQuantity} {t('inCart')}
+            </m.span>
+          )}
+        </div>
+
+        <div className="group relative w-fit">
+          {/* Enhanced glow backing on hover */}
+          <div className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-[#d4af37]/0 via-[#d4af37]/20 to-[#d4af37]/0 opacity-0 blur-lg transition-opacity duration-500 group-hover:opacity-100" />
+
+          {/* Main container */}
+          <div className="relative inline-flex items-center rounded-full bg-black/40 backdrop-blur-xl border border-white/10 ring-1 ring-black/5 shadow-lg overflow-hidden transition-all duration-300 group-hover:border-[#d4af37]/30 group-hover:shadow-[#d4af37]/5">
+            <m.button
+              whileTap={{ scale: 0.9 }}
+              whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+              onClick={decrementQuantity}
+              disabled={quantity <= 1}
+              className="flex items-center justify-center w-12 h-12 text-neutral-400 hover:text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed active:text-[#d4af37]"
+            >
+              <Minus className="h-4 w-4 transition-transform group-hover:scale-110" />
+            </m.button>
+
+            {/* Subtle separator */}
+            <div className="h-5 w-px bg-gradient-to-b from-transparent via-white/10 to-transparent" />
+
+            <input
+              type="number"
+              min="1"
+              value={quantity}
+              onChange={handleInputChange}
+              className="h-12 w-16 text-center border-0 bg-transparent text-white text-lg font-medium tabular-nums caret-[#d4af37] focus:outline-none focus:ring-0 [-moz-appearance:_textfield] [&::-webkit-inner-spin-button]:m-0 [&::-webkit-inner-spin-button]:appearance-none p-0 selection:bg-[#d4af37]/30"
+            />
+
+            {/* Subtle separator */}
+            <div className="h-5 w-px bg-gradient-to-b from-transparent via-white/10 to-transparent" />
+
+            <m.button
+              whileTap={{ scale: 0.9 }}
+              whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+              onClick={incrementQuantity}
+              className="flex items-center justify-center w-12 h-12 text-neutral-400 hover:text-white transition-colors active:text-[#d4af37]"
+            >
+              <Plus className="h-4 w-4 transition-transform group-hover:scale-110" />
+            </m.button>
+          </div>
+        </div>
       </div>
-    </div>
+    </LazyMotion>
   )
 }

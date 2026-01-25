@@ -13,7 +13,7 @@ import { WelcomeToast } from "@/components/welcome-toast";
 import { getCart } from "@/lib/shopify/server";
 import { Toaster } from "sonner";
 import { Cinzel, DM_Sans, Tajawal } from "next/font/google";
-import { StructuredData } from "@/components/structured-data";
+import { StructuredData, LocalBusinessStructuredData } from "@/components/structured-data";
 import { SkipToContentSimple } from "@/components/ui/skip-navigation";
 import { baseUrl } from "@/lib/utils";
 
@@ -113,6 +113,32 @@ export default async function LocaleLayout({
             locale === "ar"
               ? "حلول العافية المتميزة والتكنولوجيا المتقدمة مع فوائد العضوية الحصرية لـ ATP"
               : "Premium wellness and technology solutions with exclusive ATP membership benefits",
+        }}
+      />
+
+      {/* LocalBusiness Schema for UAE presence */}
+      <LocalBusinessStructuredData
+        additionalType="HealthAndBeautyBusiness"
+        aggregateRating={{
+          ratingValue: 4.8,
+          reviewCount: 1250,
+        }}
+        hasOfferCatalog={{
+          name: "ATP Wellness Services",
+          itemListElement: [
+            {
+              name: "EMS Training",
+              description: "German-engineered electro muscle stimulation fitness programs",
+            },
+            {
+              name: "Premium Skincare",
+              description: "Authentic Thai natural cosmetics and beauty products",
+            },
+            {
+              name: "Wellness Supplements",
+              description: "High-quality health supplements for optimal wellness",
+            },
+          ],
         }}
       />
 

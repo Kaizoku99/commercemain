@@ -70,6 +70,8 @@
     "validating": "جاري التحقق...",
     "closePanel": "إغلاق اللوحة",
     "shippingAndTaxes": "الشحن والضرائب تحسب عند الدفع.",
+    "awayFromFreeShipping": "للحصول على شحن مجاني",
+    "freeShippingUnlocked": "حصلت على شحن مجاني!",
     "or": "أو",
     "warnings": {
       "outOfStock": "المنتج غير متوفر",
@@ -125,6 +127,34 @@
       "outOfStock": "غير متوفر",
       "onlyXLeft": "تبقى {count} فقط",
       "save": "وفر {amount}"
+    },
+    "page": {
+      "emptyDescription": "اكتشف مجموعتنا المميزة للعافية وابدأ رحلتك نحو صحة أفضل",
+      "startShopping": "ابدأ التسوق",
+      "itemCount": "{count} {count, plural, =1 {منتج} other {منتجات}}",
+      "unlockMemberBenefits": "احصل على مزايا العضوية",
+      "memberBenefitsDescription": "وفر حتى 20% على طلبك بالكامل، واستمتع بالشحن المجاني، واحصل على امتيازات حصرية للأعضاء.",
+      "cartItems": "عناصر السلة",
+      "qtyLabel": "الكمية:",
+      "saveAmount": "وفر {amount}",
+      "orderSummary": "ملخص الطلب",
+      "originalTotal": "المجموع الأصلي:",
+      "memberPrice": "سعر العضو:",
+      "youSave": "توفيرك:",
+      "subtotalLabel": "المجموع الفرعي:",
+      "shippingLabel": "الشحن:",
+      "taxesLabel": "الضرائب:",
+      "totalLabel": "الإجمالي:",
+      "secureCheckout": "دفع آمن عبر Shopify",
+      "premiumCheckout": "الدفع المميز",
+      "trustBadges": {
+        "securePayment": "دفع آمن",
+        "sslDesc": "SSL 256-bit",
+        "fastDelivery": "توصيل سريع",
+        "deliveryTime": "2-4 أيام عمل",
+        "easyReturns": "إرجاع سهل",
+        "returnPolicy": "سياسة 30 يوم"
+      }
     }
   },
   "hero": {
@@ -151,8 +181,13 @@
     "membershipBenefit1": "عضوية مجموعة خدمات ATP",
     "membershipBenefit2": "خصم 15% على جميع الخدمات الممتازة",
     "membershipBenefit3": "توصيل مجاني على جميع طلبات المنتجات",
-    "membershipBenefit4": "وصول حصري إلى برامج العافية",
-    "membershipBenefit5": "حجز مسبق لتدريب EMS"
+"membershipBenefit4": "وصول حصري إلى برامج العافية",
+    "membershipBenefit5": "حجز مسبق لتدريب EMS",
+    "trustedMembers": "+10,000 عضو",
+    "yearsExperience": "+15 سنة خبرة",
+    "premiumProducts": "+500 منتج",
+    "heroAriaLabel": "قسم بطل العافية ATP",
+    "scrollToExplore": "مرر للاستكشاف"
   },
   "product": {
     "quantity": "الكمية",
@@ -169,9 +204,11 @@
     "naturalIngredients": "مكونات طبيعية",
     "germanEngineering": "هندسة ألمانية",
     "professionalGrade": "درجة احترافية",
-    "addToCart": "أضف إلى السلة",
+"addToCart": "أضف إلى السلة",
     "lowStock": "تبقى {count} فقط في المخزون!",
-    "inStock": "متوفر"
+    "inStock": "متوفر",
+    "onlyXLeft": "تبقى {count} فقط",
+    "sellingFast": "يباع بسرعة"
   },
   "trustBadges": {
     "securePayment": "دفع آمن",
@@ -503,7 +540,16 @@
       "sessions": "مرتين في الأسبوع",
       "testimonialText": "جلسات تدريب EMS رائعة! حققت تحديدًا عضليًا أكثر في شهرين مما حققته في عامين من التدريب العادي في صالة الألعاب الرياضية. المدربون رائعون والتكنولوجيا رائعة.",
       "testimonialAuthor": "ديفيد ر.",
-      "testimonialRole": "عضو ATP EMS"
+"testimonialRole": "عضو ATP EMS"
     }
+  },
+  "gallery": {
+    "expandImage": "عرض بملء الشاشة",
+    "closeFullscreen": "إغلاق الشاشة الكاملة",
+    "previousImage": "الصورة السابقة",
+    "nextImage": "الصورة التالية",
+    "zoomIn": "تكبير",
+    "zoomOut": "تصغير",
+    "thumbnailLabel": "عرض الصورة"
   }
 }

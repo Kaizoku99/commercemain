@@ -235,7 +235,7 @@ export function ProductDescriptionAccordion({
                     <AccordionItem
                         key={section.id}
                         value={section.id}
-                        className="border border-neutral-200 dark:border-neutral-200 rounded-xl mb-3 overflow-hidden bg-gradient-to-b from-white to-neutral-50 shadow-sm hover:shadow-md transition-shadow duration-200"
+                        className="border border-neutral-200 dark:border-neutral-200 rounded-xl mb-3 overflow-hidden bg-transparent shadow-none"
                     >
                         <AccordionTrigger
                             className={cn(

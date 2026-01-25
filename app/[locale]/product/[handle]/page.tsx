@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-import { Gallery } from "@/components/product/gallery";
+import { ATPLuxuryGallery } from "@/components/product/atp-luxury-gallery";
 import { ProductProvider } from "@/components/product/product-context";
 import { ATPProductDescription } from "@/components/product/atp-product-description";
 import { EnhancedRelatedProducts } from "@/components/product/enhanced-related-products";
+import { ProductStructuredData, BreadcrumbStructuredData } from "@/components/structured-data";
 import { HIDDEN_PRODUCT_TAG } from "@/lib/constants";
 import { getProduct, getProductRecommendations } from "@/lib/shopify/server";
 import {
@@ -14,6 +15,27 @@ import {
 import type { Image } from "@/lib/shopify/types";
 import Link from "next/link";
 import { Suspense } from "react";
+
+// Helper function to generate rich meta descriptions
+const generateMetaDescription = (product: any, locale: "en" | "ar") => {
+  const price = `${product.priceRange.minVariantPrice.currencyCode} ${product.priceRange.minVariantPrice.amount}`;
+  const availability = product.availableForSale 
+    ? (locale === "ar" ? "متوفر" : "In Stock") 
+    : (locale === "ar" ? "غير متوفر" : "Out of Stock");
+  
+  const baseDesc = getLocalizedProductDescription(product, locale);
+  const truncated = baseDesc.slice(0, 120);
+  
+  return locale === "ar"
+    ? `${truncated}... | ${price} | ${availability} | شحن مجاني للإمارات`
+    : `${truncated}... | ${price} | ${availability} | Free UAE Shipping`;
+};
+
+// Helper function to ensure proper alt text for images
+const getImageAlt = (altText: string | undefined | null, productTitle: string, index: number): string => {
+  if (altText && altText.trim()) return altText;
+  return `${productTitle} - Product Image ${index + 1}`;
+};
 
 export async function generateMetadata(props: {
   params: Promise<{ handle: string; locale: string }>;
@@ -40,8 +62,8 @@ export async function generateMetadata(props: {
   );
 
   return {
-    title: product.seo.title || title,
-    description: product.seo.description || description,
+    title: product.seo.title || `${title} | ATP Group Services`,
+    description: product.seo.description || generateMetaDescription(product, params.locale as "en" | "ar"),
     robots: {
       index: indexable,
       follow: indexable,
@@ -50,14 +72,25 @@ export async function generateMetadata(props: {
         follow: indexable,
       },
     },
+    alternates: {
+      canonical: `https://atpgroupservices.com/${params.locale}/product/${params.handle}`,
+      languages: {
+        'en': `https://atpgroupservices.com/en/product/${params.handle}`,
+        'ar': `https://atpgroupservices.com/ar/product/${params.handle}`,
+      },
+    },
     openGraph: url
       ? {
+          title: product.seo.title || title,
+          description: product.seo.description || generateMetaDescription(product, params.locale as "en" | "ar"),
+          url: `https://atpgroupservices.com/${params.locale}/product/${params.handle}`,
+          type: 'website',
           images: [
             {
               url,
               width,
               height,
-              alt,
+              alt: alt || title,
             },
           ],
         }
@@ -79,34 +112,42 @@ export default async function ProductPage(props: {
 
   if (!product) return notFound();
 
-  const productJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Product",
-    name: getLocalizedProductTitle(product, params.locale as "en" | "ar"),
-    description: getLocalizedProductDescription(
-      product,
-      params.locale as "en" | "ar"
-    ),
-    image: product.featuredImage.url,
-    offers: {
-      "@type": "AggregateOffer",
-      availability: product.availableForSale
-        ? "https://schema.org/InStock"
-        : "https://schema.org/OutOfStock",
-      priceCurrency: product.priceRange.minVariantPrice.currencyCode,
-      highPrice: product.priceRange.maxVariantPrice.amount,
-      lowPrice: product.priceRange.minVariantPrice.amount,
-    },
+  // Get localized product title for use in schema and alt text
+  const localizedTitle = getLocalizedProductTitle(product, params.locale as "en" | "ar");
+  const localizedDescription = getLocalizedProductDescription(product, params.locale as "en" | "ar");
+
+  // Prepare structured data for SEO
+  const productSchemaData = {
+    name: localizedTitle,
+    description: localizedDescription,
+    image: product.images.map((img: Image) => img.url),
+    sku: product.id, // Use product ID as SKU fallback
+    url: `https://atpgroupservices.com/${params.locale}/product/${params.handle}`,
+    price: product.priceRange.minVariantPrice.amount,
+    priceCurrency: product.priceRange.minVariantPrice.currencyCode,
+    availability: product.availableForSale ? "InStock" as const : "OutOfStock" as const,
+    brand: "ATP Group Services", // Company brand
   };
+
+  const breadcrumbItems = [
+    { 
+      name: params.locale === "ar" ? "الرئيسية" : "Home", 
+      url: `https://atpgroupservices.com/${params.locale}` 
+    },
+    { 
+      name: params.locale === "ar" ? "المنتجات" : "Products", 
+      url: `https://atpgroupservices.com/${params.locale}/collections` 
+    },
+    { 
+      name: localizedTitle, 
+      url: productSchemaData.url 
+    }
+  ];
 
   return (
     <ProductProvider>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(productJsonLd),
-        }}
-      />
+      <ProductStructuredData {...productSchemaData} />
+      <BreadcrumbStructuredData items={breadcrumbItems} />
       <div className="mx-auto max-w-(--breakpoint-2xl) px-4" dir="ltr">
         <div className="flex flex-col rounded-lg border border-atp-light-gray bg-atp-white p-8 md:p-12 lg:flex-row lg:gap-8">
           <div className="h-full w-full basis-full lg:basis-4/6">
@@ -115,11 +156,15 @@ export default async function ProductPage(props: {
                 <div className="relative aspect-square h-full max-h-[550px] w-full overflow-hidden" />
               }
             >
-              <Gallery
-                images={product.images.slice(0, 5).map((image: Image) => ({
+              <ATPLuxuryGallery
+                images={product.images.slice(0, 5).map((image: Image, index: number) => ({
                   src: image.url,
-                  altText: image.altText,
+                  altText: getImageAlt(image.altText, localizedTitle, index),
                 }))}
+                productTitle={localizedTitle}
+                enableZoom={true}
+                enableLightbox={true}
+                enableSwipe={true}
               />
             </Suspense>
           </div>

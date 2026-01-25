@@ -13,6 +13,8 @@ import { useCart } from "./cart-context";
 import { useCartNotification } from "./cart-provider";
 import { useQuantity } from "@/components/product/quantity-selector";
 
+import { m } from "framer-motion";
+
 function SubmitButton({
   availableForSale,
   selectedVariantId,
@@ -28,10 +30,10 @@ function SubmitButton({
   const { isRTL } = useRTL();
 
   const baseClasses =
-    "relative flex w-full items-center justify-center rounded-full p-4 tracking-wide text-white font-medium transition-all duration-200";
-  const memberClasses = "bg-atp-gold text-atp-black hover:bg-atp-gold/90";
-  const regularClasses = "bg-primary hover:bg-primary/90";
-  const disabledClasses = "cursor-not-allowed opacity-60 hover:opacity-60";
+    "group relative flex w-full items-center justify-center rounded-xl p-4 tracking-wide text-black font-semibold overflow-hidden transition-all duration-300";
+  const memberClasses = "bg-gradient-to-r from-[#d4af37] to-[#c9a432] shadow-lg shadow-[#d4af37]/30 hover:shadow-[#d4af37]/50 hover:from-[#e5c354] hover:to-[#d4af37]";
+  const regularClasses = "bg-gradient-to-r from-[#d4af37] to-[#c9a432] shadow-lg shadow-[#d4af37]/20 hover:shadow-[#d4af37]/40 hover:from-[#e5c354] hover:to-[#d4af37]";
+  const disabledClasses = "cursor-not-allowed opacity-50 bg-neutral-800 text-neutral-500 shadow-none hover:scale-100 hover:opacity-50";
 
   if (!availableForSale) {
     return (
@@ -75,16 +77,23 @@ function SubmitButton({
         </div>
       )}
 
-      <button
+      <m.button
         type="submit"
         aria-label={t('addToCart')}
         className={clsx(baseClasses, isMember ? memberClasses : regularClasses)}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
       >
-        <div className={`absolute ${isRTL ? "right-0 mr-4" : "left-0 ml-4"}`}>
+        {/* Shimmer effect overlay */}
+        <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+          <div className="absolute inset-0 animate-shimmer opacity-70" />
+        </div>
+
+        <div className={`absolute ${isRTL ? "right-0 mr-4" : "left-0 ml-4"} text-black/80`}> 
           {isMember ? <Crown className="h-5" /> : <PlusIcon className="h-5" />}
         </div>
-        {t('addToCart')}
-      </button>
+        <span className="relative z-10">{t('addToCart')}</span>
+      </m.button>
     </div>
   );
 }

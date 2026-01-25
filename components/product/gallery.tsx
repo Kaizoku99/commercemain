@@ -43,46 +43,28 @@ export function Gallery({
             <div className="mx-auto flex h-11 items-center rounded-full border border-white bg-neutral-50/80 text-neutral-500 backdrop-blur-sm dark:border-black dark:bg-neutral-900/80">
               <button
                 formAction={() => {
-                  // In RTL mode, left arrow should go to next image
-                  const targetIndex = isRTL
-                    ? nextImageIndex
-                    : previousImageIndex;
+                  // In RTL mode, the left button (visually) should go to the next image
+                  const targetIndex = isRTL ? nextImageIndex : previousImageIndex;
                   const newState = updateImage(targetIndex.toString());
                   updateURL(newState);
                 }}
-                aria-label={
-                  isRTL ? "Next product image" : "Previous product image"
-                }
+                aria-label={isRTL ? "Next product image" : "Previous product image"}
                 className={buttonClassName}
               >
-                {/* In RTL mode, show right arrow on left button */}
-                {isRTL ? (
-                  <ArrowRightIcon className="h-5" />
-                ) : (
-                  <ArrowLeftIcon className="h-5" />
-                )}
+                <ArrowLeftIcon className="h-5" />
               </button>
               <div className="mx-1 h-6 w-px bg-neutral-500"></div>
               <button
                 formAction={() => {
-                  // In RTL mode, right arrow should go to previous image
-                  const targetIndex = isRTL
-                    ? previousImageIndex
-                    : nextImageIndex;
+                  // In RTL mode, the right button (visually) should go to the previous image
+                  const targetIndex = isRTL ? previousImageIndex : nextImageIndex;
                   const newState = updateImage(targetIndex.toString());
                   updateURL(newState);
                 }}
-                aria-label={
-                  isRTL ? "Previous product image" : "Next product image"
-                }
+                aria-label={isRTL ? "Previous product image" : "Next product image"}
                 className={buttonClassName}
               >
-                {/* In RTL mode, show left arrow on right button */}
-                {isRTL ? (
-                  <ArrowLeftIcon className="h-5" />
-                ) : (
-                  <ArrowRightIcon className="h-5" />
-                )}
+                <ArrowRightIcon className="h-5" />
               </button>
             </div>
           </div>

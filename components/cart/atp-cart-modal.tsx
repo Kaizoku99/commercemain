@@ -1,7 +1,8 @@
 "use client";
 
 import clsx from "clsx";
-import { Dialog, Transition } from "@headlessui/react";
+import { Dialog } from "@headlessui/react";
+import { m, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ShoppingCartIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Crown, Star } from "lucide-react";
 import LoadingDots from "@/components/loading-dots";
@@ -9,6 +10,15 @@ import Price from "@/components/price";
 import { MembershipBadge } from "@/components/membership/membership-badge";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { 
+  overlayVariants, 
+  slideOverVariants, 
+  slideOverLeftVariants,
+  itemVariants,
+  transitions 
+} from "@/lib/animations/variants";
+import { FreeShippingProgress } from "./free-shipping-progress";
+import { EmptyCartState } from "./empty-cart-state";
 import { DEFAULT_OPTION } from "@/lib/constants";
 import { createUrl } from "@/lib/utils";
 import {
@@ -115,34 +125,30 @@ function ATPCartModal() {
   return (
     <div className={isRTL ? "font-arabic" : ""}>
       <OpenCart quantity={cart?.totalQuantity} />
-      <Transition show={isOpen}>
-        <Dialog onClose={closeCart} className="relative z-50">
-          <Transition.Child
-            as={Fragment}
-            enter="transition-all ease-in-out duration-300"
-            enterFrom="opacity-0 backdrop-blur-none"
-            enterTo="opacity-100 backdrop-blur-[.5px]"
-            leave="transition-all ease-in-out duration-200"
-            leaveFrom="opacity-100 backdrop-blur-[.5px]"
-            leaveTo="opacity-0 backdrop-blur-none"
-          >
-            <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
-          </Transition.Child>
-          <Transition.Child
-            as={Fragment}
-            enter="transition-all ease-in-out duration-300"
-            enterFrom={isRTL ? "-translate-x-full" : "translate-x-full"}
-            enterTo="translate-x-0"
-            leave="transition-all ease-in-out duration-200"
-            leaveFrom="translate-x-0"
-            leaveTo={isRTL ? "-translate-x-full" : "translate-x-full"}
-          >
-            <Dialog.Panel
+      <AnimatePresence>
+        {isOpen && (
+          <Dialog static open={isOpen} onClose={closeCart} className="relative z-50">
+            {/* Backdrop Overlay */}
+            <m.div
+              className="fixed inset-0 bg-black/30 backdrop-blur-sm"
+              variants={overlayVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              aria-hidden="true"
+            />
+            {/* Slide-over Panel */}
+            <m.div
               className={clsx(
                 "fixed bottom-0 top-0 flex h-full w-full flex-col border-neutral-200 bg-white/80 p-6 text-black backdrop-blur-xl md:w-[420px] dark:border-neutral-700 dark:bg-black/80 dark:text-white",
                 isRTL ? "left-0 border-r" : "right-0 border-l"
               )}
+              variants={isRTL ? slideOverLeftVariants : slideOverVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
             >
+              <Dialog.Panel className="h-full w-full flex flex-col">
               <div
                 className={`flex items-center justify-between mb-4 ${isRTL ? "flex-row-reverse" : ""
                   }`}
@@ -194,26 +200,25 @@ function ATPCartModal() {
                   </Card>
                 )}
 
+              {/* Free Shipping Progress */}
+              {cart &&
+                Array.isArray(cart.lines) &&
+                cart.lines.length > 0 && (
+                  <FreeShippingProgress
+                    currentTotal={parseFloat(cart.cost.totalAmount.amount)}
+                    currency={cart.cost.totalAmount.currencyCode}
+                    threshold={250}
+                  />
+                )}
+
               {!cart ||
                 !Array.isArray(cart.lines) ||
                 cart.lines.length === 0 ? (
-                <div
-                  className={`mt-20 flex w-full flex-col items-center justify-center overflow-hidden ${isRTL ? "text-right" : ""
-                    }`}
-                >
-                  <ShoppingCartIcon className="h-16" />
-                  <p className="mt-6 text-center text-2xl font-bold">
-                    {t('yourCartIsEmpty')}
-                  </p>
-                  <p className="mt-2 text-center text-sm text-muted-foreground">
-                    {isRTL
-                      ? "ابدأ التسوق لإضافة عناصر إلى سلتك"
-                      : "Start shopping to add items to your cart"}
-                  </p>
-                </div>
+                <EmptyCartState onClose={closeCart} />
               ) : (
                 <div className="flex h-full flex-col justify-between overflow-hidden p-1">
                   <ul className="grow overflow-auto py-4">
+                    <AnimatePresence mode="popLayout">
                     {Array.isArray(cart.lines) ? (
                       cart.lines
                         .sort((a: CartItem, b: CartItem) =>
@@ -252,8 +257,13 @@ function ATPCartModal() {
                             : null;
 
                           return (
-                            <li
-                              key={i}
+                            <m.li
+                              key={item.id || `cart-item-${i}`}
+                              layout
+                              variants={itemVariants}
+                              initial="hidden"
+                              animate="visible"
+                              exit={{ opacity: 0, x: isRTL ? 100 : -100, transition: transitions.fast }}
                               className="flex w-full flex-col border-b border-neutral-300 dark:border-neutral-700"
                             >
                               <div
@@ -365,11 +375,17 @@ function ATPCartModal() {
                                       type="minus"
                                       optimisticUpdate={updateCartItem}
                                     />
-                                    <p className="w-6 text-center">
+                                    <m.p 
+                                      key={item.quantity}
+                                      initial={{ scale: 1.3, color: 'var(--atp-gold)' }}
+                                      animate={{ scale: 1, color: 'inherit' }}
+                                      transition={transitions.springBouncy}
+                                      className="w-6 text-center"
+                                    >
                                       <span className="w-full text-sm">
                                         {item.quantity}
                                       </span>
-                                    </p>
+                                    </m.p>
                                     <EditItemQuantityButton
                                       item={item}
                                       type="plus"
@@ -378,7 +394,7 @@ function ATPCartModal() {
                                   </div>
                                 </div>
                               </div>
-                            </li>
+                            </m.li>
                           );
                         })
                     ) : (
@@ -388,6 +404,7 @@ function ATPCartModal() {
                           : "Error loading cart items"}
                       </li>
                     )}
+                    </AnimatePresence>
                   </ul>
 
                   <div
@@ -493,10 +510,11 @@ function ATPCartModal() {
                   </form>
                 </div>
               )}
-            </Dialog.Panel>
-          </Transition.Child>
-        </Dialog>
-      </Transition>
+              </Dialog.Panel>
+            </m.div>
+          </Dialog>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

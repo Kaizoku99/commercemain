@@ -91,7 +91,7 @@ export default function CollectionHero({
       <m.div 
         className={cn(
           "relative z-10 h-full container mx-auto px-4 flex flex-col justify-end pb-24 md:pb-32",
-          isRTL ? "items-end text-right" : "items-start text-left"
+          isRTL ? "items-start text-right" : "items-start text-left"
         )}
         style={{ opacity }}
         variants={staggerSlow}
@@ -100,8 +100,8 @@ export default function CollectionHero({
         viewport={heroViewport}
       >
         <div className={cn(
-          "max-w-4xl w-full flex flex-col gap-4",
-          isRTL ? "items-end" : "items-start"
+          "max-w-4xl flex flex-col gap-4",
+          isRTL ? "items-start text-right" : "items-start text-left"
         )}>
           {subtitle && (
             <m.span 

@@ -4,9 +4,22 @@ import { useCart } from "@/components/cart/cart-context";
 import { useMembership } from "@/hooks/use-membership";
 import { useTranslations } from "@/hooks/use-translations";
 import { useRTL } from "@/hooks/use-rtl";
-import { ShoppingCartIcon, Crown, Star, ArrowLeft } from "lucide-react";
+import { 
+    ShoppingCartIcon, 
+    Crown, 
+    Star, 
+    ArrowLeft,
+    ArrowRight,
+    Sparkles,
+    Shield,
+    Truck,
+    Gift,
+    Package,
+    Clock,
+    AlertTriangle,
+    TrendingUp
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { MembershipBadge } from "@/components/membership/membership-badge";
 import Price from "@/components/price";
@@ -21,15 +34,135 @@ import { useFormStatus } from "react-dom";
 import LoadingDots from "@/components/loading-dots";
 import type { CartItem } from "@/lib/shopify/types";
 import { useMemo } from "react";
+import { m, AnimatePresence, LazyMotion, domAnimation } from "framer-motion";
+import { 
+    containerVariants, 
+    itemVariants, 
+    fadeUpVariants,
+    scaleVariants,
+    stagger 
+} from "@/lib/animations/variants";
 
 type MerchandiseSearchParams = {
     [key: string]: string;
 };
 
+type Translator = ReturnType<typeof useTranslations>["t"];
+
+// Cart item animation variants - base (exit direction handled dynamically)
+const cartItemVariantsBase = {
+    hidden: { 
+        opacity: 0, 
+        y: 20,
+        scale: 0.98
+    },
+    visible: { 
+        opacity: 1, 
+        y: 0,
+        scale: 1,
+        transition: {
+            duration: 0.4,
+            ease: [0.16, 1, 0.3, 1] as [number, number, number, number]
+        }
+    },
+    exit: { 
+        opacity: 0, 
+        x: -50, // Default LTR, overridden in component for RTL
+        scale: 0.95,
+        transition: {
+            duration: 0.3
+        }
+    }
+};
+
+const cartContainerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.08,
+            delayChildren: 0.1
+        }
+    }
+};
+
+const summaryItemVariantsBase = {
+    hidden: { opacity: 0, x: 20 }, // Default LTR
+    visible: { 
+        opacity: 1, 
+        x: 0,
+        transition: {
+            duration: 0.3,
+            ease: [0.16, 1, 0.3, 1] as [number, number, number, number]
+        }
+    }
+};
+
+// Stock indicator component for cart items
+function CartStockIndicator({ 
+    quantityAvailable,
+    tCart,
+    tProduct
+}: { 
+    quantityAvailable?: number;
+    tCart: Translator;
+    tProduct: Translator;
+}) {
+    // If quantity is unknown, don't show
+    if (quantityAvailable === undefined || quantityAvailable === null) {
+        return null;
+    }
+
+    // Out of stock
+    if (quantityAvailable === 0) {
+        return (
+            <div className="flex items-center gap-1.5 mt-2">
+                <AlertTriangle className="w-3 h-3 text-red-400" />
+                <span className="text-xs font-medium text-red-400">{tCart("outOfStock")}</span>
+            </div>
+        );
+    }
+
+    // Low stock warning (1-5)
+    if (quantityAvailable <= 5) {
+        return (
+            <div className="flex items-center gap-1.5 mt-2">
+                <Clock className="w-3 h-3 text-amber-400 animate-pulse" />
+                <span className="text-xs font-medium text-amber-400">
+                    {tProduct("lowStock", { count: quantityAvailable })}
+                </span>
+            </div>
+        );
+    }
+
+    // Moderate stock (6-20) - show "Only X left" with urgency
+    if (quantityAvailable <= 20) {
+        return (
+            <div className="flex items-center gap-1.5 mt-2">
+                <TrendingUp className="w-3 h-3 text-[#d4af37]" />
+                <span className="text-xs font-medium text-[#d4af37]">
+                    {tProduct("onlyXLeft", { count: quantityAvailable })}
+                </span>
+                <span className="text-xs text-neutral-500">— {tProduct("sellingFast")}</span>
+            </div>
+        );
+    }
+
+    // High stock (>20) - show "In Stock"
+    return (
+        <div className="flex items-center gap-1.5 mt-2">
+            <Package className="w-3 h-3 text-green-400" />
+            <span className="text-xs font-medium text-green-400">{tProduct("inStock")}</span>
+        </div>
+    );
+}
+
 export function CartPageContent() {
     const { cart, updateCartItem } = useCart();
     const { membership, isMember, getMemberPrice } = useMembership();
-    const { t, formatPrice } = useTranslations();
+    const { t: tCart, formatPrice } = useTranslations("cart");
+    const { t: tProduct } = useTranslations("product");
+    const { t: tMembership } = useTranslations("membership");
     const { isRTL } = useRTL();
 
     // Calculate member savings - Memoized
@@ -58,340 +191,502 @@ export function CartPageContent() {
     }, [cart, isMember, getMemberPrice]);
 
     if (!cart || !Array.isArray(cart.lines) || cart.lines.length === 0) {
+        const BackArrow = isRTL ? ArrowRight : ArrowLeft;
+        
         return (
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-                <div className="container mx-auto px-4 py-8">
-                    <div className="mb-6">
-                        <Button variant="ghost" asChild className="mb-4">
-                            <Link href="/" className="flex items-center gap-2">
-                                <ArrowLeft className="w-4 h-4" />
-                                Continue Shopping
-                            </Link>
-                        </Button>
-                        <h1 className="text-3xl font-bold">Shopping Cart</h1>
-                    </div>
-
-                    <Card className="max-w-md mx-auto text-center">
-                        <CardContent className="pt-12 pb-8">
-                            <ShoppingCartIcon className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                            <h2 className="text-xl font-semibold mb-2">Your cart is empty</h2>
-                            <p className="text-gray-600 dark:text-gray-400 mb-6">
-                                Start shopping to add items to your cart
-                            </p>
-                            <Button asChild>
-                                <Link href="/">Start Shopping</Link>
+            <LazyMotion features={domAnimation}>
+                <div className="min-h-screen bg-gradient-to-b from-neutral-950 via-neutral-900 to-neutral-950" dir={isRTL ? "rtl" : "ltr"}>
+                    {/* Subtle grid pattern overlay */}
+                    <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIDAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyMTIsMTc1LDU1LDAuMDMpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-50" />
+                    
+                    <div className="container relative mx-auto px-4 py-12">
+                        <m.div 
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="mb-8"
+                        >
+                            <Button 
+                                variant="ghost" 
+                                asChild 
+                                className="mb-4 text-neutral-400 hover:text-[#d4af37] hover:bg-[#d4af37]/10 transition-colors"
+                            >
+                                <Link href="/" className="flex items-center gap-2">
+                                    <BackArrow className="w-4 h-4" />
+                                    {tCart("continueShopping")}
+                                </Link>
                             </Button>
-                        </CardContent>
-                    </Card>
+                            <h1 className="text-4xl font-bold leading-tight bg-gradient-to-r from-white via-neutral-200 to-neutral-400 bg-clip-text text-transparent">
+                                {tCart("shoppingCart")}
+                            </h1>
+                        </m.div>
+
+                        <m.div 
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            transition={{ delay: 0.2 }}
+                            className="max-w-lg mx-auto"
+                        >
+                            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-neutral-900/80 to-neutral-800/50 border border-neutral-800/50 backdrop-blur-sm p-12 text-center">
+                                {/* Decorative glow */}
+                                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-[#d4af37]/10 rounded-full blur-3xl" />
+                                
+                                <m.div
+                                    initial={{ scale: 0.8, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    transition={{ delay: 0.3, type: "spring" }}
+                                    className="relative"
+                                >
+                                    <div className="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-neutral-800 to-neutral-900 border border-neutral-700/50 flex items-center justify-center">
+                                        <ShoppingCartIcon className="w-10 h-10 text-neutral-500" />
+                                    </div>
+                                </m.div>
+                                
+                                <h2 className="text-2xl font-semibold text-white mb-3">
+                                    {tCart("yourCartIsEmpty")}
+                                </h2>
+                                <p className="text-neutral-400 mb-8 max-w-sm mx-auto">
+                                    {tCart("page.emptyDescription")}
+                                </p>
+                                
+                                <Button 
+                                    asChild
+                                    className="bg-gradient-to-r from-[#d4af37] to-[#c9a432] hover:from-[#e5c354] hover:to-[#d4af37] text-black font-semibold px-8 py-3 rounded-xl shadow-lg shadow-[#d4af37]/20 transition-all hover:shadow-[#d4af37]/30 hover:scale-[1.02]"
+                                >
+                                    <Link href="/">
+                                        <Sparkles className="w-4 h-4 me-2" />
+                                        {tCart("page.startShopping")}
+                                    </Link>
+                                </Button>
+                            </div>
+                        </m.div>
+                    </div>
                 </div>
-            </div>
+            </LazyMotion>
         );
     }
 
+    const BackArrow = isRTL ? ArrowRight : ArrowLeft;
+    const itemCount = cart.lines.length;
+    const cartItemVariants = {
+        ...cartItemVariantsBase,
+        exit: {
+            ...cartItemVariantsBase.exit,
+            x: isRTL ? 50 : -50
+        }
+    };
+    const summaryItemVariants = {
+        ...summaryItemVariantsBase,
+        hidden: {
+            ...summaryItemVariantsBase.hidden,
+            x: isRTL ? -20 : 20
+        }
+    };
+
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-            <div className="container mx-auto px-4 py-8">
-                <div className="mb-6">
-                    <Button variant="ghost" asChild className="mb-4">
-                        <Link href="/" className="flex items-center gap-2">
-                            <ArrowLeft className="w-4 h-4" />
-                            Continue Shopping
-                        </Link>
-                    </Button>
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <h1 className="text-3xl font-bold">Shopping Cart</h1>
-                            {isMember && membership?.tier && (
-                                <MembershipBadge tier={membership.tier as "premium" | "elite" | "essential" | "atp"} className="text-sm" />
-                            )}
+        <LazyMotion features={domAnimation}>
+            <div className="min-h-screen bg-gradient-to-b from-neutral-950 via-neutral-900 to-neutral-950" dir={isRTL ? "rtl" : "ltr"}>
+                {/* Subtle grid pattern overlay */}
+                <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA2MCAwIEwgMCAwIDAgNjAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyMTIsMTc1LDU1LDAuMDMpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-50" />
+                
+                <div className="container relative mx-auto px-4 py-8 lg:py-12">
+                    {/* Header */}
+                    <m.div 
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mb-8"
+                    >
+                        <Button 
+                            variant="ghost" 
+                            asChild 
+                            className="mb-4 text-neutral-400 hover:text-[#d4af37] hover:bg-[#d4af37]/10 transition-colors"
+                        >
+                            <Link href="/" className="flex items-center gap-2">
+                                <BackArrow className="w-4 h-4" />
+                                {tCart("continueShopping")}
+                            </Link>
+                        </Button>
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <h1 className="text-3xl lg:text-4xl font-bold leading-tight bg-gradient-to-r from-white via-neutral-200 to-neutral-400 bg-clip-text text-transparent">
+                                    {tCart("shoppingCart")}
+                                </h1>
+                                {isMember && membership?.tier && (
+                                    <MembershipBadge 
+                                        tier={membership.tier as "premium" | "elite" | "essential" | "atp"} 
+                                        className="text-sm" 
+                                    />
+                                )}
+                            </div>
+                            <div className="flex items-center gap-2 text-neutral-400">
+                                <Package className="w-4 h-4" />
+                                <span className="text-sm font-medium">
+                                    {tCart("page.itemCount", { count: itemCount })}
+                                </span>
+                            </div>
                         </div>
-                        <p className="text-gray-600 dark:text-gray-400">
-                            {cart.lines.length} {cart.lines.length === 1 ? "item" : "items"}
-                        </p>
-                    </div>
-                </div>
+                    </m.div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Cart Items */}
-                    <div className="lg:col-span-2">
-                        {/* Member Benefits Banner */}
-                        {!isMember && (
-                            <Card className="mb-6 bg-gradient-to-r from-yellow-50 to-yellow-100 border-yellow-200 dark:from-yellow-900/20 dark:to-yellow-800/20 dark:border-yellow-800">
-                                <CardContent className="p-6">
-                                    <div className="flex items-center gap-3 mb-3">
-                                        <Crown className="w-6 h-6 text-yellow-600" />
-                                        <h3 className="text-lg font-semibold text-yellow-800 dark:text-yellow-200">
-                                            Unlock Member Benefits
-                                        </h3>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+                        {/* Cart Items Column */}
+                        <div className="lg:col-span-2 space-y-6">
+                            {/* Member Benefits Banner */}
+                            {!isMember && (
+                                <m.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.1 }}
+                                    className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-neutral-900 via-neutral-800/90 to-neutral-900 border border-[#d4af37]/20 p-6"
+                                >
+                                    {/* Decorative elements */}
+                                    <div className="absolute top-0 end-0 w-40 h-40 bg-[#d4af37]/5 rounded-full blur-3xl" />
+                                    <div className="absolute bottom-0 start-0 w-32 h-32 bg-[#d4af37]/5 rounded-full blur-2xl" />
+                                    
+                                    <div className="relative flex flex-col sm:flex-row sm:items-center gap-4">
+                                        <div className="flex-shrink-0">
+                                            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#d4af37]/20 to-[#d4af37]/5 border border-[#d4af37]/30 flex items-center justify-center">
+                                                <Crown className="w-7 h-7 text-[#d4af37]" />
+                                            </div>
+                                        </div>
+                                        <div className="flex-1">
+                                            <h3 className="text-lg font-semibold text-[#d4af37] mb-1">
+                                                {tCart("page.unlockMemberBenefits")}
+                                            </h3>
+                                            <p className="text-neutral-400 text-sm leading-relaxed">
+                                                {tCart("page.memberBenefitsDescription")}
+                                            </p>
+                                        </div>
+                                        <Button
+                                            asChild
+                                            className="bg-gradient-to-r from-[#d4af37] to-[#c9a432] hover:from-[#e5c354] hover:to-[#d4af37] text-black font-semibold rounded-xl shadow-lg shadow-[#d4af37]/20 transition-all hover:shadow-[#d4af37]/30 hover:scale-[1.02] whitespace-nowrap"
+                                        >
+                                            <Link href="/atp-membership">
+                                                {tMembership("joinMembership")}
+                                            </Link>
+                                        </Button>
                                     </div>
-                                    <p className="text-yellow-700 dark:text-yellow-300 mb-4">
-                                        Save up to 20% on your entire order, get free shipping, and
-                                        enjoy exclusive member perks.
-                                    </p>
-                                    <Button
-                                        asChild
-                                        className="bg-yellow-600 hover:bg-yellow-700 text-white"
-                                    >
-                                        <Link href="/atp-membership">Join ATP Membership</Link>
-                                    </Button>
-                                </CardContent>
-                            </Card>
-                        )}
+                                </m.div>
+                            )}
 
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Cart Items</CardTitle>
-                            </CardHeader>
-                            <CardContent className="p-0">
-                                <div className="divide-y">
-                                    {cart.lines.map((item: CartItem, i: number) => {
-                                        const merchandiseSearchParams =
-                                            {} as MerchandiseSearchParams;
+                            {/* Cart Items */}
+                            <m.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.15 }}
+                                className="rounded-2xl bg-neutral-900/50 border border-neutral-800/50 backdrop-blur-sm overflow-hidden"
+                            >
+                                <div className="px-6 py-4 border-b border-neutral-800/50">
+                                    <h2 className="text-lg font-semibold text-white">{tCart("page.cartItems")}</h2>
+                                </div>
+                                
+                                <m.div 
+                                    variants={cartContainerVariants}
+                                    initial="hidden"
+                                    animate="visible"
+                                    className="divide-y divide-neutral-800/50"
+                                >
+                                    <AnimatePresence mode="popLayout">
+                                        {cart.lines.map((item: CartItem, i: number) => {
+                                            const merchandiseSearchParams = {} as MerchandiseSearchParams;
 
-                                        item.merchandise.selectedOptions.forEach(
-                                            ({ name, value }) => {
-                                                if (value !== DEFAULT_OPTION) {
-                                                    merchandiseSearchParams[name.toLowerCase()] = value;
+                                            item.merchandise.selectedOptions.forEach(
+                                                ({ name, value }) => {
+                                                    if (value !== DEFAULT_OPTION) {
+                                                        merchandiseSearchParams[name.toLowerCase()] = value;
+                                                    }
                                                 }
-                                            }
-                                        );
+                                            );
 
-                                        const merchandiseUrl = createUrl(
-                                            `/product/${item.merchandise.product.handle}`,
-                                            new URLSearchParams(merchandiseSearchParams)
-                                        );
+                                            const merchandiseUrl = createUrl(
+                                                `/product/${item.merchandise.product.handle}`,
+                                                new URLSearchParams(merchandiseSearchParams)
+                                            );
 
-                                        const itemPrice = Number.parseFloat(
-                                            item.cost.totalAmount.amount
-                                        );
-                                        const unitPrice = itemPrice / item.quantity;
-                                        const pricing = isMember
-                                            ? getMemberPrice(unitPrice.toString())
-                                            : null;
+                                            const itemPrice = Number.parseFloat(
+                                                item.cost.totalAmount.amount
+                                            );
+                                            const unitPrice = itemPrice / item.quantity;
+                                            const pricing = isMember
+                                                ? getMemberPrice(unitPrice.toString())
+                                                : null;
 
-                                        return (
-                                            <div key={i} className="p-6">
-                                                <div className="flex gap-4">
-                                                    <div className="relative">
-                                                        <div className="relative h-24 w-24 overflow-hidden rounded-lg border bg-gray-100 dark:bg-gray-800">
-                                                            <Image
-                                                                className="h-full w-full object-cover"
-                                                                width={96}
-                                                                height={96}
-                                                                alt={
-                                                                    item.merchandise.product.featuredImage
-                                                                        .altText || item.merchandise.product.title
-                                                                }
-                                                                src={
-                                                                    item.merchandise.product.featuredImage.url ||
-                                                                    "/placeholder.svg"
-                                                                }
-                                                            />
+                                            return (
+                                                <m.div 
+                                                    key={item.id || i}
+                                                    variants={cartItemVariants}
+                                                    layout
+                                                    className="p-6 hover:bg-neutral-800/20 transition-colors"
+                                                >
+                                                    <div className="flex gap-5">
+                                                        {/* Product Image */}
+                                                        <div className="relative flex-shrink-0 group">
+                                                            <div className="relative h-28 w-28 overflow-hidden rounded-xl bg-neutral-800 border border-neutral-700/50">
+                                                                <Image
+                                                                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                                    width={112}
+                                                                    height={112}
+                                                                    alt={
+                                                                        item.merchandise.product.featuredImage?.altText || 
+                                                                        item.merchandise.product.title
+                                                                    }
+                                                                    src={
+                                                                        item.merchandise.product.featuredImage?.url ||
+                                                                        "/placeholder.svg"
+                                                                    }
+                                                                />
+                                                            </div>
+                                                            <div className="absolute -top-2 -end-2 z-10">
+                                                                <DeleteItemButton
+                                                                    item={item}
+                                                                    optimisticUpdate={updateCartItem}
+                                                                />
+                                                            </div>
                                                         </div>
-                                                        <div className="absolute -top-2 -right-2">
-                                                            <DeleteItemButton
-                                                                item={item}
-                                                                optimisticUpdate={updateCartItem}
+
+                                                        {/* Product Details */}
+                                                        <div className="flex-1 min-w-0">
+                                                            <Link
+                                                                href={merchandiseUrl}
+                                                                className="block group"
+                                                            >
+                                                                <h3 className="text-base lg:text-lg font-medium text-white group-hover:text-[#d4af37] transition-colors line-clamp-2">
+                                                                    {item.merchandise.product.title}
+                                                                </h3>
+                                                                {item.merchandise.title !== DEFAULT_OPTION && (
+                                                                    <p className="text-sm text-neutral-500 mt-1">
+                                                                        {item.merchandise.title}
+                                                                    </p>
+                                                                )}
+                                                            </Link>
+
+                                                            {/* Stock Indicator */}
+                                                            <CartStockIndicator 
+                                                                quantityAvailable={item.merchandise.quantityAvailable}
+                                                                tCart={tCart}
+                                                                tProduct={tProduct}
                                                             />
-                                                        </div>
-                                                    </div>
 
-                                                    <div className="flex-1 min-w-0">
-                                                        <Link
-                                                            href={merchandiseUrl}
-                                                            className="block hover:text-blue-600 dark:hover:text-blue-400"
-                                                        >
-                                                            <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 truncate">
-                                                                {item.merchandise.product.title}
-                                                            </h3>
-                                                            {item.merchandise.title !== DEFAULT_OPTION && (
-                                                                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                                                                    {item.merchandise.title}
-                                                                </p>
-                                                            )}
-                                                        </Link>
+                                                            <div className="flex items-center justify-between mt-4">
+                                                                {/* Quantity Controls */}
+                                                                <div className="flex items-center gap-3">
+                                                                    <span className="text-sm text-neutral-500">{tCart("page.qtyLabel")}</span>
+                                                                    <div className="flex items-center rounded-lg bg-neutral-800/50 border border-neutral-700/50 overflow-hidden">
+                                                                        <EditItemQuantityButton
+                                                                            item={item}
+                                                                            type="minus"
+                                                                            optimisticUpdate={updateCartItem}
+                                                                        />
+                                                                        <span className="px-4 py-2 text-sm font-medium text-white min-w-[40px] text-center">
+                                                                            {item.quantity}
+                                                                        </span>
+                                                                        <EditItemQuantityButton
+                                                                            item={item}
+                                                                            type="plus"
+                                                                            optimisticUpdate={updateCartItem}
+                                                                        />
+                                                                    </div>
+                                                                </div>
 
-                                                        <div className="flex items-center justify-between mt-4">
-                                                            <div className="flex items-center gap-3">
-                                                                <span className="text-sm text-gray-500">
-                                                                    Qty:
-                                                                </span>
-                                                                <div className="flex items-center rounded-lg border border-gray-200 dark:border-gray-700">
-                                                                    <EditItemQuantityButton
-                                                                        item={item}
-                                                                        type="minus"
-                                                                        optimisticUpdate={updateCartItem}
-                                                                    />
-                                                                    <span className="px-3 py-1 text-sm font-medium">
-                                                                        {item.quantity}
-                                                                    </span>
-                                                                    <EditItemQuantityButton
-                                                                        item={item}
-                                                                        type="plus"
-                                                                        optimisticUpdate={updateCartItem}
-                                                                    />
+                                                                {/* Price */}
+                                                                <div className={isRTL ? "text-left" : "text-right"}>
+                                                                    {isMember && pricing && pricing.savings > 0 ? (
+                                                                        <div>
+                                                                            <span className="text-sm text-neutral-500 line-through block">
+                                                                                {formatPrice(pricing.originalPrice * item.quantity)}
+                                                                            </span>
+                                                                            <Price
+                                                                                className="text-lg font-semibold text-[#d4af37]"
+                                                                                amount={(pricing.memberPrice * item.quantity).toFixed(2)}
+                                                                                currencyCode={item.cost.totalAmount.currencyCode}
+                                                                            />
+                                                                            <span className="text-xs text-[#d4af37]/80 block">
+                                                                                {tCart("page.saveAmount", { amount: formatPrice(pricing.savings * item.quantity) })}
+                                                                            </span>
+                                                                        </div>
+                                                                    ) : (
+                                                                        <Price
+                                                                            className="text-lg font-semibold text-white"
+                                                                            amount={item.cost.totalAmount.amount}
+                                                                            currencyCode={item.cost.totalAmount.currencyCode}
+                                                                        />
+                                                                    )}
                                                                 </div>
                                                             </div>
-
-                                                            <div className="text-right">
-                                                                {isMember && pricing && pricing.savings > 0 ? (
-                                                                    <div>
-                                                                        <span className="text-sm text-gray-500 line-through block">
-                                                                            {formatPrice(
-                                                                                pricing.originalPrice * item.quantity
-                                                                            )}
-                                                                        </span>
-                                                                        <Price
-                                                                            className="text-lg font-semibold text-yellow-600"
-                                                                            amount={(
-                                                                                pricing.memberPrice * item.quantity
-                                                                            ).toFixed(2)}
-                                                                            currencyCode={
-                                                                                item.cost.totalAmount.currencyCode
-                                                                            }
-                                                                        />
-                                                                        <span className="text-xs text-yellow-600 block">
-                                                                            Save{" "}
-                                                                            {formatPrice(
-                                                                                pricing.savings * item.quantity
-                                                                            )}
-                                                                        </span>
-                                                                    </div>
-                                                                ) : (
-                                                                    <Price
-                                                                        className="text-lg font-semibold"
-                                                                        amount={item.cost.totalAmount.amount}
-                                                                        currencyCode={
-                                                                            item.cost.totalAmount.currencyCode
-                                                                        }
-                                                                    />
-                                                                )}
-                                                            </div>
                                                         </div>
                                                     </div>
+                                                </m.div>
+                                            );
+                                        })}
+                                    </AnimatePresence>
+                                </m.div>
+                            </m.div>
+
+                            {/* Trust Badges */}
+                            <m.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.25 }}
+                                className="grid grid-cols-3 gap-4"
+                            >
+                                {[
+                                    { icon: Shield, labelKey: "page.trustBadges.securePayment", descKey: "page.trustBadges.sslDesc" },
+                                    { icon: Truck, labelKey: "page.trustBadges.fastDelivery", descKey: "page.trustBadges.deliveryTime" },
+                                    { icon: Gift, labelKey: "page.trustBadges.easyReturns", descKey: "page.trustBadges.returnPolicy" },
+                                ].map((badge, i) => (
+                                    <div 
+                                        key={i}
+                                        className="flex flex-col items-center gap-2 p-4 rounded-xl bg-neutral-900/30 border border-neutral-800/30 text-center"
+                                    >
+                                        <badge.icon className="w-5 h-5 text-[#d4af37]" />
+                                        <div>
+                                            <p className="text-xs font-medium text-white">{tCart(badge.labelKey)}</p>
+                                            <p className="text-xs text-neutral-500">{tCart(badge.descKey)}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </m.div>
+                        </div>
+
+                        {/* Order Summary Column */}
+                        <div className="lg:col-span-1">
+                            <m.div
+                                initial={{ opacity: 0, x: isRTL ? -20 : 20 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                transition={{ delay: 0.2 }}
+                                className="sticky top-8 rounded-2xl bg-gradient-to-b from-neutral-900/80 to-neutral-900/40 border border-neutral-800/50 backdrop-blur-sm overflow-hidden"
+                            >
+                                <div className="px-6 py-5 border-b border-neutral-800/50">
+                                    <h2 className="text-lg font-semibold text-white">{tCart("page.orderSummary")}</h2>
+                                </div>
+                                
+                                <div className="p-6 space-y-5">
+                                    {/* Member Savings Summary */}
+                                    {isMember && memberSavings.totalSavings > 0 && (
+                                        <m.div
+                                            variants={summaryItemVariants}
+                                            initial="hidden"
+                                            animate="visible"
+                                            className="p-4 rounded-xl bg-gradient-to-br from-[#d4af37]/10 to-transparent border border-[#d4af37]/20"
+                                        >
+                                            <div className="flex items-center gap-2 mb-3">
+                                                <Star className="w-4 h-4 text-[#d4af37]" />
+                                                <span className="text-sm font-medium text-[#d4af37]">
+                                                    {tCart("memberSavings")}
+                                                </span>
+                                            </div>
+                                            <div className="space-y-2 text-sm">
+                                                <div className="flex justify-between text-neutral-400">
+                                                    <span>{tCart("page.originalTotal")}</span>
+                                                    <span>{formatPrice(memberSavings.originalTotal)}</span>
+                                                </div>
+                                                <div className="flex justify-between text-neutral-300">
+                                                    <span>{tCart("page.memberPrice")}</span>
+                                                    <span>{formatPrice(memberSavings.memberTotal)}</span>
+                                                </div>
+                                                <Separator className="bg-[#d4af37]/20 my-2" />
+                                                <div className="flex justify-between font-semibold text-[#d4af37]">
+                                                    <span>{tCart("page.youSave")}</span>
+                                                    <span>{formatPrice(memberSavings.totalSavings)}</span>
                                                 </div>
                                             </div>
-                                        );
-                                    })}
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </div>
+                                        </m.div>
+                                    )}
 
-                    {/* Order Summary */}
-                    <div className="lg:col-span-1">
-                        <Card className="sticky top-8">
-                            <CardHeader>
-                                <CardTitle>Order Summary</CardTitle>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                {/* Member Savings Summary */}
-                                {isMember && memberSavings.totalSavings > 0 && (
-                                    <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
-                                        <div className="flex items-center gap-2 mb-3">
-                                            <Star className="w-5 h-5 text-yellow-600" />
-                                            <span className="font-medium text-yellow-800 dark:text-yellow-200">
-                                                Member Savings
+                                    {/* Summary Lines */}
+                                    <div className="space-y-3">
+                                        <div className="flex justify-between text-neutral-300">
+                                            <span>{tCart("page.subtotalLabel")}</span>
+                                            <Price
+                                                className="font-medium"
+                                                amount={
+                                                    isMember
+                                                        ? memberSavings.memberTotal.toFixed(2)
+                                                        : cart.cost.subtotalAmount.amount
+                                                }
+                                                currencyCode={cart.cost.subtotalAmount.currencyCode}
+                                            />
+                                        </div>
+
+                                        <div className="flex justify-between text-neutral-400">
+                                            <span>{tCart("page.shippingLabel")}</span>
+                                            {isMember ? (
+                                                <span className="text-[#d4af37] font-medium flex items-center gap-1">
+                                                    <Truck className="w-3 h-3" />
+                                                    {tCart("free")}
+                                                </span>
+                                            ) : (
+                                                <span className="text-neutral-500 text-sm">
+                                                    {tCart("calculatedAtCheckout")}
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        <div className="flex justify-between text-neutral-400">
+                                            <span>{tCart("page.taxesLabel")}</span>
+                                            <span className="text-neutral-500 text-sm">
+                                                {tCart("calculatedAtCheckout")}
                                             </span>
                                         </div>
-                                        <div className="space-y-2 text-sm">
-                                            <div className="flex justify-between">
-                                                <span>Original Total:</span>
-                                                <span>{formatPrice(memberSavings.originalTotal)}</span>
-                                            </div>
-                                            <div className="flex justify-between">
-                                                <span>Member Price:</span>
-                                                <span>{formatPrice(memberSavings.memberTotal)}</span>
-                                            </div>
-                                            <Separator />
-                                            <div className="flex justify-between font-semibold text-yellow-700 dark:text-yellow-300">
-                                                <span>You Save:</span>
-                                                <span>{formatPrice(memberSavings.totalSavings)}</span>
-                                            </div>
+
+                                        <Separator className="bg-neutral-800 my-3" />
+
+                                        <div className="flex justify-between text-xl font-semibold text-white">
+                                            <span>{tCart("page.totalLabel")}
+                                            </span>
+                                            <Price
+                                                amount={
+                                                    isMember
+                                                        ? memberSavings.memberTotal.toFixed(2)
+                                                        : cart.cost.totalAmount.amount
+                                                }
+                                                currencyCode={cart.cost.totalAmount.currencyCode}
+                                            />
                                         </div>
                                     </div>
-                                )}
 
-                                <div className="space-y-3">
-                                    <div className="flex justify-between">
-                                        <span>Subtotal:</span>
-                                        <Price
-                                            amount={
-                                                isMember
-                                                    ? memberSavings.memberTotal.toFixed(2)
-                                                    : cart.cost.subtotalAmount.amount
-                                            }
-                                            currencyCode={cart.cost.subtotalAmount.currencyCode}
-                                        />
-                                    </div>
+                                    {/* Checkout Button */}
+                                    <form action={redirectToCheckout} className="w-full pt-2">
+                                        <CheckoutButton isMember={isMember} t={tCart} />
+                                    </form>
 
-                                    <div className="flex justify-between">
-                                        <span>Shipping:</span>
-                                        {isMember ? (
-                                            <span className="text-yellow-600 font-medium">Free</span>
-                                        ) : (
-                                            <span className="text-gray-500">
-                                                Calculated at checkout
-                                            </span>
-                                        )}
-                                    </div>
-
-                                    <div className="flex justify-between">
-                                        <span>Taxes:</span>
-                                        <span className="text-gray-500">Calculated at checkout</span>
-                                    </div>
-
-                                    <Separator />
-
-                                    <div className="flex justify-between text-lg font-semibold">
-                                        <span>Total:</span>
-                                        <Price
-                                            amount={
-                                                isMember
-                                                    ? memberSavings.memberTotal.toFixed(2)
-                                                    : cart.cost.totalAmount.amount
-                                            }
-                                            currencyCode={cart.cost.totalAmount.currencyCode}
-                                        />
-                                    </div>
-                                </div>
-
-                                <form action={redirectToCheckout} className="w-full">
-                                    <CheckoutButton isMember={isMember} />
-                                </form>
-
-                                <div className="text-center">
-                                    <Button variant="outline" asChild className="w-full">
-                                        <Link href="/">Continue Shopping</Link>
+                                    {/* Continue Shopping */}
+                                    <Button 
+                                        variant="outline" 
+                                        asChild 
+                                        className="w-full border-neutral-700 text-neutral-300 hover:bg-neutral-800 hover:text-white hover:border-neutral-600 rounded-xl"
+                                    >
+                                        <Link href="/">{tCart("continueShopping")}</Link>
                                     </Button>
+
+                                    {/* Security Note */}
+                                    <div className="flex items-center justify-center gap-2 pt-2 text-xs text-neutral-500">
+                                        <Shield className="w-3 h-3" />
+                                        <span>{tCart("page.secureCheckout")}</span>
+                                    </div>
                                 </div>
-                            </CardContent>
-                        </Card>
+                            </m.div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </LazyMotion>
     );
 }
 
-function CheckoutButton({ isMember }: { isMember: boolean }) {
+function CheckoutButton({ isMember, t }: { isMember: boolean; t: Translator }) {
     const { pending } = useFormStatus();
 
     return (
         <Button
             type="submit"
             disabled={pending}
-            className={`w-full ${isMember
-                    ? "bg-yellow-600 hover:bg-yellow-700 text-white"
-                    : "bg-blue-600 hover:bg-blue-700 text-white"
-                }`}
+            className="w-full h-12 bg-gradient-to-r from-[#d4af37] to-[#c9a432] hover:from-[#e5c354] hover:to-[#d4af37] text-black font-semibold rounded-xl shadow-lg shadow-[#d4af37]/20 transition-all hover:shadow-[#d4af37]/30 hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed"
         >
             {pending ? (
-                <LoadingDots className="bg-white" />
+                <LoadingDots className="bg-black" />
             ) : (
                 <div className="flex items-center justify-center gap-2">
                     {isMember && <Crown className="w-4 h-4" />}
-                    {isMember ? "Proceed to Premium Checkout" : "Proceed to Checkout"}
+                    {isMember ? t("page.premiumCheckout") : t("proceedToCheckout")}
                 </div>
             )}
         </Button>

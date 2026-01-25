@@ -7,7 +7,7 @@ import Footer from "@/components/layout/footer";
 import { useParams } from "next/navigation";
 
 import { StructuredData } from "@/components/structured-data";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useState, useEffect } from "react";
 
 export default function EMSPage() {
@@ -51,13 +51,13 @@ export default function EMSPage() {
         <div className="absolute inset-0 bg-[url('/ems-training-facility.png')] bg-cover bg-center opacity-15"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-atp-black/90 via-transparent to-atp-black/50"></div>
 
-        <motion.div
+        <m.div
           className="relative z-10 container-premium text-center text-atp-white"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: "easeOut" }}
         >
-          <motion.h1
+          <m.h1
             className="text-5xl md:text-7xl lg:text-8xl font-serif font-bold mb-6 tracking-tight"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -66,9 +66,9 @@ export default function EMSPage() {
             <span className="text-atp-gold">EMS</span>
             <br />
             Training
-          </motion.h1>
+          </m.h1>
 
-          <motion.p
+          <m.p
             className="text-xl md:text-2xl text-atp-white/90 mb-8 max-w-3xl mx-auto leading-relaxed"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -77,9 +77,9 @@ export default function EMSPage() {
             Professional EMS training equipment and solutions for healthcare
             professionals, featuring cutting-edge technology and proven
             methodologies.
-          </motion.p>
+          </m.p>
 
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.2, delay: 0.6 }}
@@ -88,13 +88,13 @@ export default function EMSPage() {
             <button className="bg-atp-white text-atp-black border-2 border-atp-white px-8 py-3 font-semibold tracking-wide uppercase text-sm transition-all duration-300 hover:bg-atp-black hover:text-atp-white hover:border-atp-black">
               Training Programs
             </button>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       </section>
 
       <section className="section-padding bg-atp-white">
         <div className="container-premium">
-          <motion.div
+          <m.div
             className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center"
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -119,13 +119,13 @@ export default function EMSPage() {
                 Certified Equipment
               </p>
             </div>
-          </motion.div>
+          </m.div>
         </div>
       </section>
 
       <section className="section-padding bg-atp-off-white">
         <div className="container-premium">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -140,7 +140,7 @@ export default function EMSPage() {
               State-of-the-art EMS training equipment designed for healthcare
               professionals who demand excellence and reliability.
             </p>
-          </motion.div>
+          </m.div>
 
           <Grid variant="luxury">
             <ProductGridItems

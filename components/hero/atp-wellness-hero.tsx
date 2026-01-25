@@ -1,269 +1,394 @@
 "use client";
 
-import { m, useScroll, useTransform, useInView } from "framer-motion";
+import { m, useScroll, useTransform, useInView, useSpring } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import React from "react";
-import { ChevronDown, Heart, Leaf, Dumbbell, Zap } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ChevronDown, Users, Award, Sparkles, Shield } from "lucide-react";
 import { Link } from "@/src/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { MagneticButton } from "@/components/ui/magnetic-button";
+import { AnimatedCounter } from "@/components/ui/animated-counter";
+import { GradientText } from "@/components/ui/gradient-text";
+import { FloatingElement } from "@/components/ui/floating-element";
+import { heroContainerVariants, fadeUpVariants, easing } from "@/lib/animations/variants";
 
-interface WellnessFeature {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  color: string;
+interface ATPWellnessHeroProps {
+  /** Optional video source for background */
+  videoSrc?: string;
+  /** Fallback image source */
+  imageSrc?: string;
+  /** Image alt text for accessibility */
+  imageAlt?: string;
 }
 
-export default function ATPWellnessHero() {
-  const t = useTranslations('hero');
-  const ref = useRef<HTMLDivElement>(null);
+export default function ATPWellnessHero({
+  videoSrc,
+  imageSrc = "/images/hero-wellness.jpg",
+  imageAlt = "ATP Group Services - Luxury Wellness",
+}: ATPWellnessHeroProps) {
+  const t = useTranslations("hero");
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(contentRef, { once: true, amount: 0.3 });
+  const [isMobile, setIsMobile] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  // Check for mobile and reduced motion
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    checkMobile();
+    setPrefersReducedMotion(mediaQuery.matches);
+
+    window.addEventListener("resize", checkMobile);
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mediaQuery.addEventListener("change", handler);
+
+    return () => {
+      window.removeEventListener("resize", checkMobile);
+      mediaQuery.removeEventListener("change", handler);
+    };
+  }, []);
+
+  // Scroll-linked animations
   const { scrollYProgress } = useScroll({
-    target: ref,
+    target: sectionRef,
     offset: ["start start", "end start"],
   });
 
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
+  // Parallax transforms
+  const backgroundY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.4], [1, 0]);
+  const contentY = useTransform(scrollYProgress, [0, 0.4], ["0%", "20%"]);
+  const overlayOpacity = useTransform(scrollYProgress, [0, 0.5], [0.6, 0.9]);
+  const scrollIndicatorOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0]);
 
-  const [currentFeature, setCurrentFeature] = useState(0);
-  const [isClient, setIsClient] = useState(false);
-
-  // Optimized: Reduced positions for background particles to improve mobile performance
-  // Using fixed positions to avoid hydration mismatch
-  const particlePositions = [
-    { left: 15, top: 25 },
-    { left: 45, top: 35 },
-    { left: 75, top: 15 },
-    { left: 25, top: 65 },
-    { left: 85, top: 45 },
-    { left: 35, top: 85 },
-    { left: 65, top: 25 },
-    { left: 55, top: 75 },
-    { left: 10, top: 50 },
-    { left: 90, top: 70 },
-  ];
-
-  const wellnessFeatures: WellnessFeature[] = [
-    {
-      icon: <Leaf className="w-6 h-6" />,
-      title: t('naturalSupplements'),
-      description: t('premiumThaiWellness'),
-      color: "from-emerald-500 to-green-600",
-    },
-    {
-      icon: <Heart className="w-6 h-6" />,
-      title: t('beautyCare'),
-      description: t('advancedSkincare'),
-      color: "from-rose-500 to-pink-600",
-    },
-    {
-      icon: <Zap className="w-6 h-6" />,
-      title: t('emsTraining'),
-      description: t('emsDescription'),
-      color: "from-orange-500 to-red-600",
-    },
-  ];
-
-  const isInView = useInView(ref);
+  // Smooth spring for scroll indicator bounce
+  const scrollIndicatorY = useSpring(0, { stiffness: 300, damping: 20 });
 
   useEffect(() => {
-    setIsClient(true);
-    if (!isInView) return;
+    if (prefersReducedMotion) return;
 
     const interval = setInterval(() => {
-      setCurrentFeature((prev) => (prev + 1) % wellnessFeatures.length);
-    }, 3000);
+      scrollIndicatorY.set(10);
+      setTimeout(() => scrollIndicatorY.set(0), 300);
+    }, 2000);
+
     return () => clearInterval(interval);
-  }, [wellnessFeatures.length, isInView]);
+  }, [scrollIndicatorY, prefersReducedMotion]);
+
+  // Word array for staggered reveal
+  const titleWords = t("welcomeToATP").split(" ");
+  const subtitleWords = t("authenticThaiWellness").split(" ");
+
+  // Trust indicators
+  const trustIndicators = [
+    { icon: Users, label: t("trustedMembers") || "10,000+ Members", value: 10000 },
+    { icon: Award, label: t("yearsExperience") || "15+ Years", value: 15 },
+    { icon: Shield, label: t("premiumProducts") || "500+ Products", value: 500 },
+  ];
 
   return (
     <section
-      ref={ref}
+      ref={sectionRef}
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      aria-label={t("heroAriaLabel") || "ATP Wellness Hero Section"}
     >
-      {/* Background with parallax */}
-      <m.div className="absolute inset-0 z-0" style={{ y }}>
-        <div className="absolute inset-0 bg-gradient-to-br from-atp-black via-atp-charcoal to-atp-black" />
+      {/* === BACKGROUND LAYER === */}
+      <m.div
+        className="absolute inset-0 z-0"
+        style={{ y: prefersReducedMotion ? 0 : backgroundY }}
+      >
+        {/* Video Background (Desktop only) */}
+        {videoSrc && !isMobile && (
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+            poster={imageSrc}
+          >
+            <source src={videoSrc} type="video/mp4" />
+          </video>
+        )}
+
+        {/* Image Fallback */}
+        {(!videoSrc || isMobile) && imageSrc && (
+          <div
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: `url(${imageSrc})` }}
+            role="img"
+            aria-label={imageAlt}
+          />
+        )}
+
+        {/* Fallback gradient if no media */}
+        <div className="absolute inset-0 bg-gradient-to-br from-black via-neutral-900 to-black" />
+
+        {/* Gradient Mesh Overlay */}
+        <div className="absolute inset-0 gradient-mesh-hero" />
+
+        {/* Dark Overlay with scroll-linked opacity */}
         <m.div
-          className="absolute inset-0 bg-gradient-to-r from-atp-gold/10 via-transparent to-atp-gold/10"
-          style={{ scale }}
+          className="absolute inset-0 bg-black"
+          style={{ opacity: prefersReducedMotion ? 0.7 : overlayOpacity }}
         />
 
-        {/* Animated background elements - optimized for performance */}
-        {isClient && (
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            {particlePositions.map((position, i) => (
-              <m.div
-                key={i}
-                className="absolute w-2 h-2 bg-atp-gold/20 rounded-full will-change-transform"
-                style={{
-                  left: `${position.left}%`,
-                  top: `${position.top}%`,
-                }}
-                animate={{
-                  y: [-15, 15, -15],
-                  opacity: [0.2, 0.5, 0.2],
-                }}
-                transition={{
-                  duration: 5 + (i % 3),
-                  repeat: Number.POSITIVE_INFINITY,
-                  ease: "linear",
-                  delay: i * 0.3,
-                }}
-              />
-            ))}
-          </div>
-        )}
+        {/* Noise Texture for premium feel */}
+        <div className="absolute inset-0 noise-overlay pointer-events-none" />
+
+        {/* Gold Ambient Glow */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--atp-gold)_0%,_transparent_70%)] opacity-[0.08]" />
       </m.div>
 
-      {/* Main content */}
+      {/* === FLOATING DECORATIVE ELEMENTS === */}
+      {!isMobile && !prefersReducedMotion && (
+        <>
+          <FloatingElement
+            range={20}
+            duration={8}
+            delay={0}
+            className="absolute top-[15%] left-[10%] z-10"
+          >
+            <div className="w-2 h-2 rounded-full bg-[var(--atp-gold)] opacity-40" />
+          </FloatingElement>
+          <FloatingElement
+            range={15}
+            duration={6}
+            delay={1}
+            className="absolute top-[25%] right-[15%] z-10"
+          >
+            <div className="w-3 h-3 rounded-full bg-[var(--atp-gold)] opacity-30" />
+          </FloatingElement>
+          <FloatingElement
+            range={25}
+            duration={10}
+            delay={2}
+            className="absolute bottom-[30%] left-[20%] z-10"
+          >
+            <Sparkles className="w-4 h-4 text-[var(--atp-gold)] opacity-40" />
+          </FloatingElement>
+          <FloatingElement
+            range={18}
+            duration={7}
+            delay={0.5}
+            className="absolute bottom-[20%] right-[10%] z-10"
+          >
+            <div className="w-1.5 h-1.5 rounded-full bg-[var(--atp-gold)] opacity-50" />
+          </FloatingElement>
+        </>
+      )}
+
+      {/* === MAIN CONTENT === */}
       <m.div
-        className="relative z-20 container mx-auto px-4 text-center"
-        style={{ opacity }}
+        ref={contentRef}
+        className="relative z-20 container mx-auto px-4 sm:px-6 lg:px-8 text-center"
+        style={{
+          opacity: prefersReducedMotion ? 1 : contentOpacity,
+          y: prefersReducedMotion ? 0 : contentY,
+        }}
+        variants={heroContainerVariants}
+        initial="hidden"
+        animate={isInView ? "visible" : "hidden"}
       >
-        {/* Main heading with staggered animation */}
-        <m.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-        >
-          <h1 className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-light text-white leading-tight mb-6 sm:mb-8 px-4 sm:px-0">
-            <m.span
-              className="block bg-gradient-to-r from-atp-gold via-yellow-300 to-atp-gold bg-clip-text text-transparent"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-            >
-              {t('welcomeToATP')}
-            </m.span>
-            <m.span
-              className="block text-atp-white/90 text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl mt-2 sm:mt-4"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-            >
-              {t('authenticThaiWellness')}
-            </m.span>
+        {/* === HERO TITLE === */}
+        <m.div className="mb-6 sm:mb-8">
+          {/* Main Title - Word by Word Reveal */}
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-display font-semibold leading-[1.1] tracking-tight">
+            <span className="sr-only">{t("welcomeToATP")}</span>
+            <span aria-hidden="true" className="flex flex-wrap justify-center gap-x-3 sm:gap-x-4 md:gap-x-5">
+              {titleWords.map((word, index) => (
+                <m.span
+                  key={index}
+                  className="inline-block"
+                  initial={{ opacity: 0, y: 40, filter: "blur(10px)" }}
+                  animate={isInView ? { opacity: 1, y: 0, filter: "blur(0px)" } : {}}
+                  transition={{
+                    duration: 0.6,
+                    delay: 0.2 + index * 0.1,
+                    ease: easing.expoOut,
+                  }}
+                >
+                  <GradientText gradient="gold" animate={!prefersReducedMotion}>
+                    {word}
+                  </GradientText>
+                </m.span>
+              ))}
+            </span>
           </h1>
+
+          {/* Subtitle - Staggered Reveal */}
+          <m.p
+            className="mt-4 sm:mt-6 text-xl sm:text-2xl md:text-3xl lg:text-4xl text-white/80 font-light tracking-wide"
+            initial={{ opacity: 0, y: 30 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.7, delay: 0.6, ease: easing.smooth }}
+          >
+            {t("authenticThaiWellness")}
+          </m.p>
         </m.div>
 
-        {/* Subtitle with typing effect */}
+        {/* === HERO DESCRIPTION === */}
         <m.div
-          className="max-w-4xl mx-auto mb-8 sm:mb-12 px-4 sm:px-6"
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
+          className="max-w-3xl mx-auto mb-8 sm:mb-12"
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.8, ease: easing.smooth }}
         >
-          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-atp-white/80 leading-relaxed">
-            {t('heroSubtitle')}
+          <p className="text-base sm:text-lg md:text-xl text-white/60 leading-relaxed">
+            {t("heroSubtitle")}
           </p>
         </m.div>
 
-        {/* Rotating feature showcase */}
+        {/* === TRUST INDICATORS === */}
         <m.div
-          className="mb-8 sm:mb-12 px-4"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, delay: 1.0 }}
+          className="flex flex-wrap justify-center gap-6 sm:gap-8 md:gap-12 mb-10 sm:mb-14"
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.9, ease: easing.smooth }}
         >
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 max-w-5xl mx-auto">
-            {wellnessFeatures.map((feature, index) => (
-              <m.div
-                key={index}
-                className={`flex flex-col items-center p-4 sm:p-6 rounded-2xl transition-all duration-500 ${index === currentFeature
-                  ? "bg-white/10 backdrop-blur-sm scale-105"
-                  : "bg-white/5 hover:bg-white/8"
-                  }`}
-                whileHover={{ scale: 1.05 }}
-              >
-                <m.div
-                  className={`p-3 sm:p-4 rounded-full bg-gradient-to-r ${feature.color} mb-3 flex-shrink-0`}
-                  animate={index === currentFeature ? { rotate: [0, 360] } : {}}
-                  transition={{ duration: 2, ease: "easeInOut" }}
-                >
-                  {feature.icon}
-                </m.div>
-                <h3 className="text-white font-medium text-sm sm:text-base text-center leading-tight mb-2">
-                  {feature.title}
-                </h3>
-                <p className="text-atp-white/60 text-xs sm:text-sm text-center leading-relaxed">
-                  {feature.description}
-                </p>
-              </m.div>
-            ))}
-          </div>
+          {trustIndicators.map((indicator, index) => (
+            <div
+              key={index}
+              className="flex items-center gap-2 sm:gap-3 text-white/70"
+            >
+              <indicator.icon className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--atp-gold)]" />
+              <span className="text-sm sm:text-base font-medium">
+                <AnimatedCounter
+                  value={indicator.value}
+                  suffix="+"
+                  duration={2}
+                  delay={1 + index * 0.2}
+                  className="text-[var(--atp-gold)] font-semibold"
+                />
+                <span className="ml-1 text-white/60">{indicator.label.replace(/[\d,+]+/, "").trim()}</span>
+              </span>
+            </div>
+          ))}
         </m.div>
 
-        {/* CTA buttons */}
+        {/* === CTA BUTTONS === */}
         <m.div
-          className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center px-4"
+          className="flex flex-col sm:flex-row gap-4 justify-center items-center"
           initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 1.2 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 1.1, ease: easing.smooth }}
         >
           <Link href="/atp-membership" className="w-full sm:w-auto">
-            <Button
+            <MagneticButton
+              variant="gold-hero"
               size="lg"
-              className="w-full sm:w-auto bg-gradient-to-r from-atp-gold to-yellow-500 text-atp-black hover:from-yellow-500 hover:to-atp-gold font-semibold px-6 sm:px-8 py-4 sm:py-6 text-base sm:text-lg rounded-full shadow-2xl hover:shadow-atp-gold/25 transition-all duration-300 transform hover:scale-105"
+              strength={0.15}
+              className="w-full sm:w-auto min-w-[200px]"
+              as="div"
             >
-              {t('exploreAtpMembership')}
-            </Button>
+              {t("exploreAtpMembership")}
+            </MagneticButton>
           </Link>
+
           <Link href="/about" className="w-full sm:w-auto">
-            <Button
-              variant="outline"
+            <MagneticButton
+              variant="outline-gold"
               size="lg"
-              className="w-full sm:w-auto border-2 border-atp-gold text-atp-gold hover:bg-atp-gold hover:text-atp-black font-semibold px-6 sm:px-8 py-4 sm:py-6 text-base sm:text-lg rounded-full backdrop-blur-sm transition-all duration-300"
+              strength={0.1}
+              className="w-full sm:w-auto min-w-[200px]"
+              as="div"
             >
-              {t('learnOurStory')}
-            </Button>
+              {t("learnOurStory")}
+            </MagneticButton>
           </Link>
         </m.div>
 
-        {/* Membership benefits ticker */}
+        {/* === CATEGORIES TICKER === */}
         <m.div
           className="mt-12 sm:mt-16 overflow-hidden"
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1, delay: 1.4 }}
+          animate={isInView ? { opacity: 1 } : {}}
+          transition={{ duration: 0.8, delay: 1.3 }}
         >
-          <m.div
-            className="flex space-x-4 sm:space-x-8 text-atp-white/60 text-xs sm:text-sm whitespace-nowrap"
-            animate={{ x: ["-100%", "100%"] }}
-            transition={{
-              duration: 20,
-              repeat: Number.POSITIVE_INFINITY,
-              ease: "linear",
-            }}
-          >
-            <span>{t('membershipBenefit1')}</span>
-            <span>•</span>
-            <span>{t('membershipBenefit2')}</span>
-            <span>•</span>
-            <span>{t('membershipBenefit3')}</span>
-            <span>•</span>
-            <span>{t('membershipBenefit4')}</span>
-            <span>•</span>
-            <span>{t('membershipBenefit5')}</span>
-            <span>•</span>
-          </m.div>
+          <div className="relative">
+            {/* Gradient fade edges */}
+            <div className="absolute left-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-r from-black to-transparent z-10" />
+            <div className="absolute right-0 top-0 bottom-0 w-16 sm:w-32 bg-gradient-to-l from-black to-transparent z-10" />
+
+            <m.div
+              className="flex gap-8 sm:gap-12 text-white/50 text-sm sm:text-base whitespace-nowrap"
+              animate={prefersReducedMotion ? {} : { x: [0, "-50%"] }}
+              transition={{
+                duration: 25,
+                repeat: Infinity,
+                ease: "linear",
+              }}
+            >
+              {[...Array(2)].map((_, setIndex) => (
+                <React.Fragment key={setIndex}>
+                  <span className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--atp-gold)]" />
+                    {t("membershipBenefit1")}
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--atp-gold)]" />
+                    {t("membershipBenefit2")}
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--atp-gold)]" />
+                    {t("membershipBenefit3")}
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--atp-gold)]" />
+                    {t("membershipBenefit4")}
+                  </span>
+                  <span className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--atp-gold)]" />
+                    {t("membershipBenefit5")}
+                  </span>
+                </React.Fragment>
+              ))}
+            </m.div>
+          </div>
         </m.div>
       </m.div>
 
-      {/* Scroll indicator */}
+      {/* === SCROLL INDICATOR === */}
       <m.div
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 1.6 }}
+        className="absolute bottom-8 sm:bottom-12 left-1/2 -translate-x-1/2 z-20"
+        style={{
+          opacity: prefersReducedMotion ? 0.7 : scrollIndicatorOpacity,
+          y: prefersReducedMotion ? 0 : scrollIndicatorY,
+        }}
       >
         <m.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
+          className="flex flex-col items-center gap-2 cursor-pointer group"
+          initial={{ opacity: 0, y: 20 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 1.5 }}
+          onClick={() => {
+            window.scrollTo({
+              top: window.innerHeight,
+              behavior: "smooth",
+            });
+          }}
+          role="button"
+          aria-label={t("scrollToExplore") || "Scroll to explore"}
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              window.scrollTo({ top: window.innerHeight, behavior: "smooth" });
+            }
+          }}
         >
-          <ChevronDown className="w-8 h-8 text-atp-gold" />
+          <span className="text-xs sm:text-sm text-white/40 uppercase tracking-widest group-hover:text-white/60 transition-colors">
+            {t("scrollToExplore") || "Scroll"}
+          </span>
+          <m.div
+            className="p-2 rounded-full border border-[var(--atp-gold)]/30 group-hover:border-[var(--atp-gold)]/60 transition-colors"
+            animate={prefersReducedMotion ? {} : { y: [0, 6, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--atp-gold)]" />
+          </m.div>
         </m.div>
       </m.div>
     </section>

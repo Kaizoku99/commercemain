@@ -6,7 +6,7 @@ import ProductGridItems from "@/components/layout/product-grid-items";
 import { useParams } from "next/navigation";
 
 import { StructuredData } from "@/components/structured-data";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 
@@ -66,13 +66,13 @@ export default function WaterSoilTechnologyPage() {
         <div className="absolute inset-0 bg-[url('/hero-water-tech.png')] bg-cover bg-center opacity-20"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-atp-black/80 via-transparent to-atp-black/40"></div>
 
-        <motion.div
+        <m.div
           className="relative z-10 container-premium text-center text-atp-white"
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: "easeOut" }}
         >
-          <motion.h1
+          <m.h1
             className="text-4xl md:text-6xl lg:text-7xl font-serif font-bold mb-6 tracking-tight leading-tight"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -87,18 +87,18 @@ export default function WaterSoilTechnologyPage() {
                 <span className="text-atp-gold">Technology</span>
               </>
             )}
-          </motion.h1>
+          </m.h1>
 
-          <motion.p
+          <m.p
             className="text-xl md:text-2xl text-atp-white/90 mb-8 max-w-3xl mx-auto leading-relaxed"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1.2, delay: 0.4 }}
           >
             {t('cuttingEdgeTechnology')}
-          </motion.p>
+          </m.p>
 
-          <motion.div
+          <m.div
             className="flex flex-wrap items-center justify-center gap-4"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -108,13 +108,13 @@ export default function WaterSoilTechnologyPage() {
             <button className="btn-premium-outline text-atp-white border-atp-white hover:bg-atp-white hover:text-atp-black">
               {t('sustainabilityReport')}
             </button>
-          </motion.div>
-        </motion.div>
+          </m.div>
+        </m.div>
       </section>
 
       <section className="section-padding bg-atp-white">
         <div className="container-premium">
-          <motion.div
+          <m.div
             className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center"
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -139,13 +139,13 @@ export default function WaterSoilTechnologyPage() {
                 {t('certifiedSolutions')}
               </p>
             </div>
-          </motion.div>
+          </m.div>
         </div>
       </section>
 
       <section className="section-padding bg-atp-off-white">
         <div className="container-premium">
-          <motion.div
+          <m.div
             initial={{ opacity: 0, y: 50 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
@@ -159,7 +159,7 @@ export default function WaterSoilTechnologyPage() {
             <p className="text-lg text-atp-charcoal max-w-2xl mx-auto">
               {t('cuttingEdgeTechnology')}
             </p>
-          </motion.div>
+          </m.div>
 
           <Grid variant="luxury">
             <ProductGridItems

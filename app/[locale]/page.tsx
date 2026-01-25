@@ -5,6 +5,7 @@ import { StructuredData } from "@/components/structured-data";
 import ATPWellnessHero from "@/components/hero/atp-wellness-hero";
 import ServiceHighlights from "@/components/sections/service-highlights";
 import TrustIndicators from "@/components/sections/trust-indicators";
+import { InstagramFeed } from "@/components/sections/instagram-feed";
 
 interface HomePageProps {
   params: Promise<{ locale: string }>;
@@ -40,6 +41,9 @@ export default async function HomePage({ params }: HomePageProps) {
 
       {/* Trust Indicators */}
       <TrustIndicators locale={locale} />
+
+      {/* Instagram Feed */}
+      <InstagramFeed limit={8} />
     </>
   );
 }

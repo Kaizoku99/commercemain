@@ -1,6 +1,9 @@
 import { getProduct } from "@/lib/shopify/server"
 import { getLocalizedHandle } from "@/lib/shopify/handle-mapping"
 
+// Force dynamic rendering - this page uses no-store fetch for fresh Shopify data
+export const dynamic = 'force-dynamic';
+
 export default async function TestArabicProduct() {
   // Test with the actual Arabic handle
   const arabicHandle = "غسول-الوجه-dna-hya"

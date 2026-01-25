@@ -70,6 +70,8 @@
     "validating": "Validating...",
     "closePanel": "Close panel",
     "shippingAndTaxes": "Shipping and taxes calculated at checkout.",
+    "awayFromFreeShipping": "away from free shipping",
+    "freeShippingUnlocked": "You've unlocked free shipping!",
     "or": "or",
     "warnings": {
       "outOfStock": "Item Out of Stock",
@@ -125,6 +127,34 @@
       "outOfStock": "Out of Stock",
       "onlyXLeft": "Only {count} left",
       "save": "Save {amount}"
+    },
+    "page": {
+      "emptyDescription": "Discover our premium wellness collection and start your journey to better health",
+      "startShopping": "Start Shopping",
+      "itemCount": "{count} {count, plural, =1 {item} other {items}}",
+      "unlockMemberBenefits": "Unlock Member Benefits",
+      "memberBenefitsDescription": "Save up to 20% on your entire order, enjoy free shipping, and access exclusive member perks.",
+      "cartItems": "Cart Items",
+      "qtyLabel": "Qty:",
+      "saveAmount": "Save {amount}",
+      "orderSummary": "Order Summary",
+      "originalTotal": "Original Total:",
+      "memberPrice": "Member Price:",
+      "youSave": "You Save:",
+      "subtotalLabel": "Subtotal:",
+      "shippingLabel": "Shipping:",
+      "taxesLabel": "Taxes:",
+      "totalLabel": "Total:",
+      "secureCheckout": "Secure checkout powered by Shopify",
+      "premiumCheckout": "Premium Checkout",
+      "trustBadges": {
+        "securePayment": "Secure Payment",
+        "sslDesc": "256-bit SSL",
+        "fastDelivery": "Fast Delivery",
+        "deliveryTime": "2-4 business days",
+        "easyReturns": "Easy Returns",
+        "returnPolicy": "30-day policy"
+      }
     }
   },
   "hero": {
@@ -151,8 +181,13 @@
     "membershipBenefit1": "ATP Group Services Membership",
     "membershipBenefit2": "15% Discount on all premium services",
     "membershipBenefit3": "Free Delivery on all product orders",
-    "membershipBenefit4": "Exclusive access to wellness programs",
-    "membershipBenefit5": "Priority booking for EMS training"
+"membershipBenefit4": "Exclusive access to wellness programs",
+    "membershipBenefit5": "Priority booking for EMS training",
+    "trustedMembers": "10,000+ Members",
+    "yearsExperience": "15+ Years",
+    "premiumProducts": "500+ Products",
+    "heroAriaLabel": "ATP Wellness Hero Section",
+    "scrollToExplore": "Scroll to explore"
   },
   "product": {
     "quantity": "Quantity",
@@ -169,9 +204,11 @@
     "naturalIngredients": "Natural Ingredients",
     "germanEngineering": "German Engineering",
     "professionalGrade": "Professional Grade",
-    "addToCart": "Add to Cart",
+"addToCart": "Add to Cart",
     "lowStock": "Only {count} left in stock!",
-    "inStock": "In Stock"
+    "inStock": "In Stock",
+    "onlyXLeft": "Only {count} left",
+    "sellingFast": "Selling fast"
   },
   "trustBadges": {
     "securePayment": "Secure Payment",
@@ -505,5 +542,14 @@
       "testimonialAuthor": "David R.",
       "testimonialRole": "ATP EMS Member"
     }
+  },
+  "gallery": {
+    "expandImage": "View fullscreen",
+    "closeFullscreen": "Close fullscreen",
+    "previousImage": "Previous image",
+    "nextImage": "Next image",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "thumbnailLabel": "View image"
   }
 }

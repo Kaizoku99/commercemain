@@ -2,6 +2,9 @@ import { getProducts } from "@/lib/shopify/server";
 import { defaultSort, sorting } from "@/lib/constants";
 import SearchResults from "./search-results";
 
+// Force dynamic rendering - this page uses no-store fetch for fresh Shopify data
+export const dynamic = 'force-dynamic';
+
 export default async function SearchPage(props: {
   params: Promise<{ locale: string }>;
   searchParams?: Promise<{ [key: string]: string | string[] | undefined }>;

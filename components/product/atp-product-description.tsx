@@ -105,7 +105,7 @@ export function ATPProductDescription({
             )}
           </div>
 
-          <h1 className="mb-4 text-4xl md:text-5xl font-bold text-foreground">
+          <h1 className="mb-4 text-2xl md:text-3xl lg:text-4xl font-semibold text-foreground leading-tight">
             {localizedTitle}
           </h1>
 
@@ -281,4 +281,3 @@ export function ATPProductDescription({
     </QuantityProvider>
   );
 }
-
