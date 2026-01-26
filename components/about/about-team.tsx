@@ -1,14 +1,14 @@
 "use client";
 
-import { m } from "framer-motion";
+import * as m from "framer-motion/m";
 import { useTranslations } from "next-intl";
 import { useRTL } from "@/hooks/use-rtl";
 import { Linkedin, Twitter, Mail } from "lucide-react";
-import { 
-  containerVariants, 
+import {
+  containerVariants,
   cardVariants,
   transitions,
-  easing 
+  easing
 } from "@/lib/animations/variants";
 
 interface TeamMember {
@@ -70,13 +70,13 @@ export function AboutTeam() {
   const { isRTL } = useRTL();
 
   const itemVariants = {
-    hidden: { 
-      opacity: 0, 
+    hidden: {
+      opacity: 0,
       y: 30,
       scale: 0.95,
     },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       scale: 1,
       transition: {
@@ -98,16 +98,14 @@ export function AboutTeam() {
           transition={{ duration: 0.6, ease: easing.smooth }}
         >
           <h2
-            className={`text-4xl md:text-5xl font-serif text-atp-black mb-4 ${
-              isRTL ? "font-arabic" : ""
-            }`}
+            className={`text-4xl md:text-5xl font-serif text-atp-black mb-4 ${isRTL ? "font-arabic" : ""
+              }`}
           >
             {isRTL ? "فريقنا" : "Meet Our Team"}
           </h2>
           <p
-            className={`text-lg text-atp-charcoal max-w-2xl mx-auto ${
-              isRTL ? "font-arabic" : ""
-            }`}
+            className={`text-lg text-atp-charcoal max-w-2xl mx-auto ${isRTL ? "font-arabic" : ""
+              }`}
           >
             {isRTL
               ? "خبراء شغوفون ملتزمون برحلة عافيتك"
@@ -137,14 +135,14 @@ export function AboutTeam() {
                 {/* Image Area with Gradient Overlay */}
                 <div className="relative h-64 overflow-hidden bg-gradient-to-br from-atp-charcoal to-atp-black">
                   {/* Placeholder Pattern */}
-                  <div 
+                  <div
                     className="absolute inset-0"
                     style={{
                       backgroundImage: `radial-gradient(circle at 30% 30%, rgba(179,145,85,0.3) 0%, transparent 50%),
                                         radial-gradient(circle at 70% 70%, rgba(179,145,85,0.2) 0%, transparent 50%)`,
                     }}
                   />
-                  
+
                   {/* Initials */}
                   <div className="absolute inset-0 flex items-center justify-center">
                     <span className="text-6xl font-serif text-atp-gold/30">
@@ -198,21 +196,19 @@ export function AboutTeam() {
                 {/* Content */}
                 <div className={`p-6 ${isRTL ? "text-right" : ""}`}>
                   <h3
-                    className={`text-xl font-serif text-atp-black mb-1 ${
-                      isRTL ? "font-arabic" : ""
-                    }`}
+                    className={`text-xl font-serif text-atp-black mb-1 ${isRTL ? "font-arabic" : ""
+                      }`}
                   >
                     {isRTL ? member.nameAr : member.name}
                   </h3>
                   <p className="text-atp-gold font-medium text-sm mb-3">
                     {isRTL ? member.roleAr : member.role}
                   </p>
-                  
+
                   {/* Bio - appears on hover via group */}
                   <m.p
-                    className={`text-sm text-atp-charcoal leading-relaxed ${
-                      isRTL ? "font-arabic" : ""
-                    }`}
+                    className={`text-sm text-atp-charcoal leading-relaxed ${isRTL ? "font-arabic" : ""
+                      }`}
                     initial={{ opacity: 0.7 }}
                     whileHover={{ opacity: 1 }}
                   >

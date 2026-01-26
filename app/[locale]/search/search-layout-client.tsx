@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import FilterList from "@/components/layout/search/filter";
+import { FilterList } from "@/components/layout/search/filter/index";
 import AdvancedFilters from "@/components/search/advanced-filters";
 import { Suspense } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Filter, X } from "lucide-react";
 import { useState } from "react";
 
@@ -29,7 +29,7 @@ export default function SearchLayoutClient({
     <>
       <div className="bg-atp-black text-atp-white py-8">
         <div className="container-premium">
-          <motion.div
+          <m.div
             className="text-center"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -42,7 +42,7 @@ export default function SearchLayoutClient({
             <p className="text-xl text-atp-white/90 max-w-2xl mx-auto">
               Find the perfect products from our premium collections
             </p>
-          </motion.div>
+          </m.div>
         </div>
       </div>
 
@@ -59,7 +59,7 @@ export default function SearchLayoutClient({
           </div>
 
           <div className="flex flex-col md:flex-row gap-8">
-            <motion.div
+            <m.div
               className={`
                 w-full md:w-80 flex-none space-y-6
                 ${isFilterOpen ? "block" : "hidden md:block"}
@@ -178,9 +178,9 @@ export default function SearchLayoutClient({
                   </label>
                 </div>
               </div>
-            </motion.div>
+            </m.div>
 
-            <motion.div
+            <m.div
               className="flex-1 min-h-screen"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -204,7 +204,7 @@ export default function SearchLayoutClient({
               >
                 {mainContent}
               </Suspense>
-            </motion.div>
+            </m.div>
           </div>
         </div>
       </div>

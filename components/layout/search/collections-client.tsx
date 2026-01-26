@@ -2,7 +2,7 @@
 
 import { Suspense } from "react"
 import { m } from "framer-motion"
-import FilterList from "./filter"
+import { FilterList } from "./filter/index"
 
 interface CollectionsClientProps {
   collections: any[]

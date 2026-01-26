@@ -15,13 +15,13 @@ interface GridProps extends HTMLMotionProps<"ul"> {
 }
 
 function Grid(props: GridProps) {
-  const { 
-    variant = "luxury", 
+  const {
+    variant = "luxury",
     mobileColumns = 1,
     isRTL = false,
-    ...restProps 
+    ...restProps
   } = props;
-  
+
   const shouldReduceMotion = useReducedMotion();
 
   return (
@@ -74,7 +74,7 @@ function GridItem(props: GridItemProps) {
         props.className
       )}
       variants={itemVariants}
-      // Removed excessive hover animations - let individual cards handle their own
+    // Removed excessive hover animations - let individual cards handle their own
     >
       {props.children}
     </m.li>
@@ -83,5 +83,5 @@ function GridItem(props: GridItemProps) {
 
 Grid.Item = GridItem;
 
-export { Grid };
+export { Grid, GridItem };
 export default Grid;

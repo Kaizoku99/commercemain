@@ -1,14 +1,14 @@
 "use client";
 
-import { m } from "framer-motion";
+import * as m from "framer-motion/m";
 import { useTranslations } from "next-intl";
 import { useRTL } from "@/hooks/use-rtl";
-import { 
-  containerSlowVariants, 
+import {
+  containerSlowVariants,
   fadeUpVariants,
   scaleVariants,
   transitions,
-  easing 
+  easing
 } from "@/lib/animations/variants";
 
 interface Milestone {
@@ -80,12 +80,12 @@ export function AboutTimeline() {
   };
 
   const milestoneVariants = {
-    hidden: { 
-      opacity: 0, 
+    hidden: {
+      opacity: 0,
       x: 50,
     },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       x: 0,
       transition: {
         duration: 0.6,
@@ -95,12 +95,12 @@ export function AboutTimeline() {
   };
 
   const milestoneVariantsAlt = {
-    hidden: { 
-      opacity: 0, 
+    hidden: {
+      opacity: 0,
       x: -50,
     },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       x: 0,
       transition: {
         duration: 0.6,
@@ -121,16 +121,14 @@ export function AboutTimeline() {
           variants={fadeUpVariants}
         >
           <h2
-            className={`text-4xl md:text-5xl font-serif text-atp-black mb-4 ${
-              isRTL ? "font-arabic" : ""
-            }`}
+            className={`text-4xl md:text-5xl font-serif text-atp-black mb-4 ${isRTL ? "font-arabic" : ""
+              }`}
           >
             {isRTL ? "رحلتنا" : "Our Journey"}
           </h2>
           <p
-            className={`text-lg text-atp-charcoal max-w-2xl mx-auto ${
-              isRTL ? "font-arabic" : ""
-            }`}
+            className={`text-lg text-atp-charcoal max-w-2xl mx-auto ${isRTL ? "font-arabic" : ""
+              }`}
           >
             {isRTL
               ? "من رؤية متواضعة إلى علامة العافية الرائدة في الإمارات"
@@ -147,10 +145,9 @@ export function AboutTimeline() {
           variants={timelineVariants}
         >
           {/* Vertical Line */}
-          <div 
-            className={`absolute top-0 bottom-0 w-0.5 bg-gradient-to-b from-atp-gold via-atp-gold to-transparent hidden lg:block ${
-              isRTL ? "right-1/2 translate-x-1/2" : "left-1/2 -translate-x-1/2"
-            }`}
+          <div
+            className={`absolute top-0 bottom-0 w-0.5 bg-gradient-to-b from-atp-gold via-atp-gold to-transparent hidden lg:block ${isRTL ? "right-1/2 translate-x-1/2" : "left-1/2 -translate-x-1/2"
+              }`}
           />
 
           {/* Milestones */}
@@ -163,9 +160,8 @@ export function AboutTimeline() {
               return (
                 <m.div
                   key={milestone.year}
-                  className={`relative lg:flex lg:items-center ${
-                    index !== milestones.length - 1 ? "lg:mb-16" : ""
-                  }`}
+                  className={`relative lg:flex lg:items-center ${index !== milestones.length - 1 ? "lg:mb-16" : ""
+                    }`}
                   variants={showOnLeft ? milestoneVariantsAlt : milestoneVariants}
                 >
                   {/* Desktop Layout */}
@@ -230,9 +226,8 @@ function MilestoneCard({ milestone, isRTL }: { milestone: Milestone; isRTL: bool
     >
       {/* Year Badge */}
       <div
-        className={`inline-flex items-center gap-2 mb-3 ${
-          isRTL ? "flex-row-reverse" : ""
-        }`}
+        className={`inline-flex items-center gap-2 mb-3 ${isRTL ? "flex-row-reverse" : ""
+          }`}
       >
         <span className="text-2xl font-serif font-bold text-atp-gold">
           {milestone.year}
@@ -242,18 +237,16 @@ function MilestoneCard({ milestone, isRTL }: { milestone: Milestone; isRTL: bool
 
       {/* Title */}
       <h3
-        className={`text-xl font-serif text-atp-black mb-2 ${
-          isRTL ? "font-arabic text-right" : ""
-        }`}
+        className={`text-xl font-serif text-atp-black mb-2 ${isRTL ? "font-arabic text-right" : ""
+          }`}
       >
         {isRTL ? milestone.titleAr : milestone.title}
       </h3>
 
       {/* Description */}
       <p
-        className={`text-atp-charcoal leading-relaxed ${
-          isRTL ? "font-arabic text-right" : ""
-        }`}
+        className={`text-atp-charcoal leading-relaxed ${isRTL ? "font-arabic text-right" : ""
+          }`}
       >
         {isRTL ? milestone.descriptionAr : milestone.description}
       </p>

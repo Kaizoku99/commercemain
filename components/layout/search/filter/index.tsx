@@ -26,7 +26,7 @@ function FilterItemList({ list }: { list: ListItem[] }) {
   )
 }
 
-export default function FilterList({ list, title }: { list: ListItem[]; title?: string }) {
+export function FilterList({ list, title }: { list: ListItem[]; title?: string }) {
   return (
     <nav>
       <div className="hidden md:block">
@@ -51,3 +51,5 @@ export default function FilterList({ list, title }: { list: ListItem[]; title?: 
     </nav>
   )
 }
+
+export default FilterList

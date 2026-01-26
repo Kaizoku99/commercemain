@@ -22,22 +22,22 @@ export const easing = {
   // Smooth deceleration - elegant reveals
   smooth: [0.16, 1, 0.3, 1] as const,
   smoothIn: [0.7, 0, 0.84, 0] as const,
-  
+
   // Spring-like bounce - playful interactions
   bounce: [0.34, 1.56, 0.64, 1] as const,
   bounceSoft: [0.22, 1.3, 0.36, 1] as const,
-  
+
   // Physical spring - natural motion
   spring: [0.175, 0.885, 0.32, 1.275] as const,
   springHeavy: [0.68, -0.55, 0.265, 1.55] as const,
-  
+
   // Elastic - attention-grabbing
   elastic: [0.68, -0.6, 0.32, 1.6] as const,
-  
+
   // Cinematic - hero animations
   cinematic: [0.77, 0, 0.175, 1] as const,
   cinematicSlow: [0.645, 0.045, 0.355, 1] as const,
-  
+
   // Expo - luxury feel
   expoOut: [0.19, 1, 0.22, 1] as const,
   luxury: [0.25, 0.46, 0.45, 0.94] as const,
@@ -979,6 +979,16 @@ export const whileInViewPresets = {
   },
 };
 
+// ============================================
+// ALIAS EXPORTS FOR COLLECTION HERO
+// Mapping internal names to those requested by the new component
+// ============================================
+
+export const heroFadeUp = fadeUpVariants;
+export const staggerSlow = containerSlowVariants;
+export const heroViewport = viewportOptions;
+export const getAccessibleVariants = getMotionSafeVariants;
+
 export default {
   easing,
   transitions,
@@ -1019,4 +1029,8 @@ export default {
   scrollScale: scrollScaleVariants,
   scrollSlideLeft: scrollSlideLeftVariants,
   scrollSlideRight: scrollSlideRightVariants,
+  heroFadeUp,
+  staggerSlow,
+  heroViewport,
+  getAccessibleVariants,
 };

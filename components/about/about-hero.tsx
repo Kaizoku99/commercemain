@@ -1,6 +1,6 @@
 "use client";
 
-import { m } from "framer-motion";
+import * as m from "framer-motion/m";
 import { useTranslations } from "next-intl";
 import { useRTL } from "@/hooks/use-rtl";
 

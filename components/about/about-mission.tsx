@@ -1,6 +1,7 @@
 "use client";
 
-import { m, useScroll, useTransform } from "framer-motion";
+import { useScroll, useTransform } from "framer-motion";
+import * as m from "framer-motion/m";
 import { CheckCircle, Award, Shield, Target } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useRTL } from "@/hooks/use-rtl";

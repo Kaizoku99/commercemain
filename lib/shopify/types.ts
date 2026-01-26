@@ -89,43 +89,43 @@ export type Menu = {
 
 export type ShopifyMenuItemResource =
   | {
-      __typename: 'Collection';
-      handle: string;
-      title: string;
-    }
+    __typename: 'Collection';
+    handle: string;
+    title: string;
+  }
   | {
-      __typename: 'Product';
-      handle: string;
-      title: string;
-    }
+    __typename: 'Product';
+    handle: string;
+    title: string;
+  }
   | {
-      __typename: 'Page';
-      handle: string;
-      title: string;
-    }
+    __typename: 'Page';
+    handle: string;
+    title: string;
+  }
   | {
-      __typename: 'Article';
-      handle: string;
-      title: string;
-    }
+    __typename: 'Article';
+    handle: string;
+    title: string;
+  }
   | {
-      __typename: 'Blog';
-      handle: string;
-      title: string;
-    }
+    __typename: 'Blog';
+    handle: string;
+    title: string;
+  }
   | {
-      __typename: 'ShopPolicy';
-      handle: string;
-      title: string;
-    }
+    __typename: 'ShopPolicy';
+    handle: string;
+    title: string;
+  }
   | {
-      __typename: 'Metaobject';
-      handle: string;
-      type: string;
-    }
+    __typename: 'Metaobject';
+    handle: string;
+    type: string;
+  }
   | {
-      __typename: string;
-    }
+    __typename: string;
+  }
   | null;
 
 export type ShopifyMenuItem = {
@@ -211,6 +211,7 @@ export type ShopifyCollection = {
   description: string;
   seo: SEO;
   updatedAt: string;
+  image?: Image;
 };
 
 export type ShopifyProduct = {

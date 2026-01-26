@@ -669,9 +669,8 @@ export async function getMenu(handle: string): Promise<Menu[]> {
     const url = item.url || '';
     const path = url
       ? url
-          .replace(domain, '')
-          .replace('/collections', '/search')
-          .replace('/pages', '')
+        .replace(domain, '')
+        .replace('/pages', '')
       : '/';
 
     return {
@@ -826,7 +825,7 @@ export async function getShopPaymentSettings(
     variables: {
       ...(locale?.language && { language: locale.language.toUpperCase() }),
       ...(locale?.country && { country: locale.country.toUpperCase() })
-    }
+    } as any
   });
 
   return res.body.data.shop.paymentSettings;

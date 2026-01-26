@@ -15,7 +15,6 @@ import { Toaster } from "sonner";
 import { Cinzel, DM_Sans, Tajawal } from "next/font/google";
 import { StructuredData, LocalBusinessStructuredData } from "@/components/structured-data";
 import { SkipToContentSimple } from "@/components/ui/skip-navigation";
-import { BackToTop } from "@/components/ui/back-to-top";
 import { PageTransitionProvider } from "@/components/ui/page-transition-provider";
 import { baseUrl } from "@/lib/utils";
 
@@ -145,7 +144,7 @@ export default async function LocaleLayout({
       />
 
       <div
-        className={`bg-atp-white text-atp-black selection:bg-atp-gold/20 selection:text-atp-black antialiased ${
+        className={`bg-atp-white text-atp-black selection:bg-atp-gold/20 selection:text-atp-black antialiased min-h-screen flex flex-col ${
           isRTL ? "rtl arabic" : "ltr english"
         } ${cinzel.variable} ${dmSans.variable} ${tajawal.variable}`}
         dir={isRTL ? 'rtl' : 'ltr'}
@@ -156,7 +155,7 @@ export default async function LocaleLayout({
               <MembershipProvider>
                 <SkipToContentSimple label={isRTL ? 'انتقل إلى المحتوى الرئيسي' : 'Skip to main content'} />
                 <Navbar />
-                <main id="main-content" className="min-h-screen pb-16 md:pb-0" tabIndex={-1}>
+                <main id="main-content" className="flex-1 pb-16 md:pb-0" tabIndex={-1}>
                   <PageTransitionProvider>
                     {children}
                   </PageTransitionProvider>
@@ -176,7 +175,6 @@ export default async function LocaleLayout({
                 </main>
                 <Footer />
                 <MobileBottomNav />
-                <BackToTop threshold={400} showProgress />
               </MembershipProvider>
             </CartNotificationProvider>
           </CartProvider>

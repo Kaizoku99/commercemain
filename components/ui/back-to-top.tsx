@@ -14,11 +14,12 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { m, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ArrowUp } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useRTL } from "@/hooks/use-rtl";
-import { transitions, easing } from "@/lib/animations/variants";
+import { useLocale } from "next-intl";
+import { easing } from "@/lib/animations/variants";
 
 interface BackToTopProps {
   /** Scroll threshold in pixels before showing button */
@@ -37,7 +38,9 @@ export function BackToTop({
   const [isVisible, setIsVisible] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const prefersReducedMotion = useReducedMotion();
-  const { isRTL } = useRTL();
+  const locale = useLocale();
+  const isRTL = locale === "ar";
+  const [isMounted, setIsMounted] = useState(false);
 
   // Calculate scroll progress and visibility
   const handleScroll = useCallback(() => {
@@ -50,6 +53,7 @@ export function BackToTop({
   }, [threshold]);
 
   useEffect(() => {
+    setIsMounted(true);
     // Initial check
     handleScroll();
     
@@ -76,6 +80,10 @@ export function BackToTop({
     });
   }, [prefersReducedMotion]);
 
+  if (!isMounted) {
+    return null;
+  }
+
   // SVG circle properties for progress ring
   const size = 48;
   const strokeWidth = 3;
@@ -83,7 +91,7 @@ export function BackToTop({
   const circumference = radius * 2 * Math.PI;
   const strokeDashoffset = circumference - (scrollProgress / 100) * circumference;
 
-  return (
+  const button = (
     <AnimatePresence>
       {isVisible && (
         <m.button
@@ -96,7 +104,7 @@ export function BackToTop({
           onClick={scrollToTop}
           className={cn(
             "fixed z-50 group",
-            isRTL ? "left-6" : "right-6",
+            isRTL ? "left-6 right-auto" : "right-6 left-auto",
             "bottom-24 md:bottom-8",
             className
           )}
@@ -180,4 +188,6 @@ export function BackToTop({
       )}
     </AnimatePresence>
   );
+
+  return createPortal(button, document.body);
 }

@@ -1,21 +1,21 @@
 "use client";
 
-import { m } from "framer-motion";
+import * as m from "framer-motion/m";
 import { useTranslations } from "next-intl";
 import { useRTL } from "@/hooks/use-rtl";
-import { 
-  Award, 
-  Heart, 
-  Lightbulb, 
-  Leaf, 
-  Users, 
-  Shield 
+import {
+  Award,
+  Heart,
+  Lightbulb,
+  Leaf,
+  Users,
+  Shield
 } from "lucide-react";
-import { 
-  containerSlowVariants, 
+import {
+  containerSlowVariants,
   itemScaleVariants,
   transitions,
-  easing 
+  easing
 } from "@/lib/animations/variants";
 import type { LucideIcon } from "lucide-react";
 
@@ -88,13 +88,13 @@ export function AboutValues() {
   };
 
   const itemVariants = {
-    hidden: { 
-      opacity: 0, 
+    hidden: {
+      opacity: 0,
       y: 30,
       scale: 0.9,
     },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       scale: 1,
       transition: {
@@ -116,16 +116,14 @@ export function AboutValues() {
           transition={{ duration: 0.6, ease: easing.smooth }}
         >
           <h2
-            className={`text-4xl md:text-5xl font-serif text-atp-black mb-4 ${
-              isRTL ? "font-arabic" : ""
-            }`}
+            className={`text-4xl md:text-5xl font-serif text-atp-black mb-4 ${isRTL ? "font-arabic" : ""
+              }`}
           >
             {isRTL ? "قيمنا" : "Our Values"}
           </h2>
           <p
-            className={`text-lg text-atp-charcoal max-w-2xl mx-auto ${
-              isRTL ? "font-arabic" : ""
-            }`}
+            className={`text-lg text-atp-charcoal max-w-2xl mx-auto ${isRTL ? "font-arabic" : ""
+              }`}
           >
             {isRTL
               ? "المبادئ التي توجه كل قرار نتخذه"
@@ -151,7 +149,7 @@ export function AboutValues() {
               >
                 <m.div
                   className="relative bg-gradient-to-br from-atp-white to-atp-off-white p-8 rounded-2xl shadow-lg border border-atp-light-gray h-full"
-                  whileHover={{ 
+                  whileHover={{
                     y: -6,
                     boxShadow: "0 20px 40px rgba(179, 145, 85, 0.15)",
                   }}
@@ -159,9 +157,8 @@ export function AboutValues() {
                 >
                   {/* Icon */}
                   <m.div
-                    className={`w-16 h-16 rounded-full bg-atp-black flex items-center justify-center mb-6 ${
-                      isRTL ? "mr-0 ml-auto" : ""
-                    }`}
+                    className={`w-16 h-16 rounded-full bg-atp-black flex items-center justify-center mb-6 ${isRTL ? "mr-0 ml-auto" : ""
+                      }`}
                     whileHover={{ scale: 1.1, rotate: 5 }}
                     transition={transitions.springBouncy}
                   >
@@ -170,27 +167,24 @@ export function AboutValues() {
 
                   {/* Title */}
                   <h3
-                    className={`text-2xl font-serif text-atp-black mb-3 ${
-                      isRTL ? "font-arabic text-right" : ""
-                    }`}
+                    className={`text-2xl font-serif text-atp-black mb-3 ${isRTL ? "font-arabic text-right" : ""
+                      }`}
                   >
                     {isRTL ? value.titleAr : value.title}
                   </h3>
 
                   {/* Description */}
                   <p
-                    className={`text-atp-charcoal leading-relaxed ${
-                      isRTL ? "font-arabic text-right" : ""
-                    }`}
+                    className={`text-atp-charcoal leading-relaxed ${isRTL ? "font-arabic text-right" : ""
+                      }`}
                   >
                     {isRTL ? value.descriptionAr : value.description}
                   </p>
 
                   {/* Decorative Corner */}
-                  <div 
-                    className={`absolute top-0 w-16 h-16 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${
-                      isRTL ? "left-0 rounded-tl-2xl" : "right-0 rounded-tr-2xl"
-                    }`}
+                  <div
+                    className={`absolute top-0 w-16 h-16 opacity-0 group-hover:opacity-100 transition-opacity duration-300 ${isRTL ? "left-0 rounded-tl-2xl" : "right-0 rounded-tr-2xl"
+                      }`}
                     style={{
                       background: `linear-gradient(${isRTL ? "135deg" : "225deg"}, rgba(179,145,85,0.2) 0%, transparent 60%)`,
                     }}

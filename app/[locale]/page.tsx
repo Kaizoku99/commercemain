@@ -12,7 +12,8 @@ interface HomePageProps {
 }
 
 export default async function HomePage({ params }: HomePageProps) {
-  const { locale } = await params;
+  const { locale: rawLocale } = await params;
+  const locale = (rawLocale === "ar" ? "ar" : "en") as "en" | "ar";
   
   // Enable static rendering
   setRequestLocale(locale);
@@ -39,11 +40,11 @@ export default async function HomePage({ params }: HomePageProps) {
       {/* Interactive Service Highlights */}
       <ServiceHighlights />
 
-      {/* Trust Indicators */}
-      <TrustIndicators locale={locale} />
-
       {/* Instagram Feed */}
       <InstagramFeed limit={8} />
+
+      {/* Trust Indicators */}
+      <TrustIndicators locale={locale} />
     </>
   );
 }

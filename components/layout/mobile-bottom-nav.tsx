@@ -61,8 +61,8 @@ export function MobileBottomNav() {
         <nav
             className={cn(
                 "fixed bottom-0 left-0 right-0 z-40 md:hidden",
-                "bg-white dark:bg-atp-charcoal",
-                "border-t border-gray-200 dark:border-gray-700",
+                "bg-atp-black",
+                "border-t border-neutral-800",
                 "shadow-[0_-2px_10px_rgba(0,0,0,0.1)]",
                 "safe-area-inset-bottom"
             )}

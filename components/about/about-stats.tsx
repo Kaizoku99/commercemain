@@ -1,14 +1,14 @@
 "use client";
 
-import { m } from "framer-motion";
+import * as m from "framer-motion/m";
 import { useTranslations } from "next-intl";
 import { useRTL } from "@/hooks/use-rtl";
 import { AnimatedCounter } from "@/components/ui/animated-counter";
-import { 
+import {
   containerVariants,
   fadeUpVariants,
   transitions,
-  easing 
+  easing
 } from "@/lib/animations/variants";
 import { Users, Package, Star, Calendar } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -67,13 +67,13 @@ export function AboutStats() {
   const { isRTL } = useRTL();
 
   const itemVariants = {
-    hidden: { 
-      opacity: 0, 
+    hidden: {
+      opacity: 0,
       y: 40,
       scale: 0.9,
     },
-    visible: { 
-      opacity: 1, 
+    visible: {
+      opacity: 1,
       y: 0,
       scale: 1,
       transition: {
@@ -86,16 +86,16 @@ export function AboutStats() {
   return (
     <section className="section-padding bg-atp-black relative overflow-hidden">
       {/* Background Pattern */}
-      <div 
+      <div
         className="absolute inset-0 opacity-5"
         style={{
           backgroundImage: `radial-gradient(circle at 20% 20%, rgba(179,145,85,0.3) 0%, transparent 50%),
                             radial-gradient(circle at 80% 80%, rgba(179,145,85,0.2) 0%, transparent 50%)`,
         }}
       />
-      
+
       {/* Subtle grid pattern */}
-      <div 
+      <div
         className="absolute inset-0 opacity-[0.03]"
         style={{
           backgroundImage: `linear-gradient(rgba(179,145,85,1) 1px, transparent 1px),
@@ -114,16 +114,14 @@ export function AboutStats() {
           variants={fadeUpVariants}
         >
           <h2
-            className={`text-4xl md:text-5xl font-serif text-atp-white mb-4 ${
-              isRTL ? "font-arabic" : ""
-            }`}
+            className={`text-4xl md:text-5xl font-serif text-atp-white mb-4 ${isRTL ? "font-arabic" : ""
+              }`}
           >
             {isRTL ? "إنجازاتنا بالأرقام" : "Our Impact in Numbers"}
           </h2>
           <p
-            className={`text-lg text-atp-off-white/80 max-w-2xl mx-auto ${
-              isRTL ? "font-arabic" : ""
-            }`}
+            className={`text-lg text-atp-off-white/80 max-w-2xl mx-auto ${isRTL ? "font-arabic" : ""
+              }`}
           >
             {isRTL
               ? "أرقام تعكس التزامنا بالتميز ورضا العملاء"
@@ -155,7 +153,7 @@ export function AboutStats() {
                   {/* Icon */}
                   <m.div
                     className="w-16 h-16 mx-auto mb-6 rounded-full bg-atp-gold/10 flex items-center justify-center border border-atp-gold/20"
-                    whileHover={{ 
+                    whileHover={{
                       backgroundColor: "rgba(179, 145, 85, 0.2)",
                       borderColor: "rgba(179, 145, 85, 0.4)",
                     }}
@@ -178,9 +176,8 @@ export function AboutStats() {
 
                   {/* Label */}
                   <p
-                    className={`text-atp-off-white/80 text-sm md:text-base ${
-                      isRTL ? "font-arabic" : ""
-                    }`}
+                    className={`text-atp-off-white/80 text-sm md:text-base ${isRTL ? "font-arabic" : ""
+                      }`}
                   >
                     {isRTL ? stat.labelAr : stat.label}
                   </p>

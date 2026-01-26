@@ -122,7 +122,7 @@ export default function MobileMenu({ menuItems, fallbackMenu }: MobileMenuProps)
   const getMenuPath = (item: ShopifyMenuItem) => {
     const resource = item.resource
     if (resource?.__typename === "Collection" && "handle" in resource) {
-      return `/search/${resource.handle}`
+      return `/collections/${resource.handle}`
     }
     if (resource?.__typename === "Product" && "handle" in resource) {
       return `/product/${resource.handle}`
@@ -134,7 +134,7 @@ export default function MobileMenu({ menuItems, fallbackMenu }: MobileMenuProps)
     const urlPath = normalizeMenuUrl(item.url)
     if (urlPath.startsWith("/collections/")) {
       const handle = urlPath.split("/")[2]
-      return handle ? `/search/${handle}` : urlPath
+      return handle ? `/collections/${handle}` : urlPath
     }
     if (urlPath.startsWith("/products/")) {
       const handle = urlPath.split("/")[2]
