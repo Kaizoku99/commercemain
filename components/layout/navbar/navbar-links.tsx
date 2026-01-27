@@ -286,7 +286,7 @@ export function NavbarLinks({ locale, menuItems, fallbackMenu }: NavbarLinksProp
                 },
                 {
                     title: aboutUsText,
-                    path: `/${locale}/about`,
+                    path: `/${locale}/about-us`,
                     handle: "about",
                 },
                 {

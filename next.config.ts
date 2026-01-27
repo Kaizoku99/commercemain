@@ -4,8 +4,9 @@ import path from 'path';
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 export default withNextIntl({
+
   turbopack: {
-    root: path.join(__dirname, '.'),
+    root: process.cwd(),
   },
   experimental: {
     inlineCss: true,
