@@ -115,14 +115,66 @@ export async function updateItemQuantity(
   }
 }
 
-export async function redirectToCheckout() {
+/**
+ * Get the checkout URL for the current cart.
+ * Returns the URL instead of redirecting, allowing the client to perform
+ * the redirect to avoid next-intl middleware interference.
+ * 
+ * For headless storefronts, checkout URLs should point to the checkout subdomain
+ * (e.g., checkout.example.com) which is configured as Primary for Online Store
+ * in Shopify Admin > Settings > Domains.
+ */
+export async function getCheckoutUrl(): Promise<string> {
   const cart = await getCart()
   if (!cart) {
     throw new Error('No cart found')
   }
   
+  let checkoutUrl = cart.checkoutUrl
+  
+  // For headless storefronts, we use a dedicated checkout subdomain
+  // This subdomain (e.g., checkout.atpgroupservices.ae) is set as Primary for Online Store
+  // in Shopify Admin > Settings > Domains, pointing to Shopify's servers
+  const checkoutDomain = process.env.SHOPIFY_CHECKOUT_DOMAIN || ''
+  const storeDomain = process.env.SHOPIFY_STORE_DOMAIN || ''
+  
+  // Use checkout subdomain if configured, otherwise fall back to myshopify.com domain
+  const targetDomain = checkoutDomain || storeDomain
+  
+  if (checkoutUrl && targetDomain) {
+    try {
+      // Parse the checkout URL
+      const url = new URL(checkoutUrl)
+      
+      // Rewrite the host to use our checkout domain
+      // This ensures checkout goes through checkout.atpgroupservices.ae
+      // instead of the headless storefront domain which would 404
+      url.host = targetDomain
+      url.protocol = 'https:'
+      
+      checkoutUrl = url.toString()
+    } catch (e) {
+      // If the URL is relative (starts with /), make it absolute
+      if (checkoutUrl.startsWith('/')) {
+        checkoutUrl = `https://${targetDomain}${checkoutUrl}`
+      } else {
+        // Last resort: construct a valid URL
+        checkoutUrl = `https://${targetDomain}/${checkoutUrl}`
+      }
+    }
+  }
+  
+  return checkoutUrl
+}
+
+/**
+ * @deprecated Use getCheckoutUrl() instead and handle redirect on client-side
+ * to avoid next-intl middleware interference with external URLs.
+ */
+export async function redirectToCheckout() {
+  const checkoutUrl = await getCheckoutUrl()
   // redirect() throws NEXT_REDIRECT by design - don't catch it
-  redirect(cart.checkoutUrl)
+  redirect(checkoutUrl)
 }
 
 export async function clearCart() {

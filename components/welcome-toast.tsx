@@ -25,9 +25,14 @@ export function WelcomeToast() {
             >
               Join ATP Membership
             </Link>{" "}
-            for exclusive benefits and save up to 20% on all products.
+            for exclusive benefits and save up to 15% on all products.
           </>
         ),
+        style: {
+          background: "white",
+          color: "black",
+          border: "1px solid #E2E8F0",
+        },
       });
     }
   }, []);
