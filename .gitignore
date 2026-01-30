@@ -31,3 +31,5 @@ next-env.d.ts
 .kiro/
 .sisyphus/
 nul
+.vercel
+.env*.local
