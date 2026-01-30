@@ -5,11 +5,17 @@ import { Sparkles, Leaf, FlaskConical, BookOpen, AlertTriangle, Info } from "luc
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
 
+// ============================================================================
+// Types
+// ============================================================================
+
 interface ProductDescriptionSection {
     id: string;
     title: string;
+    displayTitle: string;
     content: string;
     icon: React.ReactNode;
+    priority: number;
 }
 
 interface ProductDescriptionAccordionProps {
@@ -18,17 +24,337 @@ interface ProductDescriptionAccordionProps {
     isRTL?: boolean;
 }
 
+// ============================================================================
+// Section Configuration - Single Source of Truth
+// ============================================================================
+
+type SectionType = 'overview' | 'benefits' | 'ingredients' | 'usage' | 'disclaimer';
+
+interface SectionConfig {
+    type: SectionType;
+    priority: number; // Lower = appears first
+    icon: React.ReactNode;
+    displayTitle: { en: string; ar: string };
+    // All possible header variations (lowercase for matching)
+    patterns: RegExp[];
+}
+
+const SECTION_CONFIGS: SectionConfig[] = [
+    {
+        type: 'overview',
+        priority: 1,
+        icon: <Sparkles className="w-5 h-5 text-amber-500" />,
+        displayTitle: { en: 'Overview', ar: 'نظرة عامة' },
+        patterns: [
+            /^overview:?$/i,
+            /^نظرة\s*عامة:?$/i,
+            /^about:?$/i,
+            /^description:?$/i,
+            /^product\s*overview:?$/i,
+        ],
+    },
+    {
+        type: 'benefits',
+        priority: 2,
+        icon: <Sparkles className="w-5 h-5 text-amber-500" />,
+        displayTitle: { en: 'Key Benefits', ar: 'الفوائد الرئيسية' },
+        patterns: [
+            /^key\s*benefits:?$/i,
+            /^benefits:?$/i,
+            /^الفوائد(\s*الرئيسية)?:?$/i,
+            /^فوائد:?$/i,
+            /^main\s*benefits:?$/i,
+        ],
+    },
+    {
+        type: 'ingredients',
+        priority: 3,
+        icon: <FlaskConical className="w-5 h-5 text-green-500" />,
+        displayTitle: { en: 'Ingredients', ar: 'المكونات' },
+        patterns: [
+            /^ingredients:?$/i,
+            /^active\s*ingredients:?$/i,
+            /^key\s*ingredients:?$/i,
+            /^main\s*ingredients:?$/i,
+            /^المكونات(\s*الفعالة)?:?$/i,
+            /^مكونات:?$/i,
+        ],
+    },
+    {
+        type: 'usage',
+        priority: 4,
+        icon: <BookOpen className="w-5 h-5 text-blue-500" />,
+        displayTitle: { en: 'How to Use', ar: 'طريقة الاستخدام' },
+        patterns: [
+            /^how\s*to\s*use:?$/i,
+            /^usage:?$/i,
+            /^directions:?$/i,
+            /^instructions:?$/i,
+            /^application:?$/i,
+            /^طريقة\s*(الاستخدام)?:?$/i,
+            /^كيفية\s*(الاستخدام)?:?$/i,
+            /^الاستخدام:?$/i,
+            /^استخدام:?$/i,
+        ],
+    },
+    {
+        type: 'disclaimer',
+        priority: 5,
+        icon: <AlertTriangle className="w-5 h-5 text-orange-500" />,
+        displayTitle: { en: 'Disclaimer', ar: 'تنويه' },
+        patterns: [
+            /^disclaimer:?$/i,
+            /^warning:?$/i,
+            /^caution:?$/i,
+            /^note:?$/i,
+            /^important:?$/i,
+            /^تنويه:?$/i,
+            /^تحذير:?$/i,
+            /^ملاحظة:?$/i,
+            /^هام:?$/i,
+        ],
+    },
+];
+
+// ============================================================================
+// Smart Parser
+// ============================================================================
+
+/**
+ * Identifies the section type from a header text
+ * Returns null if no match found
+ */
+function identifySectionType(headerText: string): SectionConfig | null {
+    const normalized = headerText.trim();
+    
+    for (const config of SECTION_CONFIGS) {
+        for (const pattern of config.patterns) {
+            if (pattern.test(normalized)) {
+                return config;
+            }
+        }
+    }
+    
+    return null;
+}
+
+/**
+ * Smart HTML parser that handles:
+ * 1. Headers in <strong>, <b>, <h1-h6> tags
+ * 2. Headers as standalone text followed by content
+ * 3. Deduplication of same section types
+ * 4. Proper content attribution
+ * 5. Canonical ordering
+ */
+function parseDescriptionHtml(
+    html: string,
+    isRTL: boolean
+): ProductDescriptionSection[] {
+    if (!html || typeof window === 'undefined') return [];
+
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    
+    // Map to collect sections (key = section type, value = accumulated content)
+    const sectionMap = new Map<SectionType, { config: SectionConfig; contents: string[] }>();
+    
+    // Track content that doesn't belong to any section (intro/overview)
+    let introContent: string[] = [];
+    let currentSectionType: SectionType | null = null;
+    
+    /**
+     * Check if an element or text contains a section header
+     * Returns the config if found, null otherwise
+     */
+    function extractHeader(text: string): SectionConfig | null {
+        // Clean the text
+        const cleaned = text.replace(/[:\-–—]/g, '').trim();
+        return identifySectionType(cleaned);
+    }
+    
+    /**
+     * Process a single DOM node recursively
+     */
+    function processNode(node: Node): void {
+        if (node.nodeType === Node.TEXT_NODE) {
+            const text = node.textContent?.trim() || '';
+            if (!text) return;
+            
+            // Check if this text is a header
+            const headerConfig = extractHeader(text);
+            if (headerConfig) {
+                // This is a section header - switch context
+                currentSectionType = headerConfig.type;
+                if (!sectionMap.has(headerConfig.type)) {
+                    sectionMap.set(headerConfig.type, { config: headerConfig, contents: [] });
+                }
+                return;
+            }
+            
+            // Not a header - add to current section or intro
+            if (currentSectionType) {
+                const section = sectionMap.get(currentSectionType);
+                if (section) {
+                    section.contents.push(text);
+                }
+            } else {
+                introContent.push(text);
+            }
+            return;
+        }
+        
+        if (node.nodeType === Node.ELEMENT_NODE) {
+            const element = node as Element;
+            const tagName = element.tagName.toLowerCase();
+            
+            // Check if this element IS a header (strong, b, h1-h6)
+            const isHeaderElement = ['strong', 'b', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(tagName);
+            
+            if (isHeaderElement) {
+                const headerText = element.textContent?.trim() || '';
+                const headerConfig = extractHeader(headerText);
+                
+                if (headerConfig) {
+                    // This element is a section header
+                    currentSectionType = headerConfig.type;
+                    if (!sectionMap.has(headerConfig.type)) {
+                        sectionMap.set(headerConfig.type, { config: headerConfig, contents: [] });
+                    }
+                    return; // Don't process children of header element
+                }
+            }
+            
+            // For paragraphs and divs, check if the FIRST child is a header
+            if (['p', 'div'].includes(tagName)) {
+                const firstTextContent = element.textContent?.trim().split('\n')[0] || '';
+                const headerConfig = extractHeader(firstTextContent);
+                
+                if (headerConfig && firstTextContent.length < 50) {
+                    // First line is likely a header
+                    currentSectionType = headerConfig.type;
+                    if (!sectionMap.has(headerConfig.type)) {
+                        sectionMap.set(headerConfig.type, { config: headerConfig, contents: [] });
+                    }
+                    
+                    // Get remaining content after the header
+                    const fullText = element.textContent || '';
+                    const remainingText = fullText.substring(firstTextContent.length).trim();
+                    if (remainingText) {
+                        const section = sectionMap.get(headerConfig.type);
+                        if (section) {
+                            section.contents.push(remainingText);
+                        }
+                    }
+                    return;
+                }
+            }
+            
+            // Handle lists - keep them as HTML for proper rendering
+            if (['ul', 'ol'].includes(tagName)) {
+                const listHtml = element.outerHTML;
+                if (currentSectionType) {
+                    const section = sectionMap.get(currentSectionType);
+                    if (section) {
+                        section.contents.push(listHtml);
+                    }
+                } else {
+                    introContent.push(listHtml);
+                }
+                return;
+            }
+            
+            // Recursively process children
+            element.childNodes.forEach(child => processNode(child));
+        }
+    }
+    
+    // Process all body children
+    doc.body.childNodes.forEach(node => processNode(node));
+    
+    // Build final sections array
+    const sections: ProductDescriptionSection[] = [];
+    
+    // Handle intro content - merge with overview section if exists, otherwise create new
+    const introText = introContent.join(' ').trim();
+    const overviewConfig = SECTION_CONFIGS.find(c => c.type === 'overview')!;
+    
+    // Check if we have an explicit overview section in the map
+    const existingOverview = sectionMap.get('overview');
+    
+    if (existingOverview) {
+        // Merge intro content into the existing overview section (intro first)
+        if (introText && introText.length > 10) {
+            existingOverview.contents.unshift(introText);
+        }
+    } else if (introText && introText.length > 20) {
+        // No explicit overview section - create one from intro content
+        sectionMap.set('overview', {
+            config: overviewConfig,
+            contents: [introText]
+        });
+    }
+    
+    // Add all detected sections from the map (no duplicates possible since it's a Map)
+    sectionMap.forEach(({ config, contents }, type) => {
+        const content = contents.join('\n').trim();
+        if (content) {
+            sections.push({
+                id: `section-${type}`,
+                title: type,
+                displayTitle: isRTL ? config.displayTitle.ar : config.displayTitle.en,
+                content: wrapInParagraphs(content),
+                icon: config.icon,
+                priority: config.priority,
+            });
+        }
+    });
+    
+    // Sort by priority (canonical order)
+    sections.sort((a, b) => a.priority - b.priority);
+    
+    // If no sections detected at all, return single overview
+    if (sections.length === 0) {
+        const overviewConfig = SECTION_CONFIGS.find(c => c.type === 'overview')!;
+        return [{
+            id: 'section-overview',
+            title: 'overview',
+            displayTitle: isRTL ? overviewConfig.displayTitle.ar : overviewConfig.displayTitle.en,
+            content: html,
+            icon: overviewConfig.icon,
+            priority: 1,
+        }];
+    }
+    
+    return sections;
+}
+
+/**
+ * Wraps plain text in paragraph tags if needed
+ * Preserves existing HTML structure
+ */
+function wrapInParagraphs(content: string): string {
+    // If content already has HTML structure, return as-is
+    if (/<[a-z][\s\S]*>/i.test(content)) {
+        return content;
+    }
+    
+    // Wrap in paragraph
+    return `<p>${content}</p>`;
+}
+
+// ============================================================================
+// Component
+// ============================================================================
+
 /**
  * ProductDescriptionAccordion
  * 
- * A structured, accordion-based product description component following
- * e-commerce best practices from Sephora, Amazon, and other leading platforms.
- * 
- * Features:
- * - Collapsible sections for better scannability
- * - Icons for visual hierarchy
- * - RTL support for Arabic
- * - Smart section detection from various HTML patterns
+ * A smart, structured accordion-based product description component that:
+ * - Automatically detects and categorizes sections
+ * - Deduplicates same section types (merges content)
+ * - Maintains canonical ordering (Overview → Benefits → Ingredients → Usage → Disclaimer)
+ * - Supports RTL for Arabic
+ * - Provides visual hierarchy with icons
  */
 export function ProductDescriptionAccordion({
     descriptionHtml,
@@ -41,159 +367,12 @@ export function ProductDescriptionAccordion({
         setMounted(true);
     }, []);
 
-    // Icon mapping based on section title keywords
-    const getIconForTitle = (title: string): React.ReactNode => {
-        const lowerTitle = title.toLowerCase();
-
-        // Arabic and English keywords for benefits
-        if (lowerTitle.includes("الفوائد") || lowerTitle.includes("benefits") || lowerTitle.includes("فوائد") || lowerTitle.includes("فائدة")) {
-            return <Sparkles className="w-5 h-5 text-amber-500" />;
-        }
-        // Ingredients
-        if (lowerTitle.includes("المكونات") || lowerTitle.includes("ingredients") || lowerTitle.includes("مكون") || lowerTitle.includes("مكونات")) {
-            return <FlaskConical className="w-5 h-5 text-green-500" />;
-        }
-        // How to use / Usage
-        if (lowerTitle.includes("الاستخدام") || lowerTitle.includes("how to use") || lowerTitle.includes("طريقة") || lowerTitle.includes("usage") || lowerTitle.includes("استخدام")) {
-            return <BookOpen className="w-5 h-5 text-blue-500" />;
-        }
-        // Disclaimer / Warning
-        if (lowerTitle.includes("تنويه") || lowerTitle.includes("disclaimer") || lowerTitle.includes("warning") || lowerTitle.includes("تحذير") || lowerTitle.includes("ملاحظة")) {
-            return <AlertTriangle className="w-5 h-5 text-orange-500" />;
-        }
-        // Default/Overview icon
-        return <Info className="w-5 h-5 text-gray-500" />;
-    };
-
-    // Parse the HTML into structured sections
     const sections = useMemo((): ProductDescriptionSection[] => {
-        if (!descriptionHtml || !mounted) return [] as ProductDescriptionSection[];
-
-        // Section header patterns to detect
-        const sectionPatterns = [
-            // Arabic section headers
-            /الفوائد\s*(الرئيسية)?:?/gi,
-            /المكونات\s*(الفعالة)?:?/gi,
-            /طريقة\s*(الاستخدام)?:?/gi,
-            /كيفية\s*(الاستخدام)?:?/gi,
-            /تنويه:?/gi,
-            /تحذير:?/gi,
-            /ملاحظة:?/gi,
-            // English section headers
-            /key benefits:?/gi,
-            /benefits:?/gi,
-            /ingredients:?/gi,
-            /active ingredients:?/gi,
-            /how to use:?/gi,
-            /directions:?/gi,
-            /usage:?/gi,
-            /disclaimer:?/gi,
-            /warning:?/gi,
-        ];
-
-        // Try to parse as HTML first
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(descriptionHtml, "text/html");
-        const textContent = doc.body.textContent || '';
-
-        // Check if we have any section headers
-        const hasHeaders = sectionPatterns.some(pattern => pattern.test(textContent));
-
-        if (!hasHeaders) {
-            // No structured sections found - return single overview section
-            return [{
-                id: "section-overview",
-                title: isRTL ? "نظرة عامة" : "Overview",
-                content: descriptionHtml,
-                icon: <Sparkles className="w-5 h-5 text-amber-500" />,
-            }];
-        }
-
-        // Split content by section headers
-        const bodyHTML = doc.body.innerHTML;
-        const parsedSections: ProductDescriptionSection[] = [];
-
-        // Get all text nodes and their positions
-        const lines = bodyHTML.split(/(<\/?[^>]+>)/g);
-        let currentSection: { title: string; content: string[] } | null = null;
-        let introContent: string[] = [];
-
-        lines.forEach((segment) => {
-            // Check if this segment contains a section header
-            let matchedHeader: string | null = null;
-            for (const pattern of sectionPatterns) {
-                pattern.lastIndex = 0; // Reset regex
-                const match = pattern.exec(segment);
-                if (match) {
-                    matchedHeader = match[0].replace(/:$/, '').trim();
-                    break;
-                }
-            }
-
-            if (matchedHeader) {
-                // Save previous section
-                if (currentSection) {
-                    parsedSections.push({
-                        id: `section-${parsedSections.length}`,
-                        title: currentSection.title,
-                        content: currentSection.content.join(''),
-                        icon: getIconForTitle(currentSection.title),
-                    });
-                } else if (introContent.length > 0) {
-                    // Save intro content
-                    parsedSections.push({
-                        id: "section-intro",
-                        title: isRTL ? "نظرة عامة" : "Overview",
-                        content: introContent.join(''),
-                        icon: <Sparkles className="w-5 h-5 text-amber-500" />,
-                    });
-                }
-
-                // Start new section
-                currentSection = {
-                    title: matchedHeader,
-                    content: [],
-                };
-                // Remove the header from the segment if it's there
-                const remainder = segment.replace(new RegExp(matchedHeader + ':?', 'gi'), '').trim();
-                if (remainder) {
-                    currentSection.content.push(remainder);
-                }
-            } else if (currentSection) {
-                currentSection.content.push(segment);
-            } else {
-                introContent.push(segment);
-            }
-        });
-
-        // Don't forget the last section
-        // TypeScript narrowing fix: use type assertion since currentSection can be mutated in forEach
-        if (currentSection !== null) {
-            const finalSection = currentSection as { title: string; content: string[] };
-            if (finalSection.content.length > 0) {
-                parsedSections.push({
-                    id: `section-${parsedSections.length}`,
-                    title: finalSection.title,
-                    content: finalSection.content.join(''),
-                    icon: getIconForTitle(finalSection.title),
-                });
-            }
-        }
-
-        // If we didn't find any sections, return single overview
-        if (parsedSections.length === 0) {
-            return [{
-                id: "section-overview",
-                title: isRTL ? "نظرة عامة" : "Overview",
-                content: descriptionHtml,
-                icon: <Sparkles className="w-5 h-5 text-amber-500" />,
-            }];
-        }
-
-        return parsedSections;
+        if (!mounted) return [];
+        return parseDescriptionHtml(descriptionHtml, isRTL);
     }, [descriptionHtml, isRTL, mounted]);
 
-    // SSR/hydration guard
+    // SSR/hydration guard - show raw HTML during SSR
     if (!mounted) {
         return (
             <div
@@ -207,7 +386,7 @@ export function ProductDescriptionAccordion({
         );
     }
 
-    // If only one section or no structured content, show as-is with nice formatting
+    // If only one section or no structured content, show inline with nice formatting
     if (sections.length <= 1) {
         return (
             <div
@@ -219,7 +398,7 @@ export function ProductDescriptionAccordion({
                     isRTL && "text-right",
                     className
                 )}
-                dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+                dangerouslySetInnerHTML={{ __html: sections[0]?.content || descriptionHtml }}
             />
         );
     }
@@ -251,7 +430,7 @@ export function ProductDescriptionAccordion({
                                 <div className="p-2 rounded-lg bg-neutral-100 dark:bg-neutral-100">
                                     {section.icon}
                                 </div>
-                                <span className="text-neutral-900 dark:text-neutral-900">{section.title}</span>
+                                <span className="text-neutral-900 dark:text-neutral-900">{section.displayTitle}</span>
                             </div>
                         </AccordionTrigger>
                         <AccordionContent className="px-5 pb-5 pt-0">
