@@ -83,9 +83,9 @@ export function safeTranslate(
  */
 export function hasMessage(messageId: string, locale?: Locale): boolean {
   const targetLocale = locale || getCurrentLocale()
-  const messages = i18n.messages[targetLocale]
+  const messages = (i18n.messages as unknown as Record<string, Record<string, unknown>>)[targetLocale]
   
-  return messages && messageId in messages
+  return Boolean(messages && messageId in messages)
 }
 
 /**
@@ -117,7 +117,9 @@ export function validateMessageValues(
   }
   
   // Get the message template to check for required variables
-  const message = i18n.messages[getCurrentLocale()]?.[messageId]
+  const allMessages = i18n.messages as unknown as Record<string, Record<string, unknown>>
+  const messages = allMessages[getCurrentLocale()]
+  const message = messages?.[messageId]
   
   if (!message) {
     errors.push(`Message "${messageId}" not found`)
@@ -129,7 +131,8 @@ export function validateMessageValues(
   const requiredVariables = new Set<string>()
   let match
   
-  while ((match = variablePattern.exec(message)) !== null) {
+  const messageStr = typeof message === 'string' ? message : ''
+  while ((match = variablePattern.exec(messageStr)) !== null) {
     requiredVariables.add(match[1])
   }
   
@@ -238,8 +241,9 @@ export function findMissingTranslations(): Record<Locale, string[]> {
   const missing: Record<string, string[]> = {}
   
   // Check each locale for missing translations
-  Object.keys(i18n.messages).forEach(locale => {
-    const catalog = i18n.messages[locale]
+  const allMessages = i18n.messages as unknown as Record<string, Record<string, unknown>>
+  Object.keys(allMessages).forEach(locale => {
+    const catalog = allMessages[locale]
     const missingInLocale = allIds.filter(id => !(id in catalog))
     
     if (missingInLocale.length > 0) {

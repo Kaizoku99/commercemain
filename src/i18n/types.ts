@@ -3,11 +3,14 @@
  * Provides type safety and IntelliSense support for internationalization
  */
 
-import type { I18n, Messages, MessageDescriptor } from '@lingui/core'
+import type { I18n, MessageDescriptor } from '@lingui/core'
 import type { ReactNode, ComponentType } from 'react'
 
+// Define Messages type locally since it may not be exported from @lingui/core
+export type Messages = Record<string, string>
+
 // Re-export core Lingui types for convenience
-export type { I18n, Messages, MessageDescriptor }
+export type { I18n, MessageDescriptor }
 
 // Locale-related types
 export const locales = ['en', 'ar'] as const

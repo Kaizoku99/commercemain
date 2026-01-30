@@ -523,9 +523,6 @@ interface StatCardProps {
 }
 
 function StatCard({ title, value, icon: Icon, format }: StatCardProps) {
-  const formattedValue =
-    format === "currency" ? formatDirhamWithSymbol(value) : value.toString();
-
   return (
     <Card>
       <CardContent className="p-4">
@@ -536,10 +533,10 @@ function StatCard({ title, value, icon: Icon, format }: StatCardProps) {
               {format === "currency" ? (
                 <span className="flex items-center gap-1">
                   <DirhamSymbol size={20} />
-                  {formattedValue.display}
+                  {formatDirhamWithSymbol(value).amount}
                 </span>
               ) : (
-                formattedValue
+                value.toString()
               )}
             </p>
           </div>

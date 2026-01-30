@@ -44,7 +44,7 @@ export function MembershipDetailsModal({
   const [membershipDetails, setMembershipDetails] = useState<{
     membership: AtpMembership;
     customerInfo: any;
-    stats: MembershipStats;
+    stats: MembershipStats | null;
   } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -327,7 +327,7 @@ export function MembershipDetailsModal({
                     <span className="text-sm font-medium">Total Savings</span>
                     <div className="flex items-center space-x-2">
                       <DollarSign className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-bold">{stats.totalSavings.toFixed(2)} AED</span>
+                      <span className="text-sm font-bold">{stats?.totalSavings?.toFixed(2) ?? '0.00'} AED</span>
                     </div>
                   </div>
 
@@ -335,7 +335,7 @@ export function MembershipDetailsModal({
                     <span className="text-sm font-medium">Services Used</span>
                     <div className="flex items-center space-x-2">
                       <Package className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm">{stats.servicesUsed}</span>
+                      <span className="text-sm">{stats?.servicesUsed ?? 0}</span>
                     </div>
                   </div>
 
@@ -343,7 +343,7 @@ export function MembershipDetailsModal({
                     <span className="text-sm font-medium">Free Deliveries</span>
                     <div className="flex items-center space-x-2">
                       <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm">{stats.ordersWithFreeDelivery}</span>
+                      <span className="text-sm">{stats?.ordersWithFreeDelivery ?? 0}</span>
                     </div>
                   </div>
                 </CardContent>

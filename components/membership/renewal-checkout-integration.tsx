@@ -62,7 +62,7 @@ export function RenewalCheckoutIntegration({
       // Create Shopify checkout for membership renewal
       const checkoutData = await createRenewalCheckout(membership, renewalSummary.pricing);
       
-      if (checkoutData.success) {
+      if (checkoutData.success && checkoutData.checkoutUrl) {
         setCheckoutUrl(checkoutData.checkoutUrl);
         setCheckoutState('redirecting');
         

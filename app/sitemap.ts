@@ -1,5 +1,7 @@
 import { getCollections, getPages, getProducts } from "@/lib/shopify/server"
 import { baseUrl, validateEnvironmentVariables } from "@/lib/utils"
+import { CategoryData, UAECities, LocationServices, BenefitData, IngredientData } from "@/lib/programmatic-seo/data"
+import { ComparisonData } from "@/lib/programmatic-seo/comparison-data"
 import type { MetadataRoute } from "next"
 
 type Route = {
@@ -40,6 +42,41 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
   )
 
+  // Programmatic SEO Pages
+  const lastModified = new Date().toISOString()
+  
+  // Category Pages (5 categories)
+  const categoryRoutes = Object.keys(CategoryData).flatMap((slug) => [
+    { url: `${baseUrl}/en/category/${slug}`, lastModified },
+    { url: `${baseUrl}/ar/category/${slug}`, lastModified },
+  ])
+
+  // Location Pages (5 services × 8 cities = 40 pages per language)
+  const locationRoutes = LocationServices.flatMap((service) =>
+    UAECities.flatMap((city) => [
+      { url: `${baseUrl}/en/${service.slug}/${city.slug}`, lastModified },
+      { url: `${baseUrl}/ar/${service.slug}/${city.slug}`, lastModified },
+    ])
+  )
+
+  // Benefits Pages
+  const benefitsRoutes = Object.keys(BenefitData).flatMap((slug) => [
+    { url: `${baseUrl}/en/benefits/${slug}`, lastModified },
+    { url: `${baseUrl}/ar/benefits/${slug}`, lastModified },
+  ])
+
+  // Ingredients Pages
+  const ingredientsRoutes = Object.keys(IngredientData).flatMap((slug) => [
+    { url: `${baseUrl}/en/ingredients/${slug}`, lastModified },
+    { url: `${baseUrl}/ar/ingredients/${slug}`, lastModified },
+  ])
+
+  // Comparison Pages
+  const comparisonRoutes = Object.keys(ComparisonData).flatMap((slug) => [
+    { url: `${baseUrl}/en/compare/${slug}`, lastModified },
+    { url: `${baseUrl}/ar/compare/${slug}`, lastModified },
+  ])
+
   let fetchedRoutes: Route[] = []
 
   try {
@@ -48,5 +85,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     throw JSON.stringify(error, null, 2)
   }
 
-  return [...routesMap, ...fetchedRoutes]
+  const programmaticRoutes = [
+    ...categoryRoutes,
+    ...locationRoutes,
+    ...benefitsRoutes,
+    ...ingredientsRoutes,
+    ...comparisonRoutes,
+  ]
+
+  return [...routesMap, ...fetchedRoutes, ...programmaticRoutes]
 }

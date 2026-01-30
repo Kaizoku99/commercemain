@@ -181,7 +181,9 @@ export class MembershipFallbackService {
       totalSavings: 0,
       servicesUsed: 0,
       ordersWithFreeDelivery: 0,
-      memberSince: new Date().toISOString()
+      memberSince: new Date().toISOString(),
+      averageOrderValue: 0,
+      totalOrders: 0
     };
   }
 
@@ -309,8 +311,8 @@ export class MembershipFallbackService {
   /**
    * Monitor network status and clear cache when back online
    */
-  setupNetworkMonitoring(): void {
-    if (typeof window === 'undefined') return;
+  setupNetworkMonitoring(): (() => void) | undefined {
+    if (typeof window === 'undefined') return undefined;
 
     const handleOnline = () => {
       console.info('Network connection restored');

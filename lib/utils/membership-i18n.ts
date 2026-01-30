@@ -30,8 +30,8 @@ export interface MembershipI18nConfig {
  * Membership Internationalization Service
  */
 export class MembershipI18nService {
-  private locale: Locale;
-  private config: MembershipI18nConfig;
+  public locale: Locale;
+  public config: MembershipI18nConfig;
 
   constructor(locale: Locale = 'en') {
     this.locale = locale;

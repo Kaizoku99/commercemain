@@ -112,11 +112,14 @@ export class FlowiseClient {
     if (!reader) {
       throw new Error('No response body');
     }
+    
+    // Capture reader in a const for use in the closure
+    const streamReader = reader;
 
     return new ReadableStream({
       start(controller) {
         function pump(): Promise<void> {
-          return reader.read().then(({ done, value }) => {
+          return streamReader.read().then(({ done, value }) => {
             if (done) {
               controller.close();
               return;

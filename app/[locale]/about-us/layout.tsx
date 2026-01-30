@@ -32,17 +32,26 @@ export async function generateMetadata({
       description,
       type: 'website',
       locale: isArabic ? 'ar_AE' : 'en_AE',
+      url: `https://atpgroupservices.com/${locale}/about`,
+      siteName: isArabic ? 'مجموعة ATP' : 'ATP Group Services',
+      images: [{
+        url: 'https://atpgroupservices.com/og-about.jpg',
+        width: 1200,
+        height: 630,
+        alt: title,
+      }],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
+      images: ['https://atpgroupservices.com/og-about.jpg'],
     },
     alternates: {
-      canonical: `/${locale}/about`,
+      canonical: `https://atpgroupservices.com/${locale}/about`,
       languages: {
-        en: '/en/about',
-        ar: '/ar/about',
+        en: 'https://atpgroupservices.com/en/about',
+        ar: 'https://atpgroupservices.com/ar/about',
       },
     },
   }

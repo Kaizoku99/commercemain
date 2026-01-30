@@ -76,6 +76,7 @@ export type Collection = ShopifyCollection & {
 };
 
 export type Image = {
+  id?: string;
   url: string;
   altText: string;
   width: number;
@@ -226,6 +227,7 @@ export type ShopifyProduct = {
     maxVariantPrice: Money;
     minVariantPrice: Money;
   };
+  productType?: string;
   variants: Connection<ProductVariant>;
   featuredImage: Image;
   images: Connection<Image>;

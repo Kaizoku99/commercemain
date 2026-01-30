@@ -150,7 +150,7 @@ const uaeCulturalConfigs: Record<Locale, UAECulturalConfig> = {
  * UAE Cultural Service
  */
 export class UAECulturalService {
-  private config: UAECulturalConfig;
+  public config: UAECulturalConfig;
 
   constructor(locale: Locale = 'en') {
     this.config = uaeCulturalConfigs[locale] || uaeCulturalConfigs.en;

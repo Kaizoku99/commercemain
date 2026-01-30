@@ -15,7 +15,8 @@ import {
   MembershipStats,
   DiscountCalculation,
   ServiceDiscountInfo,
-  MembershipValidation
+  MembershipValidation,
+  MembershipError as TypesMembershipError
 } from '../lib/types/membership';
 import { MembershipError, MembershipErrorFactory } from '../lib/errors/membership-errors';
 
@@ -25,7 +26,7 @@ export interface UseAtpMembershipReturn {
   membership: AtpMembership | null;
   stats: MembershipStats | null;
   isLoading: boolean;
-  error: MembershipError | null;
+  error: TypesMembershipError | MembershipError | null;
   isInitialized: boolean;
   lastUpdated: string | null;
 
@@ -37,7 +38,7 @@ export interface UseAtpMembershipReturn {
   requiresRenewal: boolean;
 
   // Operations
-  loadMembership: (customerId?: string) => Promise<void>;
+  loadMembership: (customerId: string) => Promise<void>;
   purchaseMembership: (customerId: string) => Promise<string>;
   renewMembership: (membershipId: string) => Promise<void>;
   cancelMembership: (membershipId: string) => Promise<void>;
@@ -220,6 +221,8 @@ export function useMembershipOperations() {
     refreshMembership,
     clearError
   } = useAtpMembership();
+  
+  const errorHandling = useMembershipApiErrorHandling();
 
   const handlePurchase = useCallback(async (customerId: string) => {
     const result = await errorHandling.handleAsyncError(async () => {

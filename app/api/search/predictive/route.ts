@@ -2,6 +2,22 @@ import { NextRequest, NextResponse } from 'next/server'
 import { predictiveSearchQuery } from '@/lib/shopify/advanced-queries'
 import { shopifyFetch } from '@/lib/shopify/server'
 
+interface PredictiveSearchOperation {
+  data: {
+    predictiveSearch: {
+      products: any[];
+      queries: any[];
+      collections: any[];
+    };
+  };
+  variables: {
+    query: string;
+    first: number;
+    language: string;
+    country: string;
+  };
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { query, locale } = await request.json()
@@ -18,7 +34,7 @@ export async function POST(request: NextRequest) {
     const country = 'AE'
 
     // Fetch predictive search results from Shopify with locale context
-    const response = await shopifyFetch({
+    const response = await shopifyFetch<PredictiveSearchOperation>({
       query: predictiveSearchQuery,
       variables: {
         query: query.trim(),

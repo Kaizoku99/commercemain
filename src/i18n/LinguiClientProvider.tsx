@@ -1,7 +1,7 @@
 'use client'
 
 import { I18nProvider } from '@lingui/react'
-import { i18n as globalI18n, type Messages } from '@lingui/core'
+import { i18n as globalI18n } from '@lingui/core'
 import { useState, useEffect, useCallback, createContext, useContext } from 'react'
 import { useLingui } from '@lingui/react'
 import { 
@@ -9,6 +9,7 @@ import {
   type MessageCatalog,
   type LinguiClientProviderProps,
   type UseLocaleReturn,
+  type Messages,
   defaultLocale, 
   isValidLocale,
   LocaleError 

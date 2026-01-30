@@ -43,10 +43,10 @@ export function RenewalNotification({
     return null;
   }
 
-  const getNotificationVariant = () => {
+  const getNotificationVariant = (): 'default' | 'secondary' | 'destructive' | 'outline' => {
     if (isExpired) return 'destructive';
     if (daysUntilExpiration <= 7) return 'destructive';
-    if (daysUntilExpiration <= 14) return 'warning';
+    if (daysUntilExpiration <= 14) return 'secondary'; // Changed from 'warning' to 'secondary'
     return 'default';
   };
 

@@ -112,7 +112,9 @@ class ShopifyAnalyticsManager {
             script.async = true
             script.src = `https://cdn.shopify.com/s/javascripts/tricorder/trekkie.${config.Trekkie.appName}.min.js?v=${trekkie_version}`
             const first = document.getElementsByTagName('script')[0]
-            first.parentNode.insertBefore(script, first)
+            if (first?.parentNode) {
+                first.parentNode.insertBefore(script, first)
+            }
         }
 
         analytics.load(config)
@@ -164,7 +166,8 @@ class ShopifyAnalyticsManager {
         if (!pixelId) return
 
         // Facebook Pixel initialization
-        !(function (f: any, b: any, e: any, v: any, n: any, t: any, s: any) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        (function (f: any, b: any, e: any, v: any, n?: any, t?: any, s?: any) {
             if (f.fbq) return
             n = f.fbq = function () {
                 n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments)

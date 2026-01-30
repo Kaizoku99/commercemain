@@ -212,7 +212,7 @@ export function MembershipProvider({ children, customerId }: MembershipProviderP
         : new MembershipError(
             'Failed to load membership data',
             MembershipErrorCode.NETWORK_ERROR,
-            error
+            { context: { originalError: error instanceof Error ? error.message : String(error) } }
           );
 
       dispatch({
@@ -252,7 +252,7 @@ export function MembershipProvider({ children, customerId }: MembershipProviderP
         : new MembershipError(
             'Failed to purchase membership',
             MembershipErrorCode.PAYMENT_FAILED,
-            error
+            { context: { originalError: error instanceof Error ? error.message : String(error) } }
           );
 
       dispatch({
@@ -291,7 +291,7 @@ export function MembershipProvider({ children, customerId }: MembershipProviderP
         : new MembershipError(
             'Failed to renew membership',
             MembershipErrorCode.RENEWAL_FAILED,
-            error
+            { context: { originalError: error instanceof Error ? error.message : String(error) } }
           );
 
       dispatch({
@@ -327,7 +327,7 @@ export function MembershipProvider({ children, customerId }: MembershipProviderP
         : new MembershipError(
             'Failed to cancel membership',
             MembershipErrorCode.CANCELLATION_FAILED,
-            error
+            { context: { originalError: error instanceof Error ? error.message : String(error) } }
           );
 
       dispatch({

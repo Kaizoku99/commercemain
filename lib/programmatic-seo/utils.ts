@@ -1,0 +1,263 @@
+import { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { getProducts } from "@/lib/shopify/server";
+import { CategoryData, FAQ, UAECities, LocationServices } from "./data";
+import { Product } from "@/lib/shopify/types";
+
+// Generate metadata for category pages
+export function generateCategoryMetadata(slug: string, locale: string): Metadata {
+  const category = CategoryData[slug];
+  if (!category) return {};
+
+  const isAr = locale === "ar";
+  const title = isAr ? `${category.nameAr} | ATP Group` : category.metaTitle;
+  const description = isAr ? category.descriptionAr : category.metaDescription;
+  const url = `https://atpgroupservices.com/${locale}/category/${slug}`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: url,
+      languages: {
+        en: `https://atpgroupservices.com/en/category/${slug}`,
+        ar: `https://atpgroupservices.com/ar/category/${slug}`,
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: "website",
+      images: [
+        {
+          url: category.image,
+          width: 1200,
+          height: 630,
+          alt: category.name,
+        },
+      ],
+    },
+  };
+}
+
+// Generate metadata for location pages
+export function generateLocationMetadata(
+  service: string,
+  city: string,
+  locale: string
+): Metadata {
+  const serviceData = LocationServices.find((s) => s.slug === service);
+  const cityData = UAECities.find((c) => c.slug === city);
+
+  if (!serviceData || !cityData) return {};
+
+  const isAr = locale === "ar";
+  const title = isAr
+    ? `${serviceData.nameAr} في ${cityData.nameAr} | ATP Group`
+    : `${serviceData.name} in ${cityData.name} | Professional ${serviceData.name} Near You`;
+  const description = isAr
+    ? `ابحث عن ${serviceData.nameAr} في ${cityData.nameAr}. ATP Group تقدم ${serviceData.nameAr} الاحترافي مع توصيل سريع في ${cityData.nameAr}.`
+    : `Looking for ${serviceData.name} in ${cityData.name}? ATP Group offers professional ${serviceData.name} with fast delivery in ${cityData.name}.`;
+  const url = `https://atpgroupservices.com/${locale}/${service}/${city}`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: url,
+      languages: {
+        en: `https://atpgroupservices.com/en/${service}/${city}`,
+        ar: `https://atpgroupservices.com/ar/${service}/${city}`,
+      },
+    },
+    openGraph: {
+      title,
+      description,
+      url,
+      type: "website",
+    },
+  };
+}
+
+// Fetch products for a category
+export async function getCategoryProducts(
+  productHandles: string[],
+  locale: string
+): Promise<Product[]> {
+  try {
+    const allProducts = await getProducts({
+      locale: { language: locale === "ar" ? "AR" : "EN", country: "AE" },
+    });
+
+    return allProducts.filter((product) =>
+      productHandles.includes(product.handle)
+    );
+  } catch (error) {
+    console.error("Error fetching category products:", error);
+    return [];
+  }
+}
+
+// Generate JSON-LD structured data for category pages
+export function generateCategoryStructuredData(
+  category: typeof CategoryData[string],
+  products: Product[],
+  locale: string
+) {
+  const isAr = locale === "ar";
+  const url = `https://atpgroupservices.com/${locale}/category/${category.slug}`;
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        "@id": url,
+        name: isAr ? category.nameAr : category.name,
+        description: isAr ? category.descriptionAr : category.description,
+        url,
+        mainEntity: {
+          "@type": "ItemList",
+          itemListElement: products.map((product, index) => ({
+            "@type": "ListItem",
+            position: index + 1,
+            item: {
+              "@type": "Product",
+              name: product.title,
+              url: `https://atpgroupservices.com/${locale}/product/${product.handle}`,
+              image: product.featuredImage?.url,
+              offers: {
+                "@type": "Offer",
+                price: product.priceRange.minVariantPrice.amount,
+                priceCurrency: product.priceRange.minVariantPrice.currencyCode,
+                availability: product.availableForSale
+                  ? "https://schema.org/InStock"
+                  : "https://schema.org/OutOfStock",
+              },
+            },
+          })),
+        },
+        breadcrumb: {
+          "@type": "BreadcrumbList",
+          itemListElement: [
+            {
+              "@type": "ListItem",
+              position: 1,
+              name: isAr ? "الرئيسية" : "Home",
+              item: `https://atpgroupservices.com/${locale}`,
+            },
+            {
+              "@type": "ListItem",
+              position: 2,
+              name: isAr ? "الفئات" : "Categories",
+              item: `https://atpgroupservices.com/${locale}/categories`,
+            },
+            {
+              "@type": "ListItem",
+              position: 3,
+              name: isAr ? category.nameAr : category.name,
+              item: url,
+            },
+          ],
+        },
+      },
+      // FAQ Page schema if FAQs exist
+      category.faqs && category.faqs.length > 0
+        ? {
+            "@type": "FAQPage",
+            mainEntity: (isAr ? category.faqsAr : category.faqs).map(
+              (faq: FAQ) => ({
+                "@type": "Question",
+                name: faq.question,
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: faq.answer,
+                },
+              })
+            ),
+          }
+        : null,
+    ].filter(Boolean),
+  };
+}
+
+// Generate JSON-LD for location pages
+export function generateLocationStructuredData(
+  service: string,
+  city: string,
+  products: Product[],
+  locale: string
+) {
+  const serviceData = LocationServices.find((s) => s.slug === service);
+  const cityData = UAECities.find((c) => c.slug === city);
+
+  if (!serviceData || !cityData) return null;
+
+  const isAr = locale === "ar";
+  const url = `https://atpgroupservices.com/${locale}/${service}/${city}`;
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "LocalBusiness",
+        "@id": `${url}/#localbusiness`,
+        name: `ATP Group Services - ${isAr ? serviceData.nameAr : serviceData.name}`,
+        description: `${isAr ? serviceData.nameAr : serviceData.name} in ${isAr ? cityData.nameAr : cityData.name}`,
+        url,
+        telephone: "+971-4-XXX-XXXX",
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: cityData.name,
+          addressCountry: "AE",
+        },
+        areaServed: {
+          "@type": "City",
+          name: cityData.name,
+        },
+        hasOfferCatalog: {
+          "@type": "OfferCatalog",
+          name: isAr ? serviceData.nameAr : serviceData.name,
+          itemListElement: products.map((product) => ({
+            "@type": "Offer",
+            itemOffered: {
+              "@type": "Product",
+              name: product.title,
+              url: `https://atpgroupservices.com/${locale}/product/${product.handle}`,
+            },
+          })),
+        },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: isAr ? "الرئيسية" : "Home",
+            item: `https://atpgroupservices.com/${locale}`,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: isAr ? "الخدمات" : "Services",
+            item: `https://atpgroupservices.com/${locale}/services`,
+          },
+          {
+            "@type": "ListItem",
+            position: 3,
+            name: isAr ? serviceData.nameAr : serviceData.name,
+            item: `https://atpgroupservices.com/${locale}/${service}`,
+          },
+          {
+            "@type": "ListItem",
+            position: 4,
+            name: isAr ? cityData.nameAr : cityData.name,
+            item: url,
+          },
+        ],
+      },
+    ],
+  };
+}

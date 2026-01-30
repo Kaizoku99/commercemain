@@ -1,4 +1,25 @@
-import { CustomerData } from "@/hooks/use-customer";
+// Define CustomerData interface locally - compatible with customer hook data structure
+export interface CustomerData {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone?: string;
+  orders: Array<{
+    name: string;
+    processedAt: string;
+    fulfillmentStatus?: string;
+    financialStatus?: string;
+    currentTotalPrice: {
+      amount: string;
+      currencyCode: string;
+    };
+    lineItems: Array<{
+      quantity: number;
+      title: string;
+    }>;
+  }>;
+}
 
 export interface MembershipStats {
   totalOrders: number;
@@ -14,7 +35,7 @@ export function calculateMembershipStats(customer: CustomerData): MembershipStat
   const totalOrders = orders.length;
   
   // Calculate total spent
-  const totalSpent = orders.reduce((sum, order) => {
+  const totalSpent = orders.reduce((sum: number, order: CustomerData['orders'][0]) => {
     return sum + parseFloat(order.currentTotalPrice.amount);
   }, 0);
 
@@ -58,13 +79,13 @@ export function getRecentOrders(customer: CustomerData, limit: number = 3) {
   
   return orders
     .slice(0, limit)
-    .map(order => ({
+    .map((order: CustomerData['orders'][0]) => ({
       id: order.name,
       date: order.processedAt,
       status: order.fulfillmentStatus || order.financialStatus,
       total: parseFloat(order.currentTotalPrice.amount),
       memberSavings: parseFloat(order.currentTotalPrice.amount) * 0.15, // 15% savings
-      items: order.lineItems.reduce((sum, item) => sum + item.quantity, 0),
+      items: order.lineItems.reduce((sum: number, item: { quantity: number }) => sum + item.quantity, 0),
     }));
 }
 

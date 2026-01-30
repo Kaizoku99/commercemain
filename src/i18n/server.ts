@@ -41,13 +41,7 @@ export async function getI18nInstance(locale: Locale): Promise<I18n> {
     // Create new i18n instance for server-side rendering
     const i18n = setupI18n({
       locale,
-      messages: { [locale]: messages },
-      missing: (locale, id) => {
-        if (process.env.NODE_ENV === 'development') {
-          console.warn(`Missing translation for "${id}" in locale "${locale}"`)
-        }
-        return id // Return the message ID as fallback
-      }
+      messages: { [locale]: messages }
     })
 
     // Load and activate immediately to ensure messages are available
@@ -70,8 +64,7 @@ export async function getI18nInstance(locale: Locale): Promise<I18n> {
     // If even default locale fails, create minimal instance
     const fallbackI18n = setupI18n({
       locale: defaultLocale,
-      messages: { [defaultLocale]: {} },
-      missing: (locale, id) => id
+      messages: { [defaultLocale]: {} }
     })
     
     return fallbackI18n
@@ -99,8 +92,7 @@ export async function setupServerI18n(locale: Locale): Promise<I18n> {
     // Create and set fallback instance
     const fallbackI18n = setupI18n({
       locale: defaultLocale,
-      messages: { [defaultLocale]: {} },
-      missing: (locale, id) => id
+      messages: { [defaultLocale]: {} }
     })
     
     setI18n(fallbackI18n)
@@ -231,13 +223,7 @@ export function createServerI18nWithMessages(
 ): I18n {
   const i18n = setupI18n({
     locale,
-    messages: { [locale]: messages },
-    missing: (locale, id) => {
-      if (process.env.NODE_ENV === 'development') {
-        console.warn(`Missing translation for "${id}" in locale "${locale}"`)
-      }
-      return id
-    }
+    messages: { [locale]: messages }
   })
 
   // Set the i18n instance for server-side rendering

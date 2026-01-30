@@ -44,8 +44,15 @@ import {
   ERROR_MESSAGES
 } from '../constants/membership';
 
+import { ShopifyIntegrationService } from './shopify-integration-service';
+
 export class AtpMembershipService {
   private static instance: AtpMembershipService;
+  private shopifyService: ShopifyIntegrationService;
+  
+  constructor() {
+    this.shopifyService = new ShopifyIntegrationService();
+  }
   
   // Singleton pattern for service instance
   public static getInstance(): AtpMembershipService {
@@ -60,60 +67,64 @@ export class AtpMembershipService {
    * Requirement 2.2: System shall create membership record with one-year expiration
    */
   async createMembership(payload: CreateMembershipPayload): Promise<MembershipResult<AtpMembership>> {
-    return await membershipFallbackService.executeWithFallback(
-      async () => {
-        // Validate customer ID
-        if (!payload.customerId || payload.customerId.trim() === '') {
-          throw MembershipErrorFactory.validationError('customerId', payload.customerId, 'valid customer ID');
-        }
+    try {
+      return await membershipFallbackService.executeWithFallback(
+        async (): Promise<MembershipResult<AtpMembership>> => {
+          // Validate customer ID
+          if (!payload.customerId || payload.customerId.trim() === '') {
+            throw MembershipErrorFactory.validationError('customerId', payload.customerId, 'valid customer ID');
+          }
 
-        // Check if membership already exists
-        const existingMembership = await this.getMembership(payload.customerId);
-        if (existingMembership.success && existingMembership.data) {
-          throw new MembershipError(
-            'Customer already has an active membership',
-            MembershipErrorCode.MEMBERSHIP_ALREADY_EXISTS,
-            { context: { customerId: payload.customerId } }
-          );
-        }
+          // Check if membership already exists
+          const existingMembership = await this.getMembership(payload.customerId);
+          if (existingMembership.success && existingMembership.data) {
+            throw new MembershipError(
+              'Customer already has an active membership',
+              MembershipErrorCode.MEMBERSHIP_ALREADY_EXISTS,
+              { context: { customerId: payload.customerId } }
+            );
+          }
 
-        // Create new membership
-        const now = new Date();
-        const expirationDate = new Date(now);
-        expirationDate.setMonth(expirationDate.getMonth() + MEMBERSHIP_CONFIG.MEMBERSHIP_DURATION_MONTHS);
+          // Create new membership
+          const now = new Date();
+          const expirationDate = new Date(now);
+          expirationDate.setMonth(expirationDate.getMonth() + MEMBERSHIP_CONFIG.MEMBERSHIP_DURATION_MONTHS);
 
-        const membership: AtpMembership = {
-          id: this.generateMembershipId(),
-          customerId: payload.customerId,
-          status: 'pending' as MembershipStatus,
-          startDate: now.toISOString(),
-          expirationDate: expirationDate.toISOString(),
-          subscriptionId: payload.subscriptionId,
-          paymentStatus: 'pending' as PaymentStatus,
-          benefits: {
-            serviceDiscount: MEMBERSHIP_CONFIG.SERVICE_DISCOUNT_PERCENTAGE,
-            freeDelivery: MEMBERSHIP_CONFIG.FREE_DELIVERY,
-            eligibleServices: [...ELIGIBLE_SERVICES],
-            annualFee: MEMBERSHIP_CONFIG.ANNUAL_FEE
-          },
-          createdAt: now.toISOString(),
-          updatedAt: now.toISOString()
-        };
+          const membership: AtpMembership = {
+            id: this.generateMembershipId(),
+            customerId: payload.customerId,
+            status: 'pending' as MembershipStatus,
+            startDate: now.toISOString(),
+            expirationDate: expirationDate.toISOString(),
+            subscriptionId: payload.subscriptionId,
+            paymentStatus: 'pending' as PaymentStatus,
+            benefits: {
+              serviceDiscount: MEMBERSHIP_CONFIG.SERVICE_DISCOUNT_PERCENTAGE,
+              freeDelivery: MEMBERSHIP_CONFIG.FREE_DELIVERY,
+              eligibleServices: [...ELIGIBLE_SERVICES],
+              annualFee: MEMBERSHIP_CONFIG.ANNUAL_FEE
+            },
+            createdAt: now.toISOString(),
+            updatedAt: now.toISOString()
+          };
 
-        // TODO: Store membership in Shopify Customer metafields (will be implemented in task 3)
-        // For now, we'll return the created membership object
-        
-        return {
-          success: true,
-          data: membership
-        };
-      },
-      undefined,
-      'createMembership'
-    ).catch(error => ({
-      success: false,
-      error: error instanceof MembershipError ? error : MembershipErrorFactory.shopifyApiError(error)
-    }));
+          // TODO: Store membership in Shopify Customer metafields (will be implemented in task 3)
+          // For now, we'll return the created membership object
+          
+          return {
+            success: true as const,
+            data: membership
+          };
+        },
+        undefined,
+        'createMembership'
+      );
+    } catch (error) {
+      return {
+        success: false as const,
+        error: error instanceof MembershipError ? error : MembershipErrorFactory.shopifyApiError(error instanceof Error ? error : new Error(String(error)))
+      };
+    }
   }
 
   /**
@@ -146,7 +157,7 @@ export class AtpMembershipService {
         error: new MembershipError(
           'Failed to retrieve membership',
           MembershipErrorCode.SHOPIFY_API_ERROR,
-          error
+          { context: { originalError: error instanceof Error ? error.message : String(error) } }
         )
       };
     }
@@ -207,7 +218,7 @@ export class AtpMembershipService {
         error: new MembershipError(
           ERROR_MESSAGES.RENEWAL_FAILED,
           MembershipErrorCode.RENEWAL_FAILED,
-          error
+          { context: { originalError: error instanceof Error ? error.message : String(error) } }
         )
       };
     }
@@ -246,7 +257,7 @@ export class AtpMembershipService {
         error: new MembershipError(
           'Failed to generate renewal checkout URL',
           MembershipErrorCode.SHOPIFY_API_ERROR,
-          error
+          { context: { originalError: error instanceof Error ? error.message : String(error) } }
         )
       };
     }
@@ -309,19 +320,26 @@ export class AtpMembershipService {
 
       if (!updateResult.success) {
         return {
-          success: false,
-          error: updateResult.error || 'Failed to update membership status'
+          success: false as const,
+          error: updateResult.error || new MembershipError(
+            'Failed to update membership status',
+            MembershipErrorCode.SHOPIFY_API_ERROR
+          )
         };
       }
 
       return {
-        success: true,
+        success: true as const,
         data: updatedMembership
       };
     } catch (error) {
       return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to update membership status'
+        success: false as const,
+        error: new MembershipError(
+          error instanceof Error ? error.message : 'Failed to update membership status',
+          MembershipErrorCode.SHOPIFY_API_ERROR,
+          { context: { originalError: error instanceof Error ? error.message : String(error) } }
+        )
       };
     }
   }
@@ -366,7 +384,7 @@ export class AtpMembershipService {
         error: new MembershipError(
           ERROR_MESSAGES.CANCELLATION_FAILED,
           MembershipErrorCode.CANCELLATION_FAILED,
-          error
+          { context: { originalError: error instanceof Error ? error.message : String(error) } }
         )
       };
     }
@@ -528,7 +546,7 @@ export class AtpMembershipService {
         error: new MembershipError(
           'Failed to retrieve membership statistics',
           MembershipErrorCode.SHOPIFY_API_ERROR,
-          error
+          { context: { originalError: error instanceof Error ? error.message : String(error) } }
         )
       };
     }
@@ -573,7 +591,7 @@ export class AtpMembershipService {
         error: new MembershipError(
           'Failed to update payment status',
           MembershipErrorCode.VALIDATION_ERROR,
-          error
+          { context: { originalError: error instanceof Error ? error.message : String(error) } }
         )
       };
     }

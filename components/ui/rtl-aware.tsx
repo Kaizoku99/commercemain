@@ -2,11 +2,11 @@
 
 import { useRTL } from "@/hooks/use-rtl"
 import { cn } from "@/lib/utils"
-import { type ReactNode, type HTMLAttributes } from "react"
+import { type ReactNode, type HTMLAttributes, type ElementType } from "react"
 
 interface RTLAwareProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode
-  as?: keyof JSX.IntrinsicElements
+  as?: ElementType
 }
 
 export function RTLAware({ children, className, as: Component = "div", ...props }: RTLAwareProps) {

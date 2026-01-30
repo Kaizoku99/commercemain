@@ -75,13 +75,13 @@ export class MembershipCartMiddleware {
       }
 
       // Validate membership status
-      const validation = atpMembershipService.validateMembership(activeMembership);
+      const validation = atpMembershipService.validateMembership(activeMembership ?? null);
       
       // Calculate service discounts
-      const serviceDiscounts = this.calculateServiceDiscounts(cart.lines, activeMembership);
+      const serviceDiscounts = this.calculateServiceDiscounts(cart.lines, activeMembership ?? null);
       
       // Determine free delivery eligibility
-      const freeDelivery = this.isEligibleForFreeDelivery(activeMembership, validation);
+      const freeDelivery = this.isEligibleForFreeDelivery(activeMembership ?? null, validation);
       
       // Calculate total savings
       const totalSavings = serviceDiscounts.reduce((sum, discount) => sum + discount.discountAmount, 0);
@@ -91,7 +91,7 @@ export class MembershipCartMiddleware {
         serviceDiscounts,
         freeDelivery,
         totalSavings,
-        membershipStatus: this.getMembershipStatus(activeMembership, validation),
+        membershipStatus: this.getMembershipStatus(activeMembership ?? null, validation),
         validationErrors: validation.errors
       };
 

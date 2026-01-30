@@ -74,7 +74,7 @@ export class MembershipExtensionService {
         error: new MembershipError(
           'Failed to extend membership',
           MembershipErrorCode.RENEWAL_FAILED,
-          error
+          { context: { originalError: error instanceof Error ? error.message : String(error) } }
         )
       };
     }
@@ -157,7 +157,7 @@ export class MembershipExtensionService {
         error: new MembershipError(
           'Failed to process renewal confirmation',
           MembershipErrorCode.RENEWAL_FAILED,
-          error
+          { context: { originalError: error instanceof Error ? error.message : String(error) } }
         )
       };
     }
@@ -281,8 +281,8 @@ export class MembershipExtensionService {
     currentExpiration: string;
     newExpiration: string;
     extensionPeriod: string;
-    pricing: ReturnType<typeof this.calculateRenewalPricing>;
-    eligibility: ReturnType<typeof this.validateRenewalEligibility>;
+    pricing: { basePrice: number; discount: number; finalPrice: number; currency: string };
+    eligibility: { eligible: boolean; reason?: string; canRenewEarly: boolean };
   } {
     const currentExpiration = new Date(membership.expirationDate);
     const now = new Date();

@@ -41,7 +41,7 @@ export interface OrderWebhookPayload extends WebhookPayload {
   currency: string;
 }
 
-export interface CustomerWebhookPayload extends WebhookPayload {
+export interface CustomerWebhookPayload extends Omit<WebhookPayload, 'id'> {
   topic: 'customers/update' | 'customers/create';
   id: number;
   email: string;
@@ -240,11 +240,16 @@ export class MembershipWebhookService {
   ): Promise<void> {
     try {
       // Create new membership
-      const membership = await this.membershipService.createMembership(customerId);
+      const membershipResult = await this.membershipService.createMembership({ customerId });
+      
+      if (!membershipResult.success) {
+        console.error(`Failed to create membership for customer ${customerId}:`, membershipResult.error);
+        return;
+      }
       
       // Update payment status to paid
       await this.lifecycleService.handlePaymentStatusUpdate(
-        membership.id,
+        membershipResult.data.id,
         'paid'
       );
 
@@ -264,16 +269,16 @@ export class MembershipWebhookService {
   ): Promise<void> {
     try {
       // Get existing membership
-      const membership = await this.membershipService.getMembership(customerId);
+      const membershipResult = await this.membershipService.getMembership(customerId);
       
-      if (!membership) {
+      if (!membershipResult.success || !membershipResult.data) {
         console.error(`No membership found for customer ${customerId} during renewal`);
         return;
       }
 
       // Update payment status to paid (this will trigger renewal logic)
       await this.lifecycleService.handlePaymentStatusUpdate(
-        membership.id,
+        membershipResult.data.id,
         'paid'
       );
 

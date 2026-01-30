@@ -61,9 +61,8 @@ export default withNextIntl({
   compress: true,
   poweredByHeader: false,
   typescript: {
-    // TODO: Fix TypeScript errors and remove this setting
-    // Pre-existing errors exist in: metafields.ts, cart-customer-utils.ts, test files
-    ignoreBuildErrors: true,
+    // TypeScript errors are now fixed - strict checking enabled
+    ignoreBuildErrors: false,
   },
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
     // Simplified webpack configuration to avoid vendor chunks issues

@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react"
 import { useCustomer } from "./use-customer"
-import { calculateMembershipStats } from "@/lib/shopify/membership-utils"
+import { calculateMembershipStats, CustomerData } from "@/lib/shopify/membership-utils"
+import type { CustomerResponse } from "@/lib/shopify/customer-account"
 
 export type MembershipTier = "basic" | "premium" | "elite" | null
 
@@ -11,6 +12,29 @@ interface MembershipData {
   isActive: boolean
   expiresAt?: string
   discountRate: number
+}
+
+// Transform CustomerResponse to CustomerData format expected by membership-utils
+function transformCustomerToMembershipFormat(customer: CustomerResponse): CustomerData {
+  return {
+    id: customer.id,
+    firstName: customer.firstName,
+    lastName: customer.lastName,
+    email: customer.email,
+    phone: customer.phone,
+    orders: customer.orders.edges.map(edge => ({
+      name: `Order #${edge.node.orderNumber}`,
+      processedAt: edge.node.processedAt,
+      currentTotalPrice: {
+        amount: edge.node.totalPriceV2.amount,
+        currencyCode: edge.node.totalPriceV2.currencyCode
+      },
+      lineItems: edge.node.lineItems.edges.map(lineItem => ({
+        quantity: lineItem.node.quantity,
+        title: lineItem.node.title
+      }))
+    }))
+  };
 }
 
 // Membership hook integrated with Shopify Customer API
@@ -30,8 +54,11 @@ export function useMembership() {
     }
 
     if (customer) {
+      // Transform customer data to the format expected by calculateMembershipStats
+      const customerData = transformCustomerToMembershipFormat(customer)
+      
       // Calculate membership tier based on customer data
-      const membershipStats = calculateMembershipStats(customer)
+      const membershipStats = calculateMembershipStats(customerData)
       
       // Map tier names to match existing interface
       const tierMap: Record<string, MembershipTier> = {

@@ -2,12 +2,13 @@
 
 import { Button } from "@/components/ui/button"
 import { useCartNotification } from "./cart-provider"
+import type { CartItem } from "@/lib/shopify/types"
 
 export function TestNotification() {
   const { showNotification } = useCartNotification()
 
   const testNotification = () => {
-    const testItem = {
+    const testItem: CartItem = {
       id: "test-id",
       quantity: 1,
       cost: {
@@ -26,7 +27,9 @@ export function TestNotification() {
           title: "Test Product",
           featuredImage: {
             url: "/placeholder.svg",
-            altText: "Test Product"
+            altText: "Test Product",
+            width: 100,
+            height: 100
           }
         }
       }

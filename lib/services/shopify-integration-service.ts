@@ -15,7 +15,9 @@ import {
   MembershipError, 
   MembershipErrorCode,
   MembershipResult,
-  MembershipStats
+  MembershipStats,
+  MembershipStatus,
+  PaymentStatus
 } from '../types/membership'
 
 // Shopify Admin API types for customer metafields
@@ -33,6 +35,15 @@ interface ShopifyCustomer {
   email: string
   firstName?: string
   lastName?: string
+  phone?: string
+  createdAt?: string
+  updatedAt?: string
+  numberOfOrders?: number
+  totalSpent?: string
+  amountSpent?: {
+    amount: string
+    currencyCode: string
+  }
   metafields?: ShopifyCustomerMetafield[]
 }
 
@@ -175,6 +186,15 @@ export class ShopifyIntegrationService {
   }
 
   /**
+   * Alias for adminApiFetch to support legacy code
+   */
+  private get graphqlClient() {
+    return {
+      request: <T>(query: string, variables?: Record<string, unknown>) => this.adminApiFetch<T>(query, variables)
+    }
+  }
+
+  /**
    * Make GraphQL request to Shopify Admin API
    */
   private async adminApiFetch<T>(query: string, variables?: any): Promise<T> {
@@ -214,7 +234,7 @@ export class ShopifyIntegrationService {
       throw new MembershipError(
         `Shopify Admin API error: ${error instanceof Error ? error.message : 'Unknown error'}`,
         MembershipErrorCode.SHOPIFY_API_ERROR,
-        error
+        { context: { originalError: error instanceof Error ? error.message : String(error) } }
       )
     }
   }
@@ -252,7 +272,7 @@ export class ShopifyIntegrationService {
       throw new MembershipError(
         `Shopify Storefront API error: ${error instanceof Error ? error.message : 'Unknown error'}`,
         MembershipErrorCode.SHOPIFY_API_ERROR,
-        error
+        { context: { originalError: error instanceof Error ? error.message : String(error) } }
       )
     }
   }
@@ -372,7 +392,7 @@ export class ShopifyIntegrationService {
   async updateCustomerMembership(customerId: string, membership: AtpMembership): Promise<void> {
     const result = await this.updateCustomerMetafields(customerId, membership);
     if (!result.success) {
-      throw new Error(result.error || 'Failed to update customer membership');
+      throw new Error(result.error?.message || 'Failed to update customer membership');
     }
   }
 
@@ -403,7 +423,7 @@ export class ShopifyIntegrationService {
         : new MembershipError(
             `Failed to update customer metafields: ${error instanceof Error ? error.message : 'Unknown error'}`,
             MembershipErrorCode.SHOPIFY_API_ERROR,
-            error
+            { context: { originalError: error instanceof Error ? error.message : String(error) } }
           )
 
       return { success: false, error: membershipError }
@@ -435,7 +455,7 @@ export class ShopifyIntegrationService {
         : new MembershipError(
             `Failed to get customer membership: ${error instanceof Error ? error.message : 'Unknown error'}`,
             MembershipErrorCode.SHOPIFY_API_ERROR,
-            error
+            { context: { originalError: error instanceof Error ? error.message : String(error) } }
           )
 
       return { success: false, error: membershipError }
@@ -498,7 +518,7 @@ export class ShopifyIntegrationService {
         : new MembershipError(
             `Failed to apply membership discount: ${error instanceof Error ? error.message : 'Unknown error'}`,
             MembershipErrorCode.DISCOUNT_APPLICATION_FAILED,
-            error
+            { context: { originalError: error instanceof Error ? error.message : String(error) } }
           )
 
       return { success: false, error: membershipError }
@@ -543,7 +563,7 @@ export class ShopifyIntegrationService {
         : new MembershipError(
             `Failed to remove membership discount: ${error instanceof Error ? error.message : 'Unknown error'}`,
             MembershipErrorCode.DISCOUNT_APPLICATION_FAILED,
-            error
+            { context: { originalError: error instanceof Error ? error.message : String(error) } }
           )
 
       return { success: false, error: membershipError }
@@ -579,7 +599,7 @@ export class ShopifyIntegrationService {
         : new MembershipError(
             `Failed to validate membership status: ${error instanceof Error ? error.message : 'Unknown error'}`,
             MembershipErrorCode.SHOPIFY_API_ERROR,
-            error
+            { context: { originalError: error instanceof Error ? error.message : String(error) } }
           )
 
       return { success: false, error: membershipError }
@@ -666,7 +686,7 @@ export class ShopifyIntegrationService {
         : new MembershipError(
             `Failed to get membership stats: ${error instanceof Error ? error.message : 'Unknown error'}`,
             MembershipErrorCode.SHOPIFY_API_ERROR,
-            error
+            { context: { originalError: error instanceof Error ? error.message : String(error) } }
           )
 
       return { success: false, error: membershipError }
@@ -704,15 +724,15 @@ export class ShopifyIntegrationService {
       `;
 
       const variables = { first: 250 }; // Shopify limit
-      const response = await this.graphqlClient.request(query, variables);
+      const response = await this.graphqlClient.request<{ customers: { edges: Array<{ node: ShopifyCustomer }> } }>(query, variables);
       
-      return response.customers.edges.map((edge: any) => edge.node);
+      return response.customers.edges.map((edge) => edge.node);
     } catch (error) {
       console.error('Error getting customers with memberships:', error);
       throw new MembershipError(
         'Failed to get customers with memberships',
         MembershipErrorCode.SHOPIFY_API_ERROR,
-        error
+        { context: { originalError: error instanceof Error ? error.message : String(error) } }
       );
     }
   }
@@ -789,7 +809,7 @@ export class ShopifyIntegrationService {
       `;
 
       const variables = { query: `metafield_value:${membershipId}` };
-      const response = await this.graphqlClient.request(query, variables);
+      const response = await this.graphqlClient.request<{ customers: { edges: Array<{ node: ShopifyCustomer }> } }>(query, variables);
       
       if (response.customers.edges.length === 0) {
         return null;
@@ -802,7 +822,7 @@ export class ShopifyIntegrationService {
       throw new MembershipError(
         'Failed to get membership by ID',
         MembershipErrorCode.SHOPIFY_API_ERROR,
-        error
+        { context: { originalError: error instanceof Error ? error.message : String(error) } }
       );
     }
   }
@@ -836,60 +856,40 @@ export class ShopifyIntegrationService {
       throw new MembershipError(
         'Failed to get customer information',
         MembershipErrorCode.SHOPIFY_API_ERROR,
-        error
+        { context: { originalError: error instanceof Error ? error.message : String(error) } }
       );
     }
   }
 
   /**
-   * Update customer membership data
+   * Get customer by ID
    */
-  async updateCustomerMembership(customerId: string, membership: AtpMembership): Promise<void> {
+  async getCustomer(customerId: string): Promise<ShopifyCustomer | null> {
     try {
-      const metafields = [
-        {
-          key: 'membership.id',
-          value: membership.id,
-          type: 'single_line_text_field'
-        },
-        {
-          key: 'membership.status',
-          value: membership.status,
-          type: 'single_line_text_field'
-        },
-        {
-          key: 'membership.start_date',
-          value: membership.startDate,
-          type: 'date_time'
-        },
-        {
-          key: 'membership.expiration_date',
-          value: membership.expirationDate,
-          type: 'date_time'
-        },
-        {
-          key: 'membership.payment_status',
-          value: membership.paymentStatus,
-          type: 'single_line_text_field'
+      const query = `
+        query getCustomer($customerId: ID!) {
+          customer(id: $customerId) {
+            id
+            email
+            firstName
+            lastName
+            phone
+            createdAt
+            updatedAt
+            numberOfOrders
+            amountSpent {
+              amount
+              currencyCode
+            }
+          }
         }
-      ];
-
-      if (membership.subscriptionId) {
-        metafields.push({
-          key: 'membership.subscription_id',
-          value: membership.subscriptionId,
-          type: 'single_line_text_field'
-        });
-      }
-
-      await this.updateCustomerMetafields(customerId, metafields);
+      `;
+      
+      const response = await this.adminApiFetch<{ customer: ShopifyCustomer & { phone?: string; createdAt?: string; updatedAt?: string; numberOfOrders?: number; amountSpent?: { amount: string } } }>(query, { customerId });
+      return response.customer || null;
     } catch (error) {
-      console.error('Error updating customer membership:', error);
-      throw new MembershipError(
-        'Failed to update customer membership',
-        MembershipErrorCode.SHOPIFY_API_ERROR,
-        error
-      );
+      console.error('Error getting customer:', error);
+      return null;
     }
   }
 }

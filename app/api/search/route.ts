@@ -127,7 +127,7 @@ function generateSearchSuggestions(query: string, products: any[]): string[] {
         // Add related terms based on the query
         if (title.includes(query.toLowerCase())) {
             const words = title.split(' ');
-            words.forEach((word, index) => {
+            words.forEach((word: string, index: number) => {
                 if (word.length > 3 && word !== query.toLowerCase()) {
                     if (index < words.length - 1) {
                         suggestions.add(`${query} ${words[index + 1]}`);

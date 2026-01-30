@@ -27,9 +27,10 @@ export class MembershipStatusValidator {
    */
   async validateMembershipStatus(customerId: string): Promise<ValidationResult> {
     try {
-      const membership = await this.membershipService.getMembership(customerId);
+      const result = await this.membershipService.getMembership(customerId);
       
-      if (!membership) {
+      // Handle failed result or no membership found
+      if (!result.success || !result.data) {
         return {
           isValid: false,
           status: 'expired',
@@ -37,6 +38,7 @@ export class MembershipStatusValidator {
         };
       }
 
+      const membership = result.data;
       const now = new Date();
       const expirationDate = new Date(membership.expirationDate);
       const daysUntilExpiration = Math.ceil((expirationDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));

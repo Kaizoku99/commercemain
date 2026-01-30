@@ -9,7 +9,6 @@ export const mockCart: Cart = {
   cost: {
     subtotalAmount: { amount: '0.00', currencyCode: 'AED' },
     totalAmount: { amount: '0.00', currencyCode: 'AED' },
-    totalTaxAmount: { amount: '0.00', currencyCode: 'AED' },
   },
 }
 

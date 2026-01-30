@@ -123,11 +123,12 @@ export class MembershipLifecycleService {
     paymentStatus: 'paid' | 'failed' | 'pending'
   ): Promise<void> {
     try {
-      const membership = await this.membershipService.getMembership(membershipId);
-      if (!membership) {
+      const result = await this.membershipService.getMembership(membershipId);
+      if (!result.success || !result.data) {
         throw new Error(`Membership not found: ${membershipId}`);
       }
 
+      const membership = result.data;
       const updatedMembership = {
         ...membership,
         paymentStatus

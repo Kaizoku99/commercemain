@@ -3,6 +3,9 @@ import { ReactElement, ReactNode } from 'react'
 import { TranslationProvider } from '@/components/translation-provider'
 import { UAE_DIRHAM_CODE, UAE_DIRHAM_SYMBOL } from "@/lib/constants";
 
+// Type-safe mock function type
+type MockFunction = (...args: unknown[]) => unknown;
+
 // Mock the useRTL hook for testing
 export const mockRTLHook = (language: 'en' | 'ar' = 'en') => {
   const isRTL = language === 'ar'
@@ -21,9 +24,9 @@ export const mockRTLHook = (language: 'en' | 'ar' = 'en') => {
       dateFormat: language === 'ar' ? 'dd/MM/yyyy' : 'MM/dd/yyyy',
       timeFormat: '12h',
     },
-    setLanguage: jest.fn(),
-    toggleLanguage: jest.fn(),
-    switchToLocale: jest.fn(),
+    setLanguage: (() => {}) as MockFunction,
+    toggleLanguage: (() => {}) as MockFunction,
+    switchToLocale: (() => {}) as MockFunction,
   }
 }
 

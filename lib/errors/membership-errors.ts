@@ -8,12 +8,14 @@ export enum MembershipErrorCode {
   UNAUTHORIZED = 'UNAUTHORIZED',
   INVALID_CUSTOMER = 'INVALID_CUSTOMER',
   CUSTOMER_NOT_FOUND = 'CUSTOMER_NOT_FOUND',
+  INSUFFICIENT_PERMISSIONS = 'INSUFFICIENT_PERMISSIONS',
   
   // Membership Status
   MEMBERSHIP_NOT_FOUND = 'MEMBERSHIP_NOT_FOUND',
   MEMBERSHIP_EXPIRED = 'MEMBERSHIP_EXPIRED',
   MEMBERSHIP_ALREADY_EXISTS = 'MEMBERSHIP_ALREADY_EXISTS',
   MEMBERSHIP_CANCELLED = 'MEMBERSHIP_CANCELLED',
+  INVALID_MEMBERSHIP_DATA = 'INVALID_MEMBERSHIP_DATA',
   
   // Payment & Billing
   PAYMENT_FAILED = 'PAYMENT_FAILED',
@@ -35,7 +37,12 @@ export enum MembershipErrorCode {
   // Validation
   INVALID_INPUT = 'INVALID_INPUT',
   VALIDATION_FAILED = 'VALIDATION_FAILED',
+  VALIDATION_ERROR = 'VALIDATION_ERROR',
   REQUIRED_FIELD_MISSING = 'REQUIRED_FIELD_MISSING',
+  
+  // Operations
+  RENEWAL_FAILED = 'RENEWAL_FAILED',
+  CANCELLATION_FAILED = 'CANCELLATION_FAILED',
   
   // System
   INTERNAL_ERROR = 'INTERNAL_ERROR',
@@ -82,7 +89,7 @@ export class MembershipError extends Error {
     }
   }
 
-  private generateRequestId(): string {
+  generateRequestId(): string {
     return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
   }
 
