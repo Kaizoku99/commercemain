@@ -18,7 +18,7 @@ interface GridProps extends HTMLMotionProps<"ul"> {
 function Grid(props: GridProps) {
   const {
     variant = "luxury",
-    mobileColumns = 1,
+    mobileColumns = 2,
     isRTL = false,
     ...restProps
   } = props;

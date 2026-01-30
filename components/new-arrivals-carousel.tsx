@@ -48,7 +48,7 @@ export function NewArrivalsCarousel({
   const t = useTranslations("homepage");
   const tProduct = useTranslations("product");
   const shouldReduceMotion = useReducedMotion();
-  
+
   const [currentSlide, setCurrentSlide] = useState(0);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const isRTL = locale === "ar";
@@ -123,7 +123,7 @@ export function NewArrivalsCarousel({
             >
               {t("premium")}
             </m.span>
-            
+
             <m.h1
               className={cn(
                 "text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-serif italic text-atp-white leading-tight tracking-tight",
@@ -133,20 +133,10 @@ export function NewArrivalsCarousel({
             >
               {isRTL ? "منتجاتنا الجديدة" : "New Arrivals"}
             </m.h1>
-            
 
-            
-            <m.div variants={fadeUpVariants}>
-              <Link href={`/${locale}/collections/new-arrivals`}>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="bg-atp-gold text-atp-black border-atp-gold font-semibold tracking-wider text-sm px-8 py-3 shadow-gold-lg hover:bg-transparent hover:text-atp-gold hover:border-atp-gold transition-all duration-300"
-                >
-                  {isRTL ? "تسوق الآن" : "SHOP NOW"}
-                </Button>
-              </Link>
-            </m.div>
+
+
+
           </m.div>
 
           {/* Hero Carousel */}
@@ -179,7 +169,7 @@ export function NewArrivalsCarousel({
                         sizes="(max-width: 640px) 192px, (max-width: 768px) 240px, 288px"
                         priority={index === 0}
                       />
-                      
+
                       {/* Product badges */}
                       <div className={cn(
                         "absolute top-4",
@@ -242,7 +232,7 @@ export function NewArrivalsCarousel({
               // First product is large (hero), index 3 is tall
               const isLarge = index === 0 || index === 3;
               const gridClass = editorialGridClasses[index] || "col-span-1 row-span-1";
-              
+
               return (
                 <m.article
                   key={product.id}
@@ -256,8 +246,8 @@ export function NewArrivalsCarousel({
                   {/* Index number watermark */}
                   <div className={cn(
                     "absolute z-10 font-serif italic text-atp-gold/10 pointer-events-none",
-                    isLarge 
-                      ? "text-[10rem] md:text-[14rem] -top-8 -left-4" 
+                    isLarge
+                      ? "text-[10rem] md:text-[14rem] -top-8 -left-4"
                       : "text-6xl md:text-8xl -top-2 -left-2",
                     isRTL && "left-auto -right-2"
                   )}>
@@ -265,7 +255,7 @@ export function NewArrivalsCarousel({
                   </div>
 
                   {/* Product image */}
-                  <Link 
+                  <Link
                     href={`/${locale}/product/${getLocalizedProductHandle(product, locale as 'en' | 'ar')}`}
                     className="absolute inset-0"
                   >
@@ -274,8 +264,8 @@ export function NewArrivalsCarousel({
                       alt={product.featuredImage?.altText || product.title}
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
-                      sizes={isLarge 
-                        ? "(max-width: 768px) 100vw, 50vw" 
+                      sizes={isLarge
+                        ? "(max-width: 768px) 100vw, 50vw"
                         : "(max-width: 768px) 50vw, 25vw"
                       }
                     />
@@ -291,7 +281,7 @@ export function NewArrivalsCarousel({
                   </div>
 
                   {/* Wishlist button */}
-                  <button 
+                  <button
                     className={cn(
                       "absolute top-4 z-20 p-2 rounded-full glass opacity-0 group-hover:opacity-100 transition-opacity",
                       isRTL ? "left-4" : "right-4"
@@ -309,7 +299,7 @@ export function NewArrivalsCarousel({
                     )}>
                       {product.title}
                     </h3>
-                    
+
                     <div className="flex items-center justify-between">
                       <div className="text-atp-gold font-bold">
                         {product.variants[0]?.price?.amount ? (
@@ -342,11 +332,11 @@ export function NewArrivalsCarousel({
           </div>
 
           {/* View All button */}
-          <m.div 
+          <m.div
             className="text-center mt-12"
             variants={fadeUpVariants}
           >
-            <Link href={`/${locale}/collections/all`}>
+            <Link href={`/${locale}/collections/amazing-thai-products`}>
               <Button
                 size="lg"
                 className="btn-premium px-8"

@@ -58,7 +58,7 @@ export default function ProductGridItems({
                 }}
                 src={product.featuredImage?.url}
                 fill
-                sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 50vw"
               />
             </Link>
           </Grid.Item>

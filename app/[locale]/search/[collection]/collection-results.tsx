@@ -115,7 +115,7 @@ export default function CollectionResults({
               {t('noProductsFound')}
             </p>
           ) : (
-            <Grid variant="collection" mobileColumns={1} isRTL={isRTL}>
+            <Grid variant="collection" mobileColumns={2} isRTL={isRTL}>
               <ProductGridItems
                 products={products}
                 locale={locale}

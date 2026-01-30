@@ -53,7 +53,7 @@ export function LuxuryProductCardSkeleton({ isRTL = false }: { isRTL?: boolean }
  */
 export function LuxuryProductGridSkeleton({
   count = 8,
-  mobileColumns = 1,
+  mobileColumns = 2,
   isRTL = false,
 }: ProductCardSkeletonProps) {
   return (
@@ -134,7 +134,7 @@ export function CollectionPageSkeleton({ isRTL = false }: { isRTL?: boolean }) {
           </div>
           
           {/* Grid */}
-          <LuxuryProductGridSkeleton count={8} mobileColumns={1} isRTL={isRTL} />
+          <LuxuryProductGridSkeleton count={8} mobileColumns={2} isRTL={isRTL} />
         </div>
       </section>
     </div>
