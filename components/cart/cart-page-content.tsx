@@ -16,8 +16,7 @@ import {
     Gift,
     Package,
     Clock,
-    AlertTriangle,
-    TrendingUp
+    AlertTriangle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -99,6 +98,7 @@ const summaryItemVariantsBase = {
 };
 
 // Stock indicator component for cart items
+// Only shows urgency signal when stock < 5 (per client requirement)
 function CartStockIndicator({ 
     quantityAvailable,
     tCart,
@@ -113,6 +113,11 @@ function CartStockIndicator({
         return null;
     }
 
+    // Stock is >= 5, don't show urgency signal
+    if (quantityAvailable >= 5) {
+        return null;
+    }
+
     // Out of stock
     if (quantityAvailable === 0) {
         return (
@@ -123,36 +128,13 @@ function CartStockIndicator({
         );
     }
 
-    // Low stock warning (1-5)
-    if (quantityAvailable <= 5) {
-        return (
-            <div className="flex items-center gap-1.5 mt-2">
-                <Clock className="w-3 h-3 text-amber-400 animate-pulse" />
-                <span className="text-xs font-medium text-amber-400">
-                    {tProduct("lowStock", { count: quantityAvailable })}
-                </span>
-            </div>
-        );
-    }
-
-    // Moderate stock (6-20) - show "Only X left" with urgency
-    if (quantityAvailable <= 20) {
-        return (
-            <div className="flex items-center gap-1.5 mt-2">
-                <TrendingUp className="w-3 h-3 text-[#d4af37]" />
-                <span className="text-xs font-medium text-[#d4af37]">
-                    {tProduct("onlyXLeft", { count: quantityAvailable })}
-                </span>
-                <span className="text-xs text-neutral-500">— {tProduct("sellingFast")}</span>
-            </div>
-        );
-    }
-
-    // High stock (>20) - show "In Stock"
+    // Low stock warning (1-4)
     return (
         <div className="flex items-center gap-1.5 mt-2">
-            <Package className="w-3 h-3 text-green-400" />
-            <span className="text-xs font-medium text-green-400">{tProduct("inStock")}</span>
+            <Clock className="w-3 h-3 text-amber-400 animate-pulse" />
+            <span className="text-xs font-medium text-amber-400">
+                {tProduct("lowStock", { count: quantityAvailable })}
+            </span>
         </div>
     );
 }

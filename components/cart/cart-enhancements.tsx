@@ -269,6 +269,7 @@ export function CartItemPriceEnhanced({
  * StockIndicator Component
  * 
  * Shows stock status for cart items
+ * Only shows urgency signal when stock < 5 (per client requirement)
  */
 export function StockIndicator({
   quantityAvailable,
@@ -284,8 +285,13 @@ export function StockIndicator({
   if (quantityAvailable === undefined) return null
 
   const isOutOfStock = quantityAvailable === 0
-  const isLowStock = quantityAvailable > 0 && quantityAvailable <= 5
+  const isLowStock = quantityAvailable > 0 && quantityAvailable < 5
   const exceedsStock = quantityInCart > quantityAvailable
+
+  // Stock is >= 5, don't show urgency signal
+  if (quantityAvailable >= 5 && !exceedsStock) {
+    return null
+  }
 
   if (isOutOfStock) {
     return (
