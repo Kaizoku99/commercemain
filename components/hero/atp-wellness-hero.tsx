@@ -84,9 +84,9 @@ export default function ATPWellnessHero({
 
   // Trust indicators
   const trustIndicators = [
-    { icon: Users, label: t("trustedMembers") || "10,000+ Members", value: 10000 },
-    { icon: Award, label: t("yearsExperience") || "15+ Years", value: 15 },
-    { icon: Shield, label: t("premiumProducts") || "500+ Products", value: 500 },
+    { icon: Users, label: t("trustedMembers") || "100+ Members", value: 100, suffix: "+" },
+    { icon: Award, label: t("yearsExperience") || "2+ Years", value: 2, suffix: "+" },
+    { icon: Shield, label: t("premiumProducts") || "50+ Products", value: 50, suffix: "+" },
   ];
 
   return (
@@ -258,7 +258,7 @@ export default function ATPWellnessHero({
               <span className="text-sm sm:text-base font-medium">
                 <AnimatedCounter
                   value={indicator.value}
-                  suffix="+"
+                  suffix={indicator.suffix}
                   duration={2}
                   delay={1 + index * 0.2}
                   className="text-[var(--atp-gold)] font-semibold"

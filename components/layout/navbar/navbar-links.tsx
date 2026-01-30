@@ -207,13 +207,18 @@ export function NavbarLinks({ locale, menuItems, fallbackMenu }: NavbarLinksProp
     }, [normalizeMenuUrl]);
 
     const translationKeyByHandle: Record<string, string> = {
+        "home": "home",
         "atp-membership": "atpMembership",
         "skincare-supplements": "skincareSupplements",
+        "amazing-thai-products": "skincareSupplements",
         "water-soil-technology": "waterSoilTechnology",
+        "water-soil-technology-solutions": "waterSoilTechnology",
         "ems": "emsTraining",
         "ems-training": "emsTraining",
         "about": "aboutUs",
+        "about-us": "aboutUs",
         "contact": "contactUs",
+        "contact-us": "contactUs",
     };
 
     const getMenuLabel = useCallback((item: ShopifyMenuItem) => {
@@ -271,7 +276,7 @@ export function NavbarLinks({ locale, menuItems, fallbackMenu }: NavbarLinksProp
                 },
                 {
                     title: skincareSupplementsText,
-                    path: `/${locale}/skincare-supplements`,
+                    path: `/${locale}/collections/skincare-supplements`,
                     handle: "skincare-supplements",
                 },
                 {
@@ -486,9 +491,9 @@ export function NavbarLinks({ locale, menuItems, fallbackMenu }: NavbarLinksProp
     }, [hoverTimeout]);
 
     return (
-        <div className="flex flex-col items-center flex-1 mx-8">
+        <div className="flex flex-col items-center flex-1 mx-4">
             {/* Top row navigation */}
-            <div className="flex items-center gap-10 mb-3">
+            <div className="flex items-center gap-6 mb-1">
                 {topRowMenu.map((item) => (
                     <div
                         key={item.path}
@@ -498,17 +503,17 @@ export function NavbarLinks({ locale, menuItems, fallbackMenu }: NavbarLinksProp
                     >
                         <Link
                             href={item.path}
-                            className="text-white hover:text-yellow-400 transition-all duration-300 text-sm font-medium tracking-wide uppercase relative group"
+                            className="text-white hover:text-yellow-400 transition-all duration-300 text-xs font-medium tracking-wide uppercase relative group whitespace-nowrap"
                         >
                             {item.title}
-                            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-300 group-hover:w-full"></span>
+                            <span className="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-300 group-hover:w-full"></span>
                         </Link>
                     </div>
                 ))}
             </div>
 
             {/* Bottom row navigation */}
-            <div className="flex items-center gap-10">
+            <div className="flex items-center gap-6">
                 {bottomRowMenu.map((item) => (
                     <div
                         key={item.path}
@@ -518,10 +523,10 @@ export function NavbarLinks({ locale, menuItems, fallbackMenu }: NavbarLinksProp
                     >
                         <Link
                             href={item.path}
-                            className="text-white hover:text-yellow-400 transition-all duration-300 text-sm font-medium tracking-wide uppercase relative group"
+                            className="text-white hover:text-yellow-400 transition-all duration-300 text-xs font-medium tracking-wide uppercase relative group whitespace-nowrap"
                         >
                             {item.title}
-                            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-300 group-hover:w-full"></span>
+                            <span className="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-yellow-400 transition-all duration-300 group-hover:w-full"></span>
                         </Link>
                     </div>
                 ))}

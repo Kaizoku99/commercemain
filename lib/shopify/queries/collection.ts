@@ -62,3 +62,26 @@ export const getCollectionProductsQuery = /* GraphQL */ `
   }
   ${productFragment}
 `;
+
+// Query for fetching limited products from a collection (e.g., featured products)
+export const getCollectionProductsLimitedQuery = /* GraphQL */ `
+  query getCollectionProductsLimited(
+    $handle: String!
+    $first: Int!
+    $sortKey: ProductCollectionSortKeys
+    $reverse: Boolean
+    $language: LanguageCode
+    $country: CountryCode
+  ) @inContext(language: $language, country: $country) {
+    collection(handle: $handle) {
+      products(sortKey: $sortKey, reverse: $reverse, first: $first) {
+        edges {
+          node {
+            ...product
+          }
+        }
+      }
+    }
+  }
+  ${productFragment}
+`;

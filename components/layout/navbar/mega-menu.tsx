@@ -392,12 +392,12 @@ export const menuCategories: MenuCategory[] = [
     titleAr: "العناية بالبشرة والمكملات",
     description: "Premium Thai beauty products",
     descriptionAr: "منتجات تجميل تايلندية فاخرة",
-    href: "/skincare-supplements",
+    href: "/collections/skincare-supplements",
     subcategories: [
-      { title: "Face Care", titleAr: "العناية بالوجه", href: "/skincare-supplements?category=face" },
-      { title: "Body Care", titleAr: "العناية بالجسم", href: "/skincare-supplements?category=body" },
-      { title: "Supplements", titleAr: "المكملات", href: "/skincare-supplements?category=supplements" },
-      { title: "Anti-Aging", titleAr: "مكافحة الشيخوخة", href: "/skincare-supplements?category=anti-aging" },
+      { title: "Face Care", titleAr: "العناية بالوجه", href: "/collections/skincare-supplements?category=face" },
+      { title: "Body Care", titleAr: "العناية بالجسم", href: "/collections/skincare-supplements?category=body" },
+      { title: "Supplements", titleAr: "المكملات", href: "/collections/skincare-supplements?category=supplements" },
+      { title: "Anti-Aging", titleAr: "مكافحة الشيخوخة", href: "/collections/skincare-supplements?category=anti-aging" },
     ],
   },
   {

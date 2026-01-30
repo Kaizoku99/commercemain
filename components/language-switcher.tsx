@@ -3,23 +3,10 @@
 import { usePathname, useRouter } from '@/src/i18n/navigation';
 import { useLocale } from 'next-intl';
 import { useParams } from 'next/navigation';
-import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Globe } from 'lucide-react';
 
 const localeNames = {
   en: 'English',
   ar: 'العربية'
-} as const;
-
-const localeFlags = {
-  en: '🇺🇸',
-  ar: '🇸🇦'
 } as const;
 
 const supportedLocales = ['en', 'ar'] as const;
@@ -65,44 +52,51 @@ export function LanguageSwitcher({ showFullText = false, variant = 'default' }: 
     );
   }
 
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          suppressHydrationWarning
-          variant="ghost"
-          size="sm"
-          className={`gap-2 ${isMobile ? 'w-full justify-start text-white hover:bg-gray-800 hover:text-yellow-400' : ''}`}
-        >
-          <Globe className="h-4 w-4" />
-          {isMobile || showFullText ? (
-            <span>
-              {localeFlags[locale as keyof typeof localeFlags]} {localeNames[locale as keyof typeof localeNames]}
-            </span>
-          ) : (
-            <>
-              <span className="hidden sm:inline">
-                {localeFlags[locale as keyof typeof localeFlags]} {localeNames[locale as keyof typeof localeNames]}
-              </span>
-              <span className="sm:hidden">
-                {localeFlags[locale as keyof typeof localeFlags]}
-              </span>
-            </>
-          )}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align={isMobile ? "start" : "end"}>
+  // Mobile variant - vertical list
+  if (isMobile) {
+    return (
+      <div className="flex flex-col gap-2">
         {supportedLocales.map((loc) => (
-          <DropdownMenuItem
+          <button
             key={loc}
             onClick={() => handleLocaleChange(loc)}
-            className={`gap-2 ${locale === loc ? 'bg-accent' : ''}`}
+            className={`text-left px-3 py-2 rounded-md text-sm transition-colors ${
+              locale === loc
+                ? 'bg-yellow-400/20 text-yellow-400 font-medium'
+                : 'text-white hover:bg-gray-800 hover:text-yellow-400'
+            }`}
           >
-            <span>{localeFlags[loc]}</span>
-            <span>{localeNames[loc]}</span>
-          </DropdownMenuItem>
+            {localeNames[loc]}
+          </button>
         ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </div>
+    );
+  }
+
+  // Default: Inline "English | Arabic" format
+  return (
+    <div className="flex items-center text-sm">
+      <button
+        onClick={() => handleLocaleChange('en')}
+        className={`transition-colors ${
+          locale === 'en'
+            ? 'text-yellow-400 font-medium'
+            : 'text-white/70 hover:text-white'
+        }`}
+      >
+        English
+      </button>
+      <span className="text-white/40 mx-2">|</span>
+      <button
+        onClick={() => handleLocaleChange('ar')}
+        className={`transition-colors ${
+          locale === 'ar'
+            ? 'text-yellow-400 font-medium'
+            : 'text-white/70 hover:text-white'
+        }`}
+      >
+        العربية
+      </button>
+    </div>
   );
 }

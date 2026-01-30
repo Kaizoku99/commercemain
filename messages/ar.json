@@ -183,9 +183,9 @@
     "membershipBenefit3": "توصيل مجاني على جميع طلبات المنتجات",
 "membershipBenefit4": "وصول حصري إلى برامج العافية",
     "membershipBenefit5": "حجز مسبق لتدريب EMS",
-    "trustedMembers": "+10,000 عضو",
-    "yearsExperience": "+15 سنة خبرة",
-    "premiumProducts": "+500 منتج",
+    "trustedMembers": "+100 عضو",
+    "yearsExperience": "+2 سنوات خبرة",
+    "premiumProducts": "+50 منتج",
     "heroAriaLabel": "قسم بطل العافية ATP",
     "scrollToExplore": "مرر للاستكشاف"
   },
@@ -551,5 +551,26 @@
     "zoomIn": "تكبير",
     "zoomOut": "تصغير",
     "thumbnailLabel": "عرض الصورة"
+  },
+  "badges": {
+    "bestseller": "الأكثر مبيعاً",
+    "new": "جديد",
+    "lowStock": "مخزون محدود",
+    "sale": "تخفيض"
+  },
+  "quickViewModal": {
+    "addToCart": "أضف إلى السلة",
+    "adding": "جاري الإضافة...",
+    "quantity": "الكمية",
+    "selectOption": "اختر {option}",
+    "close": "إغلاق",
+    "viewFullDetails": "عرض التفاصيل الكاملة",
+    "addedToCart": "تمت الإضافة إلى السلة!",
+    "price": "السعر",
+    "selectVariant": "اختر خياراً"
+  },
+  "comparison": {
+    "before": "قبل",
+    "after": "بعد"
   }
 }

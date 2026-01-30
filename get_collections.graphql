@@ -1,0 +1,36 @@
+query GetCollections {
+  collections(first: 50) {
+    edges {
+      node {
+        id
+        title
+        description
+        handle
+        image {
+          url
+          altText
+        }
+        productsCount {
+          count
+        }
+        ruleSet {
+          appliedDisjunctively
+          rules {
+            column
+            condition
+            relation
+          }
+        }
+        metafields(first: 10) {
+          edges {
+            node {
+              namespace
+              key
+              value
+            }
+          }
+        }
+      }
+    }
+  }
+}

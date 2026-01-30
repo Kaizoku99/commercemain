@@ -298,6 +298,12 @@ export const getCollectionQuery = `
         title
       }
       updatedAt
+      image {
+        url
+        altText
+        width
+        height
+      }
     }
   }
 `
@@ -1240,6 +1246,92 @@ export const predictiveSearchQuery = `
         id
         handle
         title
+      }
+    }
+  }
+`
+
+// Featured Products Query - fetches limited products from a collection
+// Used for manually curated featured products sections
+export const getFeaturedProductsQuery = `
+  query getFeaturedProducts(
+    $handle: String!
+    $first: Int!
+    $sortKey: ProductCollectionSortKeys
+    $reverse: Boolean
+    $language: LanguageCode
+    $country: CountryCode
+  ) @inContext(language: $language, country: $country) {
+    collection(handle: $handle) {
+      products(first: $first, sortKey: $sortKey, reverse: $reverse) {
+        edges {
+          node {
+            id
+            handle
+            title
+            description
+            tags
+            priceRange {
+              maxVariantPrice {
+                amount
+                currencyCode
+              }
+              minVariantPrice {
+                amount
+                currencyCode
+              }
+            }
+            compareAtPriceRange {
+              maxVariantPrice {
+                amount
+                currencyCode
+              }
+              minVariantPrice {
+                amount
+                currencyCode
+              }
+            }
+            featuredImage {
+              id
+              altText
+              url
+              width
+              height
+            }
+            images(first: 20) {
+              edges {
+                node {
+                  id
+                  altText
+                  url
+                  width
+                  height
+                }
+              }
+            }
+            variants(first: 250) {
+              edges {
+                node {
+                  id
+                  title
+                  availableForSale
+                  selectedOptions {
+                    name
+                    value
+                  }
+                  price {
+                    amount
+                    currencyCode
+                  }
+                  compareAtPrice {
+                    amount
+                    currencyCode
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
   }

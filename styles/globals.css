@@ -168,7 +168,7 @@
   
   --glass-bg-light: oklch(1 0 0 / 0.7);
   --glass-bg-dark: oklch(0 0 0 / 0.5);
-  --glass-bg-gold: oklch(0.7 0.15 85 / 0.1);
+  --glass-bg-gold: oklch(0.7 0.15 85 / 0.85);
   
   --glass-border-light: oklch(1 0 0 / 0.2);
   --glass-border-dark: oklch(1 0 0 / 0.1);

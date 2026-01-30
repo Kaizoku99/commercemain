@@ -61,6 +61,7 @@ import {
   getProductRecommendationsQuery,
   getProductsQuery,
   removeFromCartMutation,
+  getFeaturedProductsQuery,
 } from "./queries"
 import { getShopPaymentSettingsQuery } from "./queries/shop"
 
@@ -603,6 +604,58 @@ export async function getCollectionProducts({
   return reshapeProducts(
     removeEdgesAndNodes(res.body.data.collection.products)
   );
+}
+
+/**
+ * Get featured products from a dedicated collection with a configurable limit.
+ * Use this for featured products sections where you want to manually curate products.
+ * 
+ * @param collection - The collection handle (default: 'featured-products')
+ * @param limit - Maximum number of products to return (default: 5)
+ * @param locale - Optional locale for translations
+ */
+export async function getFeaturedProducts({
+  collection = "featured-products",
+  limit = 5,
+  locale
+}: {
+  collection?: string;
+  limit?: number;
+  locale?: { language?: string; country?: string };
+}): Promise<Product[]> {
+  try {
+    const variables: {
+      handle: string;
+      first: number;
+      language?: string;
+      country?: string;
+    } = {
+      handle: collection,
+      first: limit
+    };
+
+    if (locale?.language) variables.language = locale.language.toUpperCase();
+    if (locale?.country) variables.country = locale.country.toUpperCase();
+
+    console.log('[Shopify] getFeaturedProducts variables:', JSON.stringify(variables));
+
+    const res = await shopifyFetch<ShopifyCollectionProductsOperation>({
+      query: getFeaturedProductsQuery,
+      variables
+    });
+
+    if (!res.body.data.collection) {
+      console.log(`No collection found for \`${collection}\`. Make sure the collection exists in Shopify Admin.`);
+      return [];
+    }
+
+    return reshapeProducts(
+      removeEdgesAndNodes(res.body.data.collection.products)
+    );
+  } catch (error) {
+    console.warn('[Shopify] getFeaturedProducts failed, returning empty array:', error);
+    return [];
+  }
 }
 
 export async function getCollections(

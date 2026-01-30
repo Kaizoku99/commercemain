@@ -34,7 +34,7 @@ export async function Navbar() {
 
   const fallbackMenuItems = [
     { title: atpMembershipText, path: `/${locale}/atp-membership`, handle: "atp-membership" },
-    { title: skincareSupplementsText, path: `/${locale}/skincare-supplements`, handle: "skincare-supplements" },
+    { title: skincareSupplementsText, path: `/${locale}/collections/skincare-supplements`, handle: "skincare-supplements" },
     { title: waterSoilTechText, path: `/${locale}/water-soil-technology`, handle: "water-soil-technology" },
     { title: emsTrainingText, path: `/${locale}/ems`, handle: "ems-training" },
     { title: aboutUsText, path: `/${locale}/about`, handle: "about" },
@@ -44,7 +44,7 @@ export async function Navbar() {
   return (
     <nav className="bg-black text-white sticky top-0 z-50 border-b border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between py-4 sm:py-6">
+        <div className="flex items-center justify-between py-3 sm:py-4">
           {/* Mobile menu */}
           <div className="block flex-none md:hidden">
             <Suspense fallback={null}>

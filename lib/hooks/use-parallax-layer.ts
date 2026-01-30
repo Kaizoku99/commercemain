@@ -5,12 +5,20 @@
  * depths, giving a sense of 3D space and visual hierarchy.
  * 
  * GPU-accelerated with transform: translateY() for 60fps performance.
+ * 
+ * IMPORTANT: Fixed for Next.js SSR/hydration compatibility.
+ * The useScroll hook requires the ref to be hydrated (attached to DOM)
+ * before it can track scroll progress. We handle this by:
+ * 1. Not passing target until ref is hydrated
+ * 2. Using state to track hydration
+ * 
+ * @see https://motion.dev/troubleshooting/use-scroll-ref
  */
 
 'use client';
 
 import { useRef, useEffect, useState, RefObject } from 'react';
-import { useScroll, useTransform, useSpring, MotionValue } from 'framer-motion';
+import { useScroll, useTransform, useSpring, MotionValue, motionValue } from 'framer-motion';
 
 interface ParallaxConfig {
   /** Speed multiplier. Negative = move opposite to scroll. Default: 0.5 */
@@ -41,7 +49,13 @@ interface ParallaxReturn {
     y?: MotionValue<number>;
     x?: MotionValue<number>;
   };
+  /** Whether the hook is ready (ref is hydrated) */
+  isReady: boolean;
 }
+
+// Create static fallback values for SSR
+const staticProgress = motionValue(0);
+const staticTransform = motionValue(0);
 
 export function useParallaxLayer(config: ParallaxConfig = {}): ParallaxReturn {
   const {
@@ -53,7 +67,16 @@ export function useParallaxLayer(config: ParallaxConfig = {}): ParallaxReturn {
   } = config;
 
   const containerRef = useRef<HTMLElement>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  // Track hydration state - ref becomes available after first render
+  useEffect(() => {
+    // Only set hydrated if the ref is actually attached to a DOM element
+    if (containerRef.current) {
+      setIsHydrated(true);
+    }
+  }, []);
 
   // Check for reduced motion preference
   useEffect(() => {
@@ -68,8 +91,11 @@ export function useParallaxLayer(config: ParallaxConfig = {}): ParallaxReturn {
   }, []);
 
   // Track scroll progress within the container
+  // IMPORTANT: Only pass target when ref is hydrated to avoid Motion error
+  // @see https://motion.dev/troubleshooting/use-scroll-ref
   const { scrollYProgress } = useScroll({
-    target: containerRef,
+    // Only pass target when hydrated, otherwise track window scroll
+    target: isHydrated ? containerRef : undefined,
     offset: offset as ['start end', 'end start'],
   });
 
@@ -104,6 +130,7 @@ export function useParallaxLayer(config: ParallaxConfig = {}): ParallaxReturn {
     transform,
     progress: scrollYProgress,
     style,
+    isReady: isHydrated,
   };
 }
 
@@ -158,15 +185,23 @@ export function useParallaxScene() {
 
 /**
  * Simple scroll-linked opacity fade
+ * Fixed for SSR hydration
  */
 export function useScrollOpacity(
   fadeStart: number = 0,
   fadeEnd: number = 0.5
 ) {
   const containerRef = useRef<HTMLElement>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      setIsHydrated(true);
+    }
+  }, []);
   
   const { scrollYProgress } = useScroll({
-    target: containerRef,
+    target: isHydrated ? containerRef : undefined,
     offset: ['start start', 'end start'],
   });
 
@@ -180,20 +215,29 @@ export function useScrollOpacity(
     containerRef,
     opacity,
     progress: scrollYProgress,
+    isReady: isHydrated,
   };
 }
 
 /**
  * Scroll-linked scale effect
+ * Fixed for SSR hydration
  */
 export function useScrollScale(
   scaleStart: number = 1,
   scaleEnd: number = 0.9
 ) {
   const containerRef = useRef<HTMLElement>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      setIsHydrated(true);
+    }
+  }, []);
   
   const { scrollYProgress } = useScroll({
-    target: containerRef,
+    target: isHydrated ? containerRef : undefined,
     offset: ['start start', 'end start'],
   });
 
@@ -212,20 +256,29 @@ export function useScrollScale(
     containerRef,
     scale: smoothScale,
     progress: scrollYProgress,
+    isReady: isHydrated,
   };
 }
 
 /**
  * Scroll-linked rotation effect
+ * Fixed for SSR hydration
  */
 export function useScrollRotate(
   rotateStart: number = 0,
   rotateEnd: number = 10
 ) {
   const containerRef = useRef<HTMLElement>(null);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      setIsHydrated(true);
+    }
+  }, []);
   
   const { scrollYProgress } = useScroll({
-    target: containerRef,
+    target: isHydrated ? containerRef : undefined,
     offset: ['start end', 'end start'],
   });
 
@@ -244,6 +297,7 @@ export function useScrollRotate(
     containerRef,
     rotate: smoothRotate,
     progress: scrollYProgress,
+    isReady: isHydrated,
   };
 }
 

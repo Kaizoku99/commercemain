@@ -1,9 +1,38 @@
-import { getTranslations } from "next-intl/server";
+import { Suspense } from "react";
 import { getCollection, getCollectionProducts } from "@/lib/shopify/server";
 import { defaultSort, sorting } from "@/lib/constants";
-import { Grid } from "@/components/grid";
-import ProductGridItems from "@/components/layout/product-grid-items";
-import CollectionHero from "@/components/collections/collection-hero";
+import CollectionHero from "@/components/collection/collection-hero";
+import CollectionPageClient from "@/components/collections/collection-page-client";
+import { CollectionPageSkeleton } from "@/components/product/product-card-skeleton";
+import type { Metadata } from "next";
+
+export async function generateMetadata(props: {
+    params: Promise<{ handle: string; locale: string }>;
+}): Promise<Metadata> {
+    const params = await props.params;
+    const localeForApi = params.locale === 'ar'
+        ? { language: 'AR', country: 'AE' }
+        : { language: 'EN', country: 'AE' };
+    
+    const collection = await getCollection(params.handle, localeForApi);
+    
+    if (!collection) {
+        return {
+            title: "Collection Not Found",
+            description: "The requested collection could not be found.",
+        };
+    }
+
+    return {
+        title: collection.title,
+        description: collection.description || `Shop ${collection.title} at ATP Group Services`,
+        openGraph: {
+            title: collection.title,
+            description: collection.description || `Shop ${collection.title} at ATP Group Services`,
+            images: collection.image ? [{ url: collection.image.url }] : [],
+        },
+    };
+}
 
 export default async function CollectionPage(props: {
     params: Promise<{ handle: string; locale: string }>;
@@ -38,38 +67,42 @@ export default async function CollectionPage(props: {
         );
     }
 
-    // Default image if collection image is missing
+    const isRTL = params.locale === 'ar';
+
+    // Hero image from Shopify collection, with fallback
     const heroImage = collection.image ? {
         src: collection.image.url,
-        alt: collection.image.altText || collection.title
+        alt: collection.image.altText || collection.title,
+        mobileSrc: collection.image.url,
     } : {
-        src: "/images/hero-wellness.jpg", // Fallback
-        alt: collection.title
+        src: "/skincare-hero-banner.jpg",
+        alt: collection.title,
+        mobileSrc: "/skincare-hero-banner.jpg",
     };
 
     return (
         <>
+            {/* Collection Hero - uses Shopify collection image */}
             <CollectionHero
                 title={collection.title}
+                subtitle={isRTL ? "مجموعة متميزة" : "Premium Collection"}
                 description={collection.description}
                 image={heroImage}
-                isRTL={params.locale === 'ar'}
+                isRTL={isRTL}
             />
 
-            <section className="section-padding bg-atp-off-white">
-                <div className="container-premium">
-                    {products.length > 0 ? (
-                        <Grid variant="luxury">
-                            <ProductGridItems
-                                products={products}
-                                locale={params.locale as "en" | "ar"}
-                            />
-                        </Grid>
-                    ) : (
-                        <p className="text-center text-gray-500">No products found in this collection.</p>
-                    )}
-                </div>
-            </section>
+            {/* Client component for stats and animated product grid */}
+            <Suspense fallback={<CollectionPageSkeleton isRTL={isRTL} />}>
+                <CollectionPageClient
+                    collection={{
+                        title: collection.title,
+                        description: collection.description,
+                        handle: collection.handle,
+                    }}
+                    products={products}
+                    locale={params.locale as "en" | "ar"}
+                />
+            </Suspense>
         </>
     );
 }

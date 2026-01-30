@@ -183,9 +183,9 @@
     "membershipBenefit3": "Free Delivery on all product orders",
 "membershipBenefit4": "Exclusive access to wellness programs",
     "membershipBenefit5": "Priority booking for EMS training",
-    "trustedMembers": "10,000+ Members",
-    "yearsExperience": "15+ Years",
-    "premiumProducts": "500+ Products",
+    "trustedMembers": "100+ Members",
+    "yearsExperience": "2+ Years",
+    "premiumProducts": "50+ Products",
     "heroAriaLabel": "ATP Wellness Hero Section",
     "scrollToExplore": "Scroll to explore"
   },
@@ -551,5 +551,26 @@
     "zoomIn": "Zoom in",
     "zoomOut": "Zoom out",
     "thumbnailLabel": "View image"
+  },
+  "badges": {
+    "bestseller": "Bestseller",
+    "new": "New",
+    "lowStock": "Low Stock",
+    "sale": "Sale"
+  },
+  "quickViewModal": {
+    "addToCart": "Add to Cart",
+    "adding": "Adding...",
+    "quantity": "Quantity",
+    "selectOption": "Select {option}",
+    "close": "Close",
+    "viewFullDetails": "View Full Details",
+    "addedToCart": "Added to cart!",
+    "price": "Price",
+    "selectVariant": "Select a variant"
+  },
+  "comparison": {
+    "before": "Before",
+    "after": "After"
   }
 }

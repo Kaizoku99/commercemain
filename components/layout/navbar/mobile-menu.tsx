@@ -54,7 +54,7 @@ export default function MobileMenu({ menuItems, fallbackMenu }: MobileMenuProps)
     },
     {
       title: t('skincareSupplements'),
-      path: `/${locale}/skincare-supplements`,
+      path: `/${locale}/collections/skincare-supplements`,
     },
     {
       title: t('waterSoilTechnology'),

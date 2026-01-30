@@ -1,8 +1,7 @@
 "use client";
 
-import { m, useInView, useMotionValue, useTransform, Variant } from "framer-motion";
+import { m, useInView, useReducedMotion } from "framer-motion";
 import { useRef, useState } from "react";
-import React from "react";
 import {
   Leaf,
   Heart,
@@ -12,8 +11,8 @@ import {
   ArrowRight,
   CheckCircle,
   Timer,
-  Users,
   TrendingUp,
+  Users,
   LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,6 +21,21 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import Image from "next/image";
 import { useTranslations } from "next-intl";
+import { cn } from "@/lib/utils";
+import { TabsWithIndicator, Tab } from "@/components/ui/tab-indicator";
+import { ComparisonSlider } from "@/components/ui/comparison-slider";
+import { AnimatedCounter } from "@/components/ui/animated-counter";
+import { RevealText } from "@/components/ui/reveal-text";
+import { useParallaxHero } from "@/lib/hooks/use-parallax-layer";
+import {
+  containerVariants,
+  itemVariants,
+  cardVariants,
+  fadeUpVariants,
+  scrollFadeVariants,
+  viewportOptions,
+  transitions,
+} from "@/lib/animations/variants";
 
 interface ServiceHighlight {
   id: string;
@@ -44,203 +58,243 @@ interface ServiceHighlight {
     author: string;
     role: string;
   };
+  // For EMS section
+  hasComparison?: boolean;
+  beforeImage?: string;
+  afterImage?: string;
 }
 
 export default function ServiceHighlights() {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
   const [activeService, setActiveService] = useState(0);
-  const t = useTranslations('services');
+  const shouldReduceMotion = useReducedMotion();
+  const t = useTranslations("services");
+
+  // Parallax for hero images
+  const parallax = useParallaxHero();
 
   const serviceHighlights: ServiceHighlight[] = [
     {
       id: "supplements",
       icon: Leaf,
-      title: t('supplements.title'),
-      subtitle: t('supplements.subtitle'),
-      description: t('supplements.description'),
+      title: t("supplements.title"),
+      subtitle: t("supplements.subtitle"),
+      description: t("supplements.description"),
       benefits: [
-        t('supplements.benefit1'),
-        t('supplements.benefit2'),
-        t('supplements.benefit3'),
-        t('supplements.benefit4'),
-        t('supplements.benefit5'),
+        t("supplements.benefit1"),
+        t("supplements.benefit2"),
+        t("supplements.benefit3"),
+        t("supplements.benefit4"),
+        t("supplements.benefit5"),
       ],
       image: "/vitamin-c-supplement.png",
-      link: "/skincare-supplements",
+      link: "/collections/skincare-supplements",
       gradient: "from-emerald-400 via-green-500 to-teal-600",
-      badge: t('supplements.badge'),
+      badge: t("supplements.badge"),
       stats: {
-        duration: t('supplements.duration'),
-        sessions: t('supplements.sessions'),
+        duration: t("supplements.duration"),
+        sessions: t("supplements.sessions"),
         rating: 4.9,
       },
       testimonial: {
-        text: t('supplements.testimonialText'),
-        author: t('supplements.testimonialAuthor'),
-        role: t('supplements.testimonialRole'),
+        text: t("supplements.testimonialText"),
+        author: t("supplements.testimonialAuthor"),
+        role: t("supplements.testimonialRole"),
       },
     },
     {
       id: "beauty",
       icon: Heart,
-      title: t('beauty.title'),
-      subtitle: t('beauty.subtitle'),
-      description: t('beauty.description'),
+      title: t("beauty.title"),
+      subtitle: t("beauty.subtitle"),
+      description: t("beauty.description"),
       benefits: [
-        t('beauty.benefit1'),
-        t('beauty.benefit2'),
-        t('beauty.benefit3'),
-        t('beauty.benefit4'),
-        t('beauty.benefit5'),
+        t("beauty.benefit1"),
+        t("beauty.benefit2"),
+        t("beauty.benefit3"),
+        t("beauty.benefit4"),
+        t("beauty.benefit5"),
       ],
       image: "/anti-aging-serum.png",
-      link: "/skincare-supplements",
+      link: "/collections/skincare-supplements",
       gradient: "from-rose-400 via-pink-500 to-purple-600",
-      badge: t('beauty.badge'),
+      badge: t("beauty.badge"),
       stats: {
-        duration: t('beauty.duration'),
-        sessions: t('beauty.sessions'),
+        duration: t("beauty.duration"),
+        sessions: t("beauty.sessions"),
         rating: 4.8,
       },
       testimonial: {
-        text: t('beauty.testimonialText'),
-        author: t('beauty.testimonialAuthor'),
-        role: t('beauty.testimonialRole'),
+        text: t("beauty.testimonialText"),
+        author: t("beauty.testimonialAuthor"),
+        role: t("beauty.testimonialRole"),
+      },
+    },
+    {
+      id: "yoga",
+      icon: Dumbbell,
+      title: t("yoga.title"),
+      subtitle: t("yoga.subtitle"),
+      description: t("yoga.description"),
+      benefits: [
+        t("yoga.benefit1"),
+        t("yoga.benefit2"),
+        t("yoga.benefit3"),
+        t("yoga.benefit4"),
+        t("yoga.benefit5"),
+      ],
+      image: "/yoga-wellness.png",
+      link: "/yoga-wellness",
+      gradient: "from-violet-400 via-purple-500 to-indigo-600",
+      badge: t("yoga.badge"),
+      stats: {
+        duration: t("yoga.duration"),
+        sessions: t("yoga.sessions"),
+        rating: 4.9,
+      },
+      testimonial: {
+        text: t("yoga.testimonialText"),
+        author: t("yoga.testimonialAuthor"),
+        role: t("yoga.testimonialRole"),
       },
     },
     {
       id: "ems",
       icon: Zap,
-      title: t('ems.title'),
-      subtitle: t('ems.subtitle'),
-      description: t('ems.description'),
+      title: t("ems.title"),
+      subtitle: t("ems.subtitle"),
+      description: t("ems.description"),
       benefits: [
-        t('ems.benefit1'),
-        t('ems.benefit2'),
-        t('ems.benefit3'),
-        t('ems.benefit4'),
-        t('ems.benefit5'),
+        t("ems.benefit1"),
+        t("ems.benefit2"),
+        t("ems.benefit3"),
+        t("ems.benefit4"),
+        t("ems.benefit5"),
       ],
       image: "/ems-training-facility.png",
       link: "/ems",
       gradient: "from-orange-400 via-red-500 to-pink-600",
-      badge: t('ems.badge'),
+      badge: t("ems.badge"),
       stats: {
-        duration: t('ems.duration'),
-        sessions: t('ems.sessions'),
+        duration: t("ems.duration"),
+        sessions: t("ems.sessions"),
         rating: 4.7,
       },
       testimonial: {
-        text: t('ems.testimonialText'),
-        author: t('ems.testimonialAuthor'),
-        role: t('ems.testimonialRole'),
+        text: t("ems.testimonialText"),
+        author: t("ems.testimonialAuthor"),
+        role: t("ems.testimonialRole"),
       },
+      hasComparison: true,
+      beforeImage: "/ems-before.jpg",
+      afterImage: "/ems-after.jpg",
     },
   ];
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
-    },
-  };
+  // Create tabs for TabsWithIndicator
+  const serviceTabs: Tab[] = serviceHighlights.map((service) => ({
+    id: service.id,
+    label: service.title.split(" ")[0] || service.title, // Short label
+    icon: <service.icon className="w-5 h-5" />,
+  }));
 
-  const cardVariants = {
-    hidden: { opacity: 0, y: 50, scale: 0.95 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        duration: 0.6,
-      },
-    },
-  };
-
-  // Safe accessor for current service
   const currentService = serviceHighlights[activeService];
 
   if (!currentService) {
-    return null; // Safety fallback
+    return null;
   }
+
+  const handleTabChange = (tabId: string) => {
+    const index = serviceHighlights.findIndex((s) => s.id === tabId);
+    if (index !== -1) {
+      setActiveService(index);
+    }
+  };
 
   return (
     <section
       ref={ref}
       className="py-32 bg-gradient-to-b from-atp-charcoal via-atp-black to-atp-charcoal relative overflow-hidden"
     >
-      {/* Animated background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-0 left-1/3 w-96 h-96 bg-atp-gold/3 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-purple-500/3 rounded-full blur-3xl animate-pulse delay-1000" />
-        <div className="absolute top-2/3 left-1/4 w-64 h-64 bg-emerald-500/3 rounded-full blur-3xl animate-pulse delay-2000" />
+      {/* Animated background orbs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <m.div
+          className="absolute top-0 left-1/3 w-96 h-96 bg-atp-gold/5 rounded-full blur-3xl"
+          animate={shouldReduceMotion ? {} : {
+            scale: [1, 1.2, 1],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <m.div
+          className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-purple-500/5 rounded-full blur-3xl"
+          animate={shouldReduceMotion ? {} : {
+            scale: [1.2, 1, 1.2],
+            opacity: [0.5, 0.3, 0.5],
+          }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+        />
+        <m.div
+          className="absolute top-2/3 left-1/4 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl"
+          animate={shouldReduceMotion ? {} : {
+            scale: [1, 1.3, 1],
+            opacity: [0.4, 0.6, 0.4],
+          }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 4 }}
+        />
       </div>
 
       <div className="container mx-auto px-4 relative z-10">
-        {/* Section header */}
+        {/* Section header with RevealText */}
         <m.div
           className="text-center mb-20"
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8 }}
+          transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.8 }}
         >
           <m.div
-            className="inline-flex items-center space-x-2 bg-gradient-to-r from-atp-gold/20 to-purple-500/20 backdrop-blur-sm rounded-full px-8 py-4 mb-8"
-            whileHover={{ scale: 1.05 }}
+            className="inline-flex items-center gap-2 glass-gold rounded-full px-8 py-4 mb-8"
+            whileHover={shouldReduceMotion ? {} : { scale: 1.05 }}
           >
             <Star className="w-5 h-5 text-atp-gold" />
             <span className="text-atp-gold font-semibold">
-              {t('premiumServices')}
+              {t("premiumServices")}
             </span>
             <Star className="w-5 h-5 text-atp-gold" />
           </m.div>
 
           <h2 className="text-5xl md:text-7xl font-light text-white mb-8 leading-tight">
-            {t('yourComplete')}
+            <RevealText mode="words" delay={0.2}>
+              {t("yourComplete")}
+            </RevealText>
             <br />
             <span className="bg-gradient-to-r from-atp-gold via-yellow-400 to-orange-500 bg-clip-text text-transparent">
-              {t('wellnessJourney')}
+              <RevealText mode="words" delay={0.4}>
+                {t("wellnessJourney")}
+              </RevealText>
             </span>
           </h2>
 
           <p className="text-xl text-atp-white/70 max-w-4xl mx-auto leading-relaxed">
-            {t('description')}
+            {t("description")}
           </p>
         </m.div>
 
-        {/* Service navigation tabs */}
+        {/* Service navigation with TabsWithIndicator */}
         <m.div
-          className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-16"
+          className="flex justify-center mb-16"
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.2 }}
+          transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.6, delay: 0.2 }}
         >
-          {serviceHighlights.map((service, index) => {
-            const IconComponent = service.icon;
-            return (
-              <m.button
-                key={service.id}
-                className={`flex items-center space-x-2 sm:space-x-3 px-3 sm:px-6 py-2 sm:py-3 rounded-full transition-all duration-300 text-sm sm:text-base ${activeService === index
-                    ? `bg-gradient-to-r ${service.gradient} text-white shadow-lg`
-                    : "bg-white/5 text-atp-white/70 hover:bg-white/10 hover:text-white"
-                  }`}
-                onClick={() => setActiveService(index)}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <div className="w-6 h-6 sm:w-10 sm:h-10 flex items-center justify-center">
-                  <IconComponent className="w-4 h-4 sm:w-6 sm:h-6" />
-                </div>
-                <span className="font-medium hidden sm:inline">{service.title}</span>
-                <span className="font-medium sm:hidden text-xs">{service.title.split(' ')[0]}</span>
-              </m.button>
-            )
-          })}
+          <TabsWithIndicator
+            tabs={serviceTabs}
+            activeTab={currentService.id}
+            onTabChange={handleTabChange}
+            layoutId="service-tabs"
+            className="glass border border-white/10"
+          />
         </m.div>
 
         {/* Active service showcase */}
@@ -249,7 +303,7 @@ export default function ServiceHighlights() {
           className="mb-20"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
+          transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.6 }}
         >
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Service content */}
@@ -257,7 +311,7 @@ export default function ServiceHighlights() {
               <div>
                 {currentService.badge && (
                   <Badge
-                    className={`bg-gradient-to-r ${currentService.gradient} text-white mb-4`}
+                    className={`bg-gradient-to-r ${currentService.gradient} text-white mb-4 border-0`}
                   >
                     {currentService.badge}
                   </Badge>
@@ -276,61 +330,54 @@ export default function ServiceHighlights() {
                 </p>
               </div>
 
-              {/* Benefits list */}
-              <div className="space-y-4">
+              {/* Benefits list with stagger animation */}
+              <m.div
+                className="space-y-4"
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+              >
                 <h4 className="text-xl font-semibold text-white mb-4">
-                  {t('whatYouGet')}
+                  {t("whatYouGet")}
                 </h4>
-                {currentService.benefits.map(
-                  (benefit, index) => (
-                    <m.div
-                      key={index}
-                      className="flex items-center space-x-3"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                    >
-                      <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
-                      <span className="text-atp-white/80">{benefit}</span>
-                    </m.div>
-                  )
-                )}
-              </div>
+                {currentService.benefits.map((benefit, index) => (
+                  <m.div
+                    key={index}
+                    className="flex items-center gap-3"
+                    variants={itemVariants}
+                  >
+                    <CheckCircle className="w-5 h-5 text-green-400 flex-shrink-0" />
+                    <span className="text-atp-white/80">{benefit}</span>
+                  </m.div>
+                ))}
+              </m.div>
 
-              {/* Stats */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-                <div className="text-center sm:text-center">
-                  <div className="flex items-center justify-center sm:justify-center space-x-3 sm:space-x-0 sm:flex-col">
-                    <Timer className="w-5 h-5 sm:w-6 sm:h-6 text-atp-gold flex-shrink-0 sm:mx-auto sm:mb-2" />
-                    <div className="flex flex-col sm:text-center">
-                      <div className="text-lg sm:text-2xl font-bold text-white">
-                        {currentService.stats.duration}
-                      </div>
-                      <div className="text-atp-white/60 text-sm">{t('duration')}</div>
-                    </div>
+              {/* Stats with AnimatedCounter */}
+              <div className="grid grid-cols-3 gap-6">
+                <div className="text-center glass rounded-xl p-4">
+                  <Timer className="w-6 h-6 text-atp-gold mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-white">
+                    {currentService.stats.duration}
                   </div>
+                  <div className="text-atp-white/60 text-sm">{t("duration")}</div>
                 </div>
-                <div className="text-center sm:text-center">
-                  <div className="flex items-center justify-center sm:justify-center space-x-3 sm:space-x-0 sm:flex-col">
-                    <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-atp-gold flex-shrink-0 sm:mx-auto sm:mb-2" />
-                    <div className="flex flex-col sm:text-center">
-                      <div className="text-lg sm:text-2xl font-bold text-white">
-                        {currentService.stats.sessions}
-                      </div>
-                      <div className="text-atp-white/60 text-sm">{t('frequency')}</div>
-                    </div>
+                <div className="text-center glass rounded-xl p-4">
+                  <TrendingUp className="w-6 h-6 text-atp-gold mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-white">
+                    {currentService.stats.sessions}
                   </div>
+                  <div className="text-atp-white/60 text-sm">{t("frequency")}</div>
                 </div>
-                <div className="text-center sm:text-center">
-                  <div className="flex items-center justify-center sm:justify-center space-x-3 sm:space-x-0 sm:flex-col">
-                    <Star className="w-5 h-5 sm:w-6 sm:h-6 text-atp-gold flex-shrink-0 sm:mx-auto sm:mb-2" />
-                    <div className="flex flex-col sm:text-center">
-                      <div className="text-lg sm:text-2xl font-bold text-white">
-                        {currentService.stats.rating}
-                      </div>
-                      <div className="text-atp-white/60 text-sm">{t('rating')}</div>
-                    </div>
+                <div className="text-center glass rounded-xl p-4">
+                  <Star className="w-6 h-6 text-atp-gold mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-white">
+                    <AnimatedCounter
+                      value={currentService.stats.rating}
+                      decimals={1}
+                      duration={1.5}
+                    />
                   </div>
+                  <div className="text-atp-white/60 text-sm">{t("rating")}</div>
                 </div>
               </div>
 
@@ -338,41 +385,54 @@ export default function ServiceHighlights() {
               <Link href={currentService.link}>
                 <Button
                   size="lg"
-                  className={`bg-gradient-to-r ${currentService.gradient} text-white hover:shadow-lg hover:shadow-current/25 transition-all duration-300 group`}
+                  className={`bg-gradient-to-r ${currentService.gradient} text-white hover:shadow-lg hover:shadow-current/25 transition-all duration-300 group border-0`}
                 >
-                  {t('explore')} {currentService.title}
-                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                  {t("explore")} {currentService.title}
+                  <ArrowRight className="w-5 h-5 ms-2 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
             </div>
 
             {/* Service image and testimonial */}
             <div className="space-y-8">
-              <m.div
-                className="relative h-96 rounded-3xl overflow-hidden"
-                whileHover={{ scale: 1.02 }}
-                transition={{ duration: 0.3 }}
-              >
-                <Image
-                  src={currentService.image}
-                  alt={currentService.title}
-                  fill
-                  className="object-cover"
+              {/* Image with parallax or comparison slider */}
+              {currentService.hasComparison && currentService.beforeImage && currentService.afterImage ? (
+                <ComparisonSlider
+                  beforeImage={currentService.beforeImage}
+                  afterImage={currentService.afterImage}
+                  beforeAlt="Before EMS training"
+                  afterAlt="After EMS training"
+                  className="rounded-3xl shadow-2xl"
                 />
-                <div
-                  className={`absolute inset-0 bg-gradient-to-t ${currentService.gradient} opacity-20`}
-                />
-              </m.div>
+              ) : (
+                <m.div
+                  className="relative h-96 rounded-3xl overflow-hidden shadow-2xl"
+                  style={parallax.style}
+                  whileHover={shouldReduceMotion ? {} : { scale: 1.02 }}
+                  transition={transitions.normal}
+                >
+                  <Image
+                    src={currentService.image}
+                    alt={currentService.title}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 50vw"
+                  />
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-t ${currentService.gradient} opacity-20`}
+                  />
+                </m.div>
+              )}
 
-              {/* Testimonial */}
+              {/* Testimonial with RevealText */}
               {currentService.testimonial && (
                 <m.div
-                  className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10"
+                  className="glass rounded-2xl p-6 border border-white/10"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
+                  transition={shouldReduceMotion ? { duration: 0 } : { delay: 0.3 }}
                 >
-                  <div className="flex items-start space-x-4">
+                  <div className="flex items-start gap-4">
                     <div className="flex-shrink-0">
                       <div className="w-12 h-12 bg-gradient-to-r from-atp-gold to-yellow-500 rounded-full flex items-center justify-center">
                         <Users className="w-6 h-6 text-white" />
@@ -398,49 +458,7 @@ export default function ServiceHighlights() {
           </div>
         </m.div>
 
-        {/* All services grid */}
-        <m.div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6"
-          variants={containerVariants}
-          initial="hidden"
-          animate={isInView ? "visible" : "hidden"}
-        >
-          {serviceHighlights.map((service, index) => {
-            const IconComponent = service.icon;
-            return (
-              <m.div
-                key={service.id}
-                variants={cardVariants}
-                whileHover={{ scale: 1.05, y: -10 }}
-                className="group cursor-pointer"
-                onClick={() => setActiveService(index)}
-              >
-                <Card
-                  className={`bg-white/5 backdrop-blur-sm border transition-all duration-300 overflow-hidden ${activeService === index
-                      ? "border-atp-gold/50 shadow-lg shadow-atp-gold/10"
-                      : "border-white/10 hover:border-white/20"
-                    }`}
-                >
-                  <CardContent className="p-4 sm:p-6 text-center">
-                    <div
-                      className={`w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 rounded-full bg-gradient-to-r ${service.gradient} flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0`}
-                    >
-                      <div className="flex items-center justify-center w-full h-full">
-                        <IconComponent className="w-6 h-6 sm:w-10 sm:h-10 flex-shrink-0" />
-                      </div>
-                    </div>
-                    <h4 className="text-white font-semibold mb-2 text-sm sm:text-base leading-tight">
-                      {service.title}
-                    </h4>
-                    <p className="text-atp-white/60 text-xs sm:text-sm leading-relaxed">
-                      {service.subtitle}
-                    </p>
-                  </CardContent>
-                </Card>
-              </m.div>
-            )
-          })}
-        </m.div>
+
       </div>
     </section>
   );

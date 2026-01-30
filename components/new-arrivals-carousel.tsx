@@ -1,16 +1,29 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { m, useReducedMotion } from "framer-motion";
+import { Heart, Eye } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import { Heart } from "lucide-react";
-import { m } from "framer-motion";
+import { ProductBadges } from "@/components/ui/product-badge";
+import { QuickViewModal } from "@/components/ui/quick-view-modal";
+import Price from "@/components/price";
 import type { Product } from "@/lib/shopify/types";
 import { type Locale } from "@/lib/i18n/config";
-import { DirhamSymbol } from "@/components/icons/dirham-symbol";
-import Price from "@/components/price";
 import { getLocalizedProductHandle } from "@/lib/shopify/i18n-queries";
+import {
+  containerVariants,
+  cardVariants,
+  heroImageVariants,
+  fadeUpVariants,
+  scrollFadeVariants,
+  viewportOptions,
+  transitions,
+  easing,
+} from "@/lib/animations/variants";
+import { cn } from "@/lib/utils";
 
 interface NewArrivalsCarouselProps {
   products: Product[];
@@ -18,175 +31,56 @@ interface NewArrivalsCarouselProps {
   locale: Locale;
 }
 
-const fadeInUp = {
-  hidden: { opacity: 0, y: 60 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6 },
-  },
-};
-
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.2,
-    },
-  },
-};
-
-const scaleIn = {
-  hidden: { opacity: 0, scale: 0.8 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: { duration: 0.5 },
-  },
-};
-
-const slideInLeft = {
-  hidden: { opacity: 0, x: -60 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: { duration: 0.7 },
-  },
-};
-
-const slideInRight = {
-  hidden: { opacity: 0, x: 60 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: { duration: 0.7 },
-  },
-};
+// Editorial grid layout for featured products (5 products)
+const editorialGridClasses = [
+  "col-span-2 row-span-2", // Large - Position 1 (hero product)
+  "col-span-1 row-span-1", // Small - Position 2
+  "col-span-1 row-span-1", // Small - Position 3
+  "col-span-1 row-span-2", // Tall - Position 4
+  "col-span-1 row-span-1", // Small - Position 5
+];
 
 export function NewArrivalsCarousel({
   products,
   carouselProducts,
   locale,
 }: NewArrivalsCarouselProps) {
+  const t = useTranslations("homepage");
+  const tProduct = useTranslations("product");
+  const shouldReduceMotion = useReducedMotion();
+  
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const isRTL = locale === "ar";
 
-  const categoryCards = [
-    {
-      name: locale === "ar" ? "عضوية ATP" : "ATP Membership",
-      image: "/premium-membership-card.png",
-      link: `/${locale}/atp-membership`,
-      isATP: true, // Added ATP flag for gold styling
-    },
-    {
-      name: locale === "ar" ? "العناية بالبشرة" : "Skincare",
-      image: "/anti-aging-serum.png",
-      link: `/${locale}/skincare-supplements`,
-      isATP: false,
-    },
-    {
-      name: locale === "ar" ? "المكملات الغذائية" : "Supplements",
-      image: "/vitamin-c-supplement.png",
-      link: `/${locale}/skincare-supplements`,
-      isATP: false,
-    },
-    {
-      name: locale === "ar" ? "تكنولوجيا المياه" : "Water Tech",
-      image: "/alkamag-water-purifier.png",
-      link: `/${locale}/water-soil-technology`,
-      isATP: false,
-    },
-    {
-      name: locale === "ar" ? "حلول التربة" : "Soil Solutions",
-      image: "/alkamag-water-purifier.png",
-      link: `/${locale}/water-soil-technology`,
-      isATP: false,
-    },
-    {
-      name: locale === "ar" ? "العافية" : "Wellness",
-      image: "/acne-treatment-products.png",
-      link: `/${locale}/atp-membership`,
-      isATP: false,
-    },
-  ];
 
-  const premiumProducts = [
-    {
-      name:
-        locale === "ar"
-          ? "باقة العافية النخبة + العضوية المتميزة"
-          : "Elite Wellness + Premium Membership Bundle",
-      image: "/premium-membership-card.png",
-      rating: 5.0,
-      price:
-        locale === "ar" ? (
-          <span className="flex items-center gap-1">
-            من <DirhamSymbol size={14} /> 399.00
-          </span>
-        ) : (
-          <span className="flex items-center gap-1">
-            From <DirhamSymbol size={14} /> 399.00
-          </span>
-        ),
-      link: `/${locale}/atp-membership`,
-      isATP: true, // Added ATP flag for gold styling
-    },
-    {
-      name:
-        locale === "ar"
-          ? "مجموعة العناية بالبشرة المتقدمة + المكملات"
-          : "Advanced Skincare + Supplement Combo",
-      image: "/anti-aging-serum.png",
-      rating: 4.9,
-      price:
-        locale === "ar" ? (
-          <span className="flex items-center gap-1">
-            <DirhamSymbol size={14} /> 299.00
-          </span>
-        ) : (
-          <span className="flex items-center gap-1">
-            <DirhamSymbol size={14} /> 299.00
-          </span>
-        ),
-      link: `/${locale}/skincare-supplements`,
-      isATP: false,
-    },
-    {
-      name:
-        locale === "ar"
-          ? "باقة تكنولوجيا المياه والتربة"
-          : "Water & Soil Technology Package",
-      image: "/hero-water-tech.png",
-      rating: 4.8,
-      price:
-        locale === "ar" ? (
-          <span className="flex items-center gap-1">
-            <DirhamSymbol size={14} /> 599.00
-          </span>
-        ) : (
-          <span className="flex items-center gap-1">
-            <DirhamSymbol size={14} /> 599.00
-          </span>
-        ),
-      link: `/${locale}/water-soil-technology`,
-      isATP: false,
-    },
-  ];
 
+  // Auto-rotate carousel
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % Math.min(products.length, 3));
+      setCurrentSlide((prev) => (prev + 1) % Math.min(carouselProducts.length, 3));
     }, 4000);
     return () => clearInterval(timer);
-  }, [products.length]);
+  }, [carouselProducts.length]);
+
+  const handleQuickView = useCallback((product: Product) => {
+    setQuickViewProduct(product);
+  }, []);
+
+  const closeQuickView = useCallback(() => {
+    setQuickViewProduct(null);
+  }, []);
 
   if (!products?.length) return null;
 
-  const carouselProductsToShow = products.slice(0, 3);
+  const carouselProductsToShow = carouselProducts.slice(0, 3);
+  // Featured products are now pre-limited to 5 from the server
+  // The products array already contains exactly 5 manually selected products
+  const featuredProducts = products.slice(0, 5);
 
   return (
     <>
+      {/* Hero Section with Carousel */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-atp-black">
         <div className="absolute inset-0">
           <Image
@@ -195,10 +89,12 @@ export function NewArrivalsCarousel({
             fill
             className="object-cover opacity-40"
             priority
+            sizes="100vw"
           />
           <div className="absolute inset-0 bg-gradient-to-br from-atp-black/80 via-atp-black/60 to-atp-black/80" />
         </div>
 
+        {/* Decorative pattern */}
         <div className="absolute inset-0 opacity-10">
           <div
             className="absolute inset-0"
@@ -210,248 +106,264 @@ export function NewArrivalsCarousel({
           />
         </div>
 
-        <div className="relative z-10 container-premium grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center w-full px-4 sm:px-6 lg:px-8">
+        <div className={cn(
+          "relative z-10 container-premium grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center w-full px-4 sm:px-6 lg:px-8",
+          isRTL && "lg:flex-row-reverse"
+        )}>
+          {/* Hero Text */}
           <m.div
             className="space-y-8"
             initial="hidden"
             animate="visible"
-            variants={staggerContainer}
+            variants={containerVariants}
           >
+            <m.span
+              className="inline-block px-4 py-2 glass-gold rounded-full text-atp-gold font-medium text-sm"
+              variants={fadeUpVariants}
+            >
+              {t("premium")}
+            </m.span>
+            
             <m.h1
-              className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-serif italic text-atp-white leading-tight tracking-tight ${locale === "ar" ? "text-right font-arabic" : ""
-                }`}
-              variants={slideInLeft}
+              className={cn(
+                "text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-serif italic text-atp-white leading-tight tracking-tight",
+                isRTL && "text-right font-arabic"
+              )}
+              variants={fadeUpVariants}
             >
-              {locale === "ar" ? "منتجاتنا الجديدة" : "New Arrivals"}
+              {isRTL ? "منتجاتنا الجديدة" : "New Arrivals"}
             </m.h1>
-            <m.p
-              className={`text-base sm:text-lg md:text-xl lg:text-2xl text-atp-off-white leading-relaxed max-w-lg font-light tracking-wide ${locale === "ar" ? "text-right font-arabic" : ""
-                }`}
-              variants={slideInLeft}
-            >
-              {locale === "ar"
-                ? "اكتشف العطور الجديدة المثالية لكل مناسبة!"
-                : "Discover new scents perfect for any occasion!"}
-            </m.p>
-            <m.div variants={slideInLeft}>
+            
+
+            
+            <m.div variants={fadeUpVariants}>
               <Link href={`/${locale}/collections/new-arrivals`}>
                 <Button
                   variant="outline"
                   size="lg"
-                  className="bg-atp-gold text-atp-black border-atp-gold font-semibold tracking-wider text-sm px-8 py-3 shadow-lg hover:bg-transparent hover:text-atp-gold hover:border-atp-gold transition-all duration-300"
+                  className="bg-atp-gold text-atp-black border-atp-gold font-semibold tracking-wider text-sm px-8 py-3 shadow-gold-lg hover:bg-transparent hover:text-atp-gold hover:border-atp-gold transition-all duration-300"
                 >
-                  {locale === "ar" ? "تسوق الآن" : "SHOP NOW"}
+                  {isRTL ? "تسوق الآن" : "SHOP NOW"}
                 </Button>
               </Link>
             </m.div>
           </m.div>
 
+          {/* Hero Carousel */}
           <m.div
             className="relative h-full flex items-center justify-center"
             initial="hidden"
             animate="visible"
-            variants={slideInRight}
+            variants={heroImageVariants}
           >
-            <div className="relative w-full max-w-lg">
+            <div className="relative w-full max-w-lg h-[400px] md:h-[500px]">
               {carouselProductsToShow.map((product, index) => (
-                <div
+                <m.div
                   key={product.handle}
-                  className={`absolute inset-0 transition-all duration-1000 ease-in-out ${index === currentSlide
-                    ? "opacity-100 transform translate-x-0 scale-100"
-                    : index < currentSlide
-                      ? "opacity-0 transform -translate-x-full scale-95"
-                      : "opacity-0 transform translate-x-full scale-95"
-                    }`}
+                  className="absolute inset-0"
+                  initial={{ opacity: 0, scale: 0.95, x: isRTL ? -100 : 100 }}
+                  animate={{
+                    opacity: index === currentSlide ? 1 : 0,
+                    scale: index === currentSlide ? 1 : 0.95,
+                    x: index === currentSlide ? 0 : isRTL ? -100 : 100,
+                  }}
+                  transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.6, ease: easing.smooth }}
                 >
-                  <div className="flex items-center justify-center space-x-2 sm:space-x-4 md:space-x-6 h-full px-4 sm:px-0">
-                    <div className="relative w-32 h-48 sm:w-40 sm:h-60 md:w-52 md:h-80 flex-shrink-0">
+                  <div className="flex items-center justify-center h-full px-4 sm:px-0">
+                    <div className="relative w-48 h-72 sm:w-60 sm:h-96 md:w-72 md:h-[28rem]">
                       <Image
-                        src={
-                          product.featuredImage?.url ||
-                          "/placeholder.svg?height=320&width=208&query=luxury perfume bottle" ||
-                          "/placeholder.svg"
-                        }
+                        src={product.featuredImage?.url || "/placeholder.svg"}
                         alt={product.title}
                         fill
                         className="object-contain filter drop-shadow-2xl"
-                        sizes="(max-width: 640px) 128px, (max-width: 768px) 160px, 208px"
+                        sizes="(max-width: 640px) 192px, (max-width: 768px) 240px, 288px"
+                        priority={index === 0}
                       />
-                    </div>
-
-                    {product.images && product.images.length > 1 && (
-                      <div className="relative w-28 h-40 sm:w-32 sm:h-48 md:w-44 md:h-72 opacity-90 flex-shrink-0 hidden sm:block">
-                        <Image
-                          src={
-                            product.images[1]?.url ||
-                            "/placeholder.svg?height=288&width=176&query=luxury perfume bottle" ||
-                            "/placeholder.svg"
-                          }
-                          alt={`${product.title} variant`}
-                          fill
-                          className="object-contain filter drop-shadow-xl"
-                          sizes="(max-width: 640px) 112px, (max-width: 768px) 128px, 176px"
-                        />
+                      
+                      {/* Product badges */}
+                      <div className={cn(
+                        "absolute top-4",
+                        isRTL ? "right-4" : "left-4"
+                      )}>
+                        <ProductBadges product={product} size="md" />
                       </div>
-                    )}
+                    </div>
                   </div>
-                </div>
+                </m.div>
               ))}
             </div>
           </m.div>
         </div>
 
-        <div className="absolute bottom-4 sm:bottom-8 left-1/2 transform -translate-x-1/2 sm:left-auto sm:right-8 sm:transform-none flex space-x-3">
+        {/* Carousel dots */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex gap-3">
           {carouselProductsToShow.map((_, index) => (
             <button
               key={index}
               onClick={() => setCurrentSlide(index)}
-              className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${index === currentSlide
-                ? "bg-atp-white scale-125"
-                : "bg-atp-white/40 hover:bg-atp-white/60"
-                }`}
+              className={cn(
+                "w-3 h-3 rounded-full transition-all duration-300",
+                index === currentSlide
+                  ? "bg-atp-gold scale-125"
+                  : "bg-atp-white/40 hover:bg-atp-white/60"
+              )}
               aria-label={`Go to slide ${index + 1}`}
             />
           ))}
         </div>
       </section>
 
+
+
+      {/* Featured Products - Editorial Magazine Layout */}
       <m.section
-        className="section-padding bg-atp-white"
+        className="section-padding bg-gradient-to-b from-atp-light-gray to-atp-white"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
-        variants={fadeInUp}
+        viewport={viewportOptions}
+        variants={containerVariants}
       >
         <div className="container-premium">
-          <m.h2
-            className={`text-4xl md:text-5xl font-serif text-center mb-16 text-atp-black tracking-tight ${locale === "ar" ? "font-arabic" : ""
-              }`}
-            variants={fadeInUp}
-          >
-            {locale === "ar" ? "استكشف فئاتنا" : "Explore Our Categories"}
-          </m.h2>
-          <m.div
-            className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6 lg:gap-8"
-            variants={staggerContainer}
-          >
-            {categoryCards.map((category, index) => (
-              <m.div key={index} variants={scaleIn}>
-                <Link
-                  href={category.link}
-                  className="group block text-center transition-all duration-300 hover:scale-105"
+          <m.div className="text-center mb-16" variants={fadeUpVariants}>
+            <span className="inline-block px-4 py-2 glass rounded-full text-atp-charcoal font-medium text-sm mb-4">
+              {tProduct("premium")}
+            </span>
+            <h2 className={cn(
+              "text-4xl md:text-5xl lg:text-6xl font-serif text-atp-black tracking-tight",
+              isRTL && "font-arabic"
+            )}>
+              {t("featuredProductsTitle")}
+            </h2>
+          </m.div>
+
+          {/* Editorial Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 lg:gap-8 auto-rows-[200px] md:auto-rows-[250px]">
+            {featuredProducts.map((product, index) => {
+              // First product is large (hero), index 3 is tall
+              const isLarge = index === 0 || index === 3;
+              const gridClass = editorialGridClasses[index] || "col-span-1 row-span-1";
+              
+              return (
+                <m.article
+                  key={product.id}
+                  className={cn(
+                    "relative group rounded-2xl overflow-hidden bg-white shadow-lg tilt-3d",
+                    gridClass
+                  )}
+                  variants={cardVariants}
+                  whileHover={shouldReduceMotion ? {} : { y: -8, transition: transitions.normal }}
                 >
-                  <div
-                    className={`relative aspect-square mb-4 overflow-hidden rounded-lg shadow-lg transition-all duration-300 ${category.isATP ? "ring-2 ring-atp-gold" : ""
-                      }`}
+                  {/* Index number watermark */}
+                  <div className={cn(
+                    "absolute z-10 font-serif italic text-atp-gold/10 pointer-events-none",
+                    isLarge 
+                      ? "text-[10rem] md:text-[14rem] -top-8 -left-4" 
+                      : "text-6xl md:text-8xl -top-2 -left-2",
+                    isRTL && "left-auto -right-2"
+                  )}>
+                    {String(index + 1).padStart(2, '0')}
+                  </div>
+
+                  {/* Product image */}
+                  <Link 
+                    href={`/${locale}/product/${getLocalizedProductHandle(product, locale as 'en' | 'ar')}`}
+                    className="absolute inset-0"
                   >
                     <Image
-                      src={category.image || "/placeholder.svg"}
-                      alt={category.name}
+                      src={product.featuredImage?.url || "/placeholder.svg"}
+                      alt={product.featuredImage?.altText || product.title}
                       fill
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                      sizes={isLarge 
+                        ? "(max-width: 768px) 100vw, 50vw" 
+                        : "(max-width: 768px) 50vw, 25vw"
+                      }
                     />
-                    {category.isATP && (
-                      <div className="absolute top-2 right-2">
-                        <span className="bg-atp-gold text-atp-black px-2 py-1 rounded text-xs font-bold">
-                          ATP
-                        </span>
-                      </div>
-                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-atp-black/80 via-transparent to-transparent" />
+                  </Link>
+
+                  {/* Product badges */}
+                  <div className={cn(
+                    "absolute top-4 z-20",
+                    isRTL ? "right-4" : "left-4"
+                  )}>
+                    <ProductBadges product={product} size="sm" />
                   </div>
-                  <h3
-                    className={`font-semibold text-lg ${category.isATP ? "text-atp-gold" : "text-atp-black"
-                      }`}
+
+                  {/* Wishlist button */}
+                  <button 
+                    className={cn(
+                      "absolute top-4 z-20 p-2 rounded-full glass opacity-0 group-hover:opacity-100 transition-opacity",
+                      isRTL ? "left-4" : "right-4"
+                    )}
+                    aria-label="Add to wishlist"
                   >
-                    {category.name}
-                  </h3>
-                </Link>
-              </m.div>
-            ))}
+                    <Heart className="w-4 h-4 text-atp-white" />
+                  </button>
+
+                  {/* Product info */}
+                  <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 z-10">
+                    <h3 className={cn(
+                      "font-semibold text-atp-white mb-2 line-clamp-2",
+                      isLarge ? "text-lg md:text-xl" : "text-sm md:text-base"
+                    )}>
+                      {product.title}
+                    </h3>
+                    
+                    <div className="flex items-center justify-between">
+                      <div className="text-atp-gold font-bold">
+                        {product.variants[0]?.price?.amount ? (
+                          <Price
+                            amount={product.variants[0].price.amount}
+                            currencyCode="AED"
+                            className={isLarge ? "text-lg" : "text-sm"}
+                          />
+                        ) : (
+                          <span className="text-sm">{t("priceNotAvailable")}</span>
+                        )}
+                      </div>
+
+                      {/* Quick view button */}
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleQuickView(product);
+                        }}
+                        className="p-2 rounded-full glass-gold opacity-0 group-hover:opacity-100 transition-opacity"
+                        aria-label="Quick view"
+                      >
+                        <Eye className="w-4 h-4 text-atp-black" />
+                      </button>
+                    </div>
+                  </div>
+                </m.article>
+              );
+            })}
+          </div>
+
+          {/* View All button */}
+          <m.div 
+            className="text-center mt-12"
+            variants={fadeUpVariants}
+          >
+            <Link href={`/${locale}/collections/all`}>
+              <Button
+                size="lg"
+                className="btn-premium px-8"
+              >
+                {tProduct("viewAllProducts")}
+              </Button>
+            </Link>
           </m.div>
         </div>
       </m.section>
 
-      <m.section
-        className="section-padding bg-atp-light-gray"
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-100px" }}
-        variants={fadeInUp}
-      >
-        <div className="container-premium">
-          <m.h2
-            className={`text-4xl md:text-5xl font-serif text-center mb-16 text-atp-black tracking-tight ${locale === "ar" ? "font-arabic" : ""
-              }`}
-            variants={fadeInUp}
-          >
-            {locale === "ar" ? "المنتجات المميزة" : "Featured Products"}
-          </m.h2>
-          <m.div
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8"
-            variants={staggerContainer}
-          >
-            {products.slice(0, 8).map((product, index) => (
-              <m.div
-                key={index}
-                className="card-premium rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 bg-white border border-gray-100"
-                variants={scaleIn}
-                whileHover={{ y: -5, transition: { duration: 0.2 } }}
-              >
-                <div className="relative aspect-square">
-                  <Image
-                    src={product.featuredImage?.url || "/placeholder.svg"}
-                    alt={product.featuredImage?.altText || product.title}
-                    fill
-                    className="object-cover"
-                  />
-                  <button className="absolute top-3 right-3 p-2 rounded-full transition-colors shadow-md bg-white/90 hover:bg-white">
-                    <Heart className="w-4 h-4 text-atp-black" />
-                  </button>
-                </div>
-                <div className="p-6">
-                  <h3 className="font-semibold mb-3 text-lg text-atp-black">
-                    {product.title}
-                  </h3>
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center">
-                      {[...Array(5)].map((_, i) => (
-                        <svg
-                          key={i}
-                          className={`w-4 h-4 ${i < 4 ? "text-atp-gold" : "text-atp-light-gray"
-                            }`}
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
-                        >
-                          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                        </svg>
-                      ))}
-                      <span className="ml-2 text-sm text-atp-charcoal">
-                        4.5
-                      </span>
-                    </div>
-                  </div>
-                  <div className="text-xl font-bold mb-4 text-atp-black">
-                    {product.variants[0]?.price?.amount ? (
-                      <Price
-                        amount={product.variants[0].price.amount}
-                        currencyCode="AED"
-                        className="text-xl font-bold"
-                      />
-                    ) : (
-                      <span>Price not available</span>
-                    )}
-                  </div>
-                  <Link href={`/${locale}/product/${getLocalizedProductHandle(product, locale as 'en' | 'ar')}`}>
-                    <Button className="btn-premium w-full">
-                      {locale === "ar" ? "عرض التفاصيل" : "View Details"}
-                    </Button>
-                  </Link>
-                </div>
-              </m.div>
-            ))}
-          </m.div>
-        </div>
-      </m.section>
+      {/* Quick View Modal */}
+      <QuickViewModal
+        product={quickViewProduct}
+        isOpen={quickViewProduct !== null}
+        onClose={closeQuickView}
+      />
     </>
   );
 }
