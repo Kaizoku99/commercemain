@@ -335,16 +335,6 @@ export const getCollectionProductsQuery = `
                 currencyCode
               }
             }
-            compareAtPriceRange {
-              maxVariantPrice {
-                amount
-                currencyCode
-              }
-              minVariantPrice {
-                amount
-                currencyCode
-              }
-            }
             featuredImage {
               id
               altText
@@ -529,16 +519,6 @@ export const getProductQuery = `
           currencyCode
         }
       }
-      compareAtPriceRange {
-        maxVariantPrice {
-          amount
-          currencyCode
-        }
-        minVariantPrice {
-          amount
-          currencyCode
-        }
-      }
       featuredImage {
         id
         altText
@@ -613,16 +593,6 @@ export const getProductRecommendationsQuery = `
       description
       tags
       priceRange {
-        maxVariantPrice {
-          amount
-          currencyCode
-        }
-        minVariantPrice {
-          amount
-          currencyCode
-        }
-      }
-      compareAtPriceRange {
         maxVariantPrice {
           amount
           currencyCode
@@ -710,16 +680,6 @@ export const getFeaturedProductsQuery = `
                 currencyCode
               }
             }
-            compareAtPriceRange {
-              maxVariantPrice {
-                amount
-                currencyCode
-              }
-              minVariantPrice {
-                amount
-                currencyCode
-              }
-            }
             featuredImage {
               id
               altText
@@ -791,17 +751,7 @@ export const getProductsQuery = `
               currencyCode
             }
           }
-          compareAtPriceRange {
-            maxVariantPrice {
-              amount
-              currencyCode
-            }
-            minVariantPrice {
-              amount
-              currencyCode
-            }
-          }
-          featuredImage {
+      featuredImage {
             id
             altText
             url

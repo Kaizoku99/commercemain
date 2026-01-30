@@ -3,7 +3,8 @@
 import type React from "react";
 import clsx from "clsx";
 import { m, HTMLMotionProps, useReducedMotion } from "framer-motion";
-import { staggerFast, staggerItem, getAccessibleVariants, defaultViewport } from "@/lib/animations";
+import { staggerFast, staggerItem, getAccessibleVariants } from "@/lib/animations";
+import { useAnimateOnMount } from "@/hooks/use-animate-on-mount";
 
 interface GridProps extends HTMLMotionProps<"ul"> {
   /** Grid variant style */
@@ -23,6 +24,9 @@ function Grid(props: GridProps) {
   } = props;
 
   const shouldReduceMotion = useReducedMotion();
+  // Fix: Use animate instead of whileInView to trigger on soft navigation
+  // This fixes the issue where products don't show on first mobile navigation
+  const isVisible = useAnimateOnMount(50);
 
   return (
     <m.ul
@@ -44,8 +48,7 @@ function Grid(props: GridProps) {
       dir={isRTL ? "rtl" : "ltr"}
       variants={staggerFast}
       initial="hidden"
-      whileInView="visible"
-      viewport={defaultViewport}
+      animate={isVisible ? "visible" : "hidden"}
     >
       {props.children}
     </m.ul>

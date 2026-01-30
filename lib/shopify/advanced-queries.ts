@@ -54,16 +54,6 @@ export const getProductsWithFiltersQuery = `
               currencyCode
             }
           }
-          compareAtPriceRange {
-            maxVariantPrice {
-              amount
-              currencyCode
-            }
-            minVariantPrice {
-              amount
-              currencyCode
-            }
-          }
           variants(first: 250) {
             edges {
               node {
@@ -75,10 +65,6 @@ export const getProductsWithFiltersQuery = `
                   value
                 }
                 price {
-                  amount
-                  currencyCode
-                }
-                compareAtPrice {
                   amount
                   currencyCode
                 }
@@ -197,12 +183,6 @@ export const predictiveSearchQuery = `
           altText
         }
         priceRange {
-          minVariantPrice {
-            amount
-            currencyCode
-          }
-        }
-        compareAtPriceRange {
           minVariantPrice {
             amount
             currencyCode

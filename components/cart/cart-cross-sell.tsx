@@ -31,10 +31,6 @@ interface CrossSellProduct {
     url: string;
     altText: string;
   };
-  compareAtPrice?: {
-    amount: string;
-    currencyCode: string;
-  };
 }
 
 interface CartCrossSellProps {
@@ -175,13 +171,6 @@ export function CartCrossSell({
                         <span className="text-2xl">📦</span>
                       </div>
                     )}
-
-                    {/* Sale Badge */}
-                    {product.compareAtPrice && (
-                      <span className="absolute top-1 left-1 text-[10px] px-1.5 py-0.5 bg-red-500 text-white rounded-full font-medium">
-                        Sale
-                      </span>
-                    )}
                   </div>
 
                   {/* Product Info */}
@@ -196,13 +185,6 @@ export function CartCrossSell({
                           currencyCode={product.price.currencyCode}
                           className="text-xs font-semibold"
                         />
-                        {product.compareAtPrice && (
-                          <Price
-                            amount={product.compareAtPrice.amount}
-                            currencyCode={product.compareAtPrice.currencyCode}
-                            className="text-[10px] text-muted-foreground line-through"
-                          />
-                        )}
                       </div>
                       
                       {/* Quick Add Button */}

@@ -26,16 +26,6 @@ export const getProductWithMetafieldsQuery = `
           currencyCode
         }
       }
-      compareAtPriceRange {
-        maxVariantPrice {
-          amount
-          currencyCode
-        }
-        minVariantPrice {
-          amount
-          currencyCode
-        }
-      }
       variants(first: 250) {
         edges {
           node {
@@ -47,10 +37,6 @@ export const getProductWithMetafieldsQuery = `
               value
             }
             price {
-              amount
-              currencyCode
-            }
-            compareAtPrice {
               amount
               currencyCode
             }

@@ -48,23 +48,10 @@ function ProductCard({
 
   const title = getLocalizedProductTitle(product, locale);
   const handle = getLocalizedProductHandle(product, locale);
-  const price = product.priceRange.maxVariantPrice;
-  const isOnSale =
-    product.priceRange.minVariantPrice.amount !==
-    product.priceRange.maxVariantPrice.amount;
+  const price = product.priceRange.minVariantPrice;
   const isPremium =
     product.tags?.includes("premium") ||
     product.title.toLowerCase().includes("premium");
-
-  // Calculate discount percentage if on sale
-  const discountPercentage = isOnSale
-    ? Math.round(
-      (1 -
-        parseFloat(product.priceRange.minVariantPrice.amount) /
-        parseFloat(product.priceRange.maxVariantPrice.amount)) *
-      100
-    )
-    : 0;
 
   const cardVariants = {
     hidden: { opacity: 0, y: 20, scale: 0.95 },
@@ -111,11 +98,6 @@ function ProductCard({
     >
       {/* Product Badges */}
       <div className="absolute top-3 left-3 z-20 flex flex-col gap-1">
-        {isOnSale && (
-          <Badge className="bg-red-500 text-white text-xs font-bold px-2 py-1">
-            -{discountPercentage}%
-          </Badge>
-        )}
         {isPremium && (
           <Badge className="bg-atp-gold text-atp-black text-xs font-bold px-2 py-1">
             <Star className="w-2 h-2 mr-1" />
@@ -218,30 +200,11 @@ function ProductCard({
 
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                {isOnSale ? (
-                  <div className="flex items-center gap-2">
-                    <Price
-                      amount={product.priceRange.minVariantPrice.amount}
-                      currencyCode={
-                        product.priceRange.minVariantPrice.currencyCode
-                      }
-                      className="font-bold text-red-600"
-                    />
-                    <Price
-                      amount={product.priceRange.maxVariantPrice.amount}
-                      currencyCode={
-                        product.priceRange.maxVariantPrice.currencyCode
-                      }
-                      className="text-xs text-gray-500 line-through"
-                    />
-                  </div>
-                ) : (
-                  <Price
-                    amount={price.amount}
-                    currencyCode={price.currencyCode}
-                    className="font-bold text-gray-900"
-                  />
-                )}
+                <Price
+                  amount={price.amount}
+                  currencyCode={price.currencyCode}
+                  className="font-bold text-gray-900"
+                />
               </div>
 
               {/* Rating Stars (placeholder) */}

@@ -190,7 +190,11 @@ export default function MobileMenu({ menuItems, fallbackMenu }: MobileMenuProps)
   const resolvedMenu = useMemo(() => {
     if (shopifyMenuLinks.length > 0) {
       const homePath = `/${locale}`
-      const filtered = shopifyMenuLinks.filter((item) => item.path !== homePath)
+      // Normalize paths to ensure consistent comparison (remove trailing slashes)
+      const normalize = (p: string) => p.replace(/\/$/, "") || "/"
+      const normalizedHomePath = normalize(homePath)
+
+      const filtered = shopifyMenuLinks.filter((item) => normalize(item.path) !== normalizedHomePath)
       return [
         { title: t('home'), path: homePath, icon: HomeIcon },
         ...filtered,

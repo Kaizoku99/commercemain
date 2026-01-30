@@ -6,7 +6,8 @@ import { Grid } from "@/components/grid";
 import ProductGridItems from "@/components/layout/product-grid-items";
 import CollectionStats from "@/components/collection/collection-stats";
 import { StructuredData } from "@/components/structured-data";
-import { staggerSlow, fadeInUp, getAccessibleVariants, defaultViewport } from "@/lib/animations";
+import { staggerSlow, fadeInUp, getAccessibleVariants } from "@/lib/animations";
+import { useAnimateOnMount } from "@/hooks/use-animate-on-mount";
 import type { Product } from "@/lib/shopify/types";
 
 interface CollectionPageClientProps {
@@ -27,6 +28,10 @@ export default function CollectionPageClient({
   const shouldReduceMotion = useReducedMotion();
   const t = useTranslations("collection");
   const isRTL = locale === "ar";
+  
+  // Fix: Use animate instead of whileInView to trigger on soft navigation
+  // This fixes the issue where products don't show on first mobile navigation
+  const isVisible = useAnimateOnMount(50);
 
   // Prepare stats data
   const stats = [
@@ -71,8 +76,7 @@ export default function CollectionPageClient({
         <div className="container mx-auto px-4">
           <m.div
             initial="hidden"
-            whileInView="visible"
-            viewport={defaultViewport}
+            animate={isVisible ? "visible" : "hidden"}
             variants={staggerSlow}
             className="text-center mb-12 md:mb-16"
           >

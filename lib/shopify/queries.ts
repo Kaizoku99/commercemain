@@ -1281,16 +1281,6 @@ export const getFeaturedProductsQuery = `
                 currencyCode
               }
             }
-            compareAtPriceRange {
-              maxVariantPrice {
-                amount
-                currencyCode
-              }
-              minVariantPrice {
-                amount
-                currencyCode
-              }
-            }
             featuredImage {
               id
               altText

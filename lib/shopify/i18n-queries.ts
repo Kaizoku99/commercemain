@@ -139,10 +139,6 @@ export const GET_MULTILINGUAL_PRODUCT = /* GraphQL */ `
               amount
               currencyCode
             }
-            compareAtPrice {
-              amount
-              currencyCode
-            }
             availableForSale
             quantityAvailable
             selectedOptions {

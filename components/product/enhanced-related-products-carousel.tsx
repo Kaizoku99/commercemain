@@ -58,22 +58,10 @@ function ProductCard({
 
   const title = getLocalizedProductTitle(product, locale);
   const handle = getLocalizedProductHandle(product, locale);
-  const price = product.priceRange.maxVariantPrice;
-  const isOnSale =
-    product.priceRange.minVariantPrice.amount !==
-    product.priceRange.maxVariantPrice.amount;
+  const price = product.priceRange.minVariantPrice;
   const isPremium =
     product.tags?.includes("premium") ||
     product.title.toLowerCase().includes("premium");
-
-  const discountPercentage = isOnSale
-    ? Math.round(
-      (1 -
-        parseFloat(product.priceRange.minVariantPrice.amount) /
-        parseFloat(product.priceRange.maxVariantPrice.amount)) *
-      100
-    )
-    : 0;
 
   const cardVariants = {
     hidden: { opacity: 0, scale: 0.9, y: 20 },
@@ -117,17 +105,6 @@ function ProductCard({
 
       {/* Product Badges */}
       <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
-        {isOnSale && (
-          <m.div
-            initial={{ scale: 0, rotate: -180 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ delay: 0.3, duration: 0.5, ease: "backOut" }}
-          >
-            <Badge className="bg-gradient-to-r from-red-500 to-red-600 text-white text-xs font-bold px-3 py-1 shadow-lg">
-              -{discountPercentage}%
-            </Badge>
-          </m.div>
-        )}
         {isPremium && (
           <m.div
             initial={{ scale: 0, rotate: 180 }}
@@ -254,30 +231,11 @@ function ProductCard({
 
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                {isOnSale ? (
-                  <div className="flex items-center gap-2">
-                    <Price
-                      amount={product.priceRange.minVariantPrice.amount}
-                      currencyCode={
-                        product.priceRange.minVariantPrice.currencyCode
-                      }
-                      className="font-bold text-red-600 text-lg"
-                    />
-                    <Price
-                      amount={product.priceRange.maxVariantPrice.amount}
-                      currencyCode={
-                        product.priceRange.maxVariantPrice.currencyCode
-                      }
-                      className="text-sm text-gray-500 line-through"
-                    />
-                  </div>
-                ) : (
-                  <Price
-                    amount={price.amount}
-                    currencyCode={price.currencyCode}
-                    className="font-bold text-gray-900 text-lg"
-                  />
-                )}
+                <Price
+                  amount={price.amount}
+                  currencyCode={price.currencyCode}
+                  className="font-bold text-gray-900 text-lg"
+                />
               </div>
 
               {/* Rating */}

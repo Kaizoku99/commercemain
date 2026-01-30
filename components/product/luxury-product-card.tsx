@@ -18,9 +18,6 @@ interface LuxuryProductCardProps {
     priceRange: {
       minVariantPrice: { amount: string; currencyCode: string };
     };
-    compareAtPriceRange?: {
-      minVariantPrice: { amount: string; currencyCode: string };
-    };
     availableForSale?: boolean;
     rating?: number;
     reviewCount?: number;
@@ -56,24 +53,12 @@ export function LuxuryProductCard({
     title,
     featuredImage,
     priceRange,
-    compareAtPriceRange,
     availableForSale = true,
     rating = 4.5,
     reviewCount = 0,
   } = product;
 
   const price = priceRange.minVariantPrice;
-  const compareAtPrice = compareAtPriceRange?.minVariantPrice;
-  const isOnSale =
-    compareAtPrice && parseFloat(compareAtPrice.amount) > parseFloat(price.amount);
-  
-  const discountPercentage = isOnSale
-    ? Math.round(
-        ((parseFloat(compareAtPrice.amount) - parseFloat(price.amount)) /
-          parseFloat(compareAtPrice.amount)) *
-          100
-      )
-    : 0;
 
   // 3D Tilt Effect using mouse position
   const mouseX = useMotionValue(0);
@@ -201,15 +186,6 @@ export function LuxuryProductCard({
           <div className="relative aspect-[4/5] w-full overflow-hidden bg-neutral-50">
             {/* Badges */}
             <div className="absolute top-3 left-3 z-20 flex flex-col gap-2">
-              {isOnSale && (
-                <m.span
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="bg-[var(--atp-gold)] text-black px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-sm shadow-sm"
-                >
-                  -{discountPercentage}%
-                </m.span>
-              )}
               {!availableForSale && (
                 <span className="bg-neutral-900 text-white px-3 py-1 text-xs font-medium uppercase tracking-wider rounded-sm">
                   Sold Out
@@ -374,13 +350,6 @@ export function LuxuryProductCard({
                 currencyCode={price.currencyCode}
                 className="text-neutral-900 font-semibold text-base"
               />
-              {isOnSale && compareAtPrice && (
-                <Price
-                  amount={compareAtPrice.amount}
-                  currencyCode={compareAtPrice.currencyCode}
-                  className="text-neutral-400 text-sm line-through"
-                />
-              )}
             </div>
           </div>
         </Link>

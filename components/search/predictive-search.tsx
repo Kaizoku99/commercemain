@@ -33,12 +33,7 @@ interface PredictiveSearchResult {
         currencyCode: string;
       };
     };
-    compareAtPriceRange?: {
-      minVariantPrice: {
-        amount: string;
-        currencyCode: string;
-      };
-    };
+
   }>;
   collections: Array<{
     id: string;
@@ -334,16 +329,6 @@ export function PredictiveSearch({
                             {formatPrice(
                               product.priceRange.minVariantPrice.amount,
                               product.priceRange.minVariantPrice.currencyCode
-                            )}
-                            {product.compareAtPriceRange && (
-                              <span className="ml-2 text-xs text-gray-400 line-through">
-                                {formatPrice(
-                                  product.compareAtPriceRange.minVariantPrice
-                                    .amount,
-                                  product.compareAtPriceRange.minVariantPrice
-                                    .currencyCode
-                                )}
-                              </span>
                             )}
                           </div>
                         </div>

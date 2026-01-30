@@ -131,34 +131,7 @@ export default function ServiceHighlights() {
         role: t("beauty.testimonialRole"),
       },
     },
-    {
-      id: "yoga",
-      icon: Dumbbell,
-      title: t("yoga.title"),
-      subtitle: t("yoga.subtitle"),
-      description: t("yoga.description"),
-      benefits: [
-        t("yoga.benefit1"),
-        t("yoga.benefit2"),
-        t("yoga.benefit3"),
-        t("yoga.benefit4"),
-        t("yoga.benefit5"),
-      ],
-      image: "/yoga-wellness.png",
-      link: "/yoga-wellness",
-      gradient: "from-violet-400 via-purple-500 to-indigo-600",
-      badge: t("yoga.badge"),
-      stats: {
-        duration: t("yoga.duration"),
-        sessions: t("yoga.sessions"),
-        rating: 4.9,
-      },
-      testimonial: {
-        text: t("yoga.testimonialText"),
-        author: t("yoga.testimonialAuthor"),
-        role: t("yoga.testimonialRole"),
-      },
-    },
+
     {
       id: "ems",
       icon: Zap,

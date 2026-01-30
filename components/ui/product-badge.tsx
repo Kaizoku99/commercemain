@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 import { popVariants } from '@/lib/animations/variants';
 import type { Product } from '@/lib/shopify/types';
 
-export type BadgeType = 'bestseller' | 'new' | 'low-stock' | 'sale';
+export type BadgeType = 'bestseller' | 'new' | 'low-stock';
 
 interface ProductBadgeProps {
   type: BadgeType;
@@ -34,7 +34,6 @@ const badgeStyles: Record<BadgeType, string> = {
   bestseller: 'glass-gold text-atp-gold border-atp-gold/30',
   new: 'glass text-emerald-500 border-emerald-500/30',
   'low-stock': 'glass text-orange-500 border-orange-500/30',
-  sale: 'glass text-atp-gold border-atp-gold/30',
 };
 
 /**
@@ -53,7 +52,6 @@ export function ProductBadge({
     bestseller: t('bestseller'),
     new: t('new'),
     'low-stock': t('lowStock'),
-    sale: t('sale'),
   };
 
   const Component = animate && !shouldReduceMotion ? m.span : 'span';
@@ -104,15 +102,6 @@ export function ProductBadges({
     if (createdDate > thirtyDaysAgo && !badges.includes('bestseller')) {
       badges.push('new');
     }
-  }
-
-  // Check for sale (compareAtPrice > price)
-  const hasComparePrice = product.priceRange?.maxVariantPrice?.amount && 
-    product.variants?.[0]?.price?.amount &&
-    parseFloat(product.priceRange.maxVariantPrice.amount) > parseFloat(product.variants[0].price.amount);
-  
-  if (hasComparePrice) {
-    badges.push('sale');
   }
 
   // Check for low stock - only if variant has quantityAvailable

@@ -67,6 +67,11 @@ export function ATPProductDescription({
       tag.toLowerCase()
     )
   );
+  
+  // Check if product is a membership/subscription product (digital, no inventory limits)
+  const isMembershipProduct = product.tags.some((tag) =>
+    ["membership", "subscription", "digital"].includes(tag.toLowerCase())
+  ) || product.handle.toLowerCase().includes("membership");
 
   return (
     <QuantityProvider>
@@ -212,13 +217,16 @@ export function ATPProductDescription({
             </div>
           )}
 
-        {/* Quantity Selector */}
-        <div className="mb-4">
-          <QuantitySelector productId={product.id} />
-        </div>
+        {/* Quantity Selector - hidden for membership/digital products */}
+        {!isMembershipProduct && (
+          <div className="mb-4">
+            <QuantitySelector productId={product.id} />
+          </div>
+        )}
 
         {/* Urgency Signals - Stock Indicator (Real inventory from Shopify Admin API) */}
-        {selectedVariant && !inventoryLoading && (
+        {/* Hidden for membership/digital products since they have unlimited inventory */}
+        {selectedVariant && !inventoryLoading && !isMembershipProduct && (
           <div className="mb-4">
             <UrgencySignals
               quantityAvailable={
