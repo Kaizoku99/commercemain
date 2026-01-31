@@ -12,8 +12,6 @@ import {
   Shield
 } from "lucide-react";
 import {
-  containerSlowVariants,
-  itemScaleVariants,
   transitions,
   easing
 } from "@/lib/animations/variants";
@@ -30,45 +28,38 @@ interface Value {
 const values: Value[] = [
   {
     icon: Award,
-    title: "Excellence",
-    titleAr: "التميز",
-    description: "We pursue the highest standards in everything we do, from product selection to customer service.",
-    descriptionAr: "نسعى لتحقيق أعلى المعايير في كل ما نقوم به، من اختيار المنتجات إلى خدمة العملاء.",
-  },
-  {
-    icon: Heart,
-    title: "Authenticity",
-    titleAr: "الأصالة",
-    description: "Genuine products, honest practices, and transparent relationships with our customers and partners.",
-    descriptionAr: "منتجات أصلية، ممارسات صادقة، وعلاقات شفافة مع عملائنا وشركائنا.",
+    title: "Quality First",
+    titleAr: "الجودة أولًا",
+    description: "We offer only products that meet strict sourcing, formulation, and manufacturing standards.",
+    descriptionAr: "لا نقدّم أي منتج إلا بعد التأكد من مصدره، تركيبه، ومعايير تصنيعه.",
   },
   {
     icon: Lightbulb,
-    title: "Innovation",
-    titleAr: "الابتكار",
-    description: "Embracing cutting-edge technology and methods to deliver breakthrough wellness solutions.",
-    descriptionAr: "تبني أحدث التقنيات والأساليب لتقديم حلول العافية المتطورة.",
-  },
-  {
-    icon: Shield,
-    title: "Wellness",
-    titleAr: "العافية",
-    description: "Holistic health is our core mission—nurturing mind, body, and spirit in perfect harmony.",
-    descriptionAr: "الصحة الشاملة هي مهمتنا الأساسية—رعاية العقل والجسم والروح في انسجام تام.",
+    title: "Transparency",
+    titleAr: "الشفافية",
+    description: "Clear information, honest communication, and no misleading claims—ever.",
+    descriptionAr: "نلتزم بالوضوح في المعلومات، المكونات، والمصدر—بدون مبالغة أو ادعاءات غير واقعية.",
   },
   {
     icon: Users,
-    title: "Community",
-    titleAr: "المجتمع",
-    description: "Building lasting connections and supporting our wellness community across the region.",
-    descriptionAr: "بناء روابط دائمة ودعم مجتمع العافية لدينا في جميع أنحاء المنطقة.",
+    title: "Trust",
+    titleAr: "الثقة",
+    description: "We build lasting relationships with our customers through credibility and consistency.",
+    descriptionAr: "نبني علاقتنا مع عملائنا على المصداقية والاستمرارية، وليس على البيع السريع.",
+  },
+  {
+    icon: Shield,
+    title: "Responsibility",
+    titleAr: "المسؤولية",
+    description: "Wellness is a responsibility. We ensure our products are safe, reliable, and suitable for everyday use.",
+    descriptionAr: "نؤمن بأن الصحة والعناية مسؤولية، ونحرص على تقديم حلول آمنة ومناسبة للاستخدام اليومي.",
   },
   {
     icon: Leaf,
     title: "Sustainability",
     titleAr: "الاستدامة",
-    description: "Committed to eco-conscious practices and ethically sourced ingredients for a better future.",
-    descriptionAr: "ملتزمون بالممارسات الصديقة للبيئة والمكونات من مصادر أخلاقية لمستقبل أفضل.",
+    description: "We support long-term wellbeing through responsible sourcing and thoughtful product selection.",
+    descriptionAr: "نختار منتجات وحلول تدعم نمط حياة صحي ومستدام على المدى الطويل.",
   },
 ];
 
