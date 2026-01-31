@@ -49,7 +49,7 @@ export default function WellnessFeatures() {
         "Laboratory tested purity",
         "Sustainable sourcing",
       ],
-      image: "/vitamin-c-supplement.png",
+      image: "/supplements-thai.jpg",
       link: "/skincare-supplements",
       gradient: "from-emerald-500 to-green-600",
       stats: { value: "500+", label: "Natural Ingredients" },

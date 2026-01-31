@@ -60,7 +60,7 @@ export function HomepageClient({
     },
     {
       name: t('categorySupplements'),
-      image: "/vitamin-c-supplement.png",
+      image: "/supplements-thai.jpg",
       link: "/skincare-supplements",
     },
     {

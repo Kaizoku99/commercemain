@@ -88,7 +88,7 @@ export default function ServiceHighlights() {
         t("supplements.benefit4"),
         t("supplements.benefit5"),
       ],
-      image: "/vitamin-c-supplement.png",
+      image: "/supplements-thai.jpg",
       link: "/collections/amazing-thai-products",
       gradient: "from-emerald-400 via-green-500 to-teal-600",
       badge: t("supplements.badge"),
