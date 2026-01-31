@@ -3,7 +3,6 @@ import { AboutStats } from "@/components/about/about-stats";
 import { AboutMission } from "@/components/about/about-mission";
 import { AboutTimeline } from "@/components/about/about-timeline";
 import { AboutValues } from "@/components/about/about-values";
-import { AboutTeam } from "@/components/about/about-team";
 import { AboutCTA } from "@/components/about/about-cta";
 import { StructuredData } from "@/components/structured-data";
 
@@ -35,9 +34,6 @@ export default function AboutPage() {
 
       {/* Values Section - What we stand for */}
       <AboutValues />
-
-      {/* Team Section - Meet the people behind ATP */}
-      <AboutTeam />
 
       {/* Call to Action - Convert interest to action */}
       <AboutCTA />
