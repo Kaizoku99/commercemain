@@ -55,7 +55,7 @@ export function HomepageClient({
     },
     {
       name: t('categorySkincare'),
-      image: "/anti-aging-serum.png",
+      image: "/supplements-thai.jpg",
       link: "/skincare-supplements",
     },
     {
@@ -90,7 +90,7 @@ export function HomepageClient({
     },
     {
       name: t('premiumProduct2Name'),
-      image: "/anti-aging-serum.png",
+      image: "/supplements-thai.jpg",
       rating: 4.9,
       price: t('premiumProduct2Price'),
       link: "/skincare-supplements",

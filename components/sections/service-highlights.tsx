@@ -116,7 +116,7 @@ export default function ServiceHighlights() {
         t("beauty.benefit4"),
         t("beauty.benefit5"),
       ],
-      image: "/anti-aging-serum.png",
+      image: "/supplements-thai.jpg",
       link: "/collections/amazing-thai-products",
       gradient: "from-rose-400 via-pink-500 to-purple-600",
       badge: t("beauty.badge"),
