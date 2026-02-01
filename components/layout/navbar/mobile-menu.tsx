@@ -61,7 +61,7 @@ export default function MobileMenu({ menuItems, fallbackMenu }: MobileMenuProps)
       path: `/${locale}/water-soil-technology`,
     },
     {
-      title: t('aboutUs'),
+      title: isRTL ? "قصتنا" : "Our Story",
       path: `/${locale}/about`,
       icon: InformationCircleIcon,
     },
