@@ -32,6 +32,7 @@ interface EnhancedRelatedProductsCarouselProps {
   autoPlay?: boolean;
   showDots?: boolean;
   itemsPerView?: number;
+  collectionHandle?: string;
 }
 
 interface ProductCardProps {
@@ -268,6 +269,7 @@ export function EnhancedRelatedProductsCarousel({
   autoPlay = true,
   showDots = true,
   itemsPerView = 4,
+  collectionHandle,
 }: EnhancedRelatedProductsCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [wishlistedItems, setWishlistedItems] = useState<Set<string>>(
@@ -490,7 +492,7 @@ export function EnhancedRelatedProductsCarousel({
             size="lg"
             className="bg-gradient-to-r from-atp-gold to-yellow-500 hover:from-atp-black hover:to-gray-900 text-atp-black hover:text-white font-bold px-10 py-4 rounded-full transition-all duration-500 shadow-lg hover:shadow-2xl transform hover:scale-105"
           >
-            <Link href={`/${locale}/products`}>
+            <Link href={collectionHandle ? `/${locale}/collections/${collectionHandle}` : `/${locale}/search`}>
               {locale === "ar" ? "عرض جميع المنتجات" : "Explore All Products"}
             </Link>
           </Button>

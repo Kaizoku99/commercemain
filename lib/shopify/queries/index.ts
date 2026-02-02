@@ -374,11 +374,20 @@ export const getCollectionProductsQuery = `
                 }
               }
             }
-            # Fetch translations for multilingual support
-            translations(locales: ["ar", "en"]) {
-              key
-              value
-              locale
+            seo {
+              description
+              title
+            }
+            tags
+            updatedAt
+            # Collections that include this product (for "View All" button)
+            collections(first: 1) {
+              edges {
+                node {
+                  handle
+                  title
+                }
+              }
             }
           }
         }
@@ -579,6 +588,15 @@ export const getProductQuery = `
       }
       descriptionHtmlAr: metafield(namespace: "i18n", key: "description_html_ar") {
         value
+      }
+      # Collections that include this product (for "View All" button)
+      collections(first: 1) {
+        edges {
+          node {
+            handle
+            title
+          }
+        }
       }
     }
   }

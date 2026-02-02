@@ -200,6 +200,7 @@ export default async function ProductPage(props: {
           <RelatedProducts
             id={product.id}
             locale={params.locale as "en" | "ar"}
+            collectionHandle={product.collections?.edges?.[0]?.node?.handle}
           />
         </Suspense>
       </div>
@@ -210,9 +211,11 @@ export default async function ProductPage(props: {
 async function RelatedProducts({
   id,
   locale,
+  collectionHandle,
 }: {
   id: string;
   locale: "en" | "ar";
+  collectionHandle?: string;
 }) {
   const relatedProducts = await getProductRecommendations(id, {
     language: locale === "ar" ? "ar" : "en",
@@ -221,5 +224,5 @@ async function RelatedProducts({
 
   if (!relatedProducts.length) return null;
 
-  return <EnhancedRelatedProducts products={relatedProducts} locale={locale} />;
+  return <EnhancedRelatedProducts products={relatedProducts} locale={locale} collectionHandle={collectionHandle} />;
 }

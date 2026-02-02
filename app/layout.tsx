@@ -2,6 +2,7 @@ import { Inter, Cairo } from "next/font/google";
 import { StructuredData } from "@/components/structured-data";
 import { ThemeProvider } from "@/components/theme-provider";
 import { LazyMotionProvider } from "@/components/providers/lazy-motion-provider";
+import { DirectionProvider } from "@/components/ui/direction";
 import type { ReactNode } from "react";
 import "./globals.css";
 import { baseUrl } from "@/lib/utils";
@@ -97,11 +98,12 @@ export default async function RootLayout({
   children: ReactNode;
 }) {
   const locale = await getLocale();
+  const direction = locale === "ar" ? "rtl" : "ltr";
 
   return (
     <html
       lang={locale}
-      dir={locale === "ar" ? "rtl" : "ltr"}
+      dir={direction}
       className={`${inter.variable} ${cairo.variable} antialiased`}
       suppressHydrationWarning
     >
@@ -143,16 +145,18 @@ export default async function RootLayout({
         <link rel="alternate" hrefLang="x-default" href={`${baseUrl}/en`} />
       </head>
       <body>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="light"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <LazyMotionProvider>
-            {children}
-          </LazyMotionProvider>
-        </ThemeProvider>
+        <DirectionProvider direction={direction}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="light"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <LazyMotionProvider>
+              {children}
+            </LazyMotionProvider>
+          </ThemeProvider>
+        </DirectionProvider>
       </body>
     </html>
   );

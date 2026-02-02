@@ -3,7 +3,7 @@
 import Grid from "@/components/grid";
 import ProductGridItems from "@/components/layout/product-grid-items";
 import { sorting } from "@/lib/constants";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -55,7 +55,7 @@ export default function SearchResults({
 
   return (
     <div className="space-y-8">
-      <motion.div
+      <m.div
         className="text-center space-y-4"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -95,10 +95,10 @@ export default function SearchResults({
             </span>
           </div>
         </div>
-      </motion.div>
+      </m.div>
 
       {products.length > 0 ? (
-        <motion.div
+        <m.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
@@ -109,9 +109,9 @@ export default function SearchResults({
               locale={locale}
             />
           </Grid>
-        </motion.div>
+        </m.div>
       ) : searchQuery ? (
-        <motion.div
+        <m.div
           className="bg-atp-white rounded-lg shadow-sm border border-atp-light-gray p-12 text-center"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -125,7 +125,7 @@ export default function SearchResults({
             Try adjusting your search terms or browse our collections
           </p>
           <button className="btn-premium">Browse Collections</button>
-        </motion.div>
+        </m.div>
       ) : null}
     </div>
   );

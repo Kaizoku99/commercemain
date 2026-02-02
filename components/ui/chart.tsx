@@ -3,11 +3,16 @@
 import * as React from "react"
 import * as RechartsPrimitive from "recharts"
 import type { 
-  TooltipContentProps as RechartsTooltipContentProps, 
-  TooltipPayloadEntry,
-  LegendPayload,
-  DefaultLegendContentProps
+  DefaultTooltipContentProps,
+  DefaultLegendContentProps,
+  TooltipProps
 } from "recharts"
+import type {
+  Payload as TooltipPayloadEntry
+} from "recharts/types/component/DefaultTooltipContent"
+import type {
+  Payload as LegendPayload
+} from "recharts/types/component/DefaultLegendContent"
 
 import { cn } from "@/lib/utils"
 
@@ -110,7 +115,7 @@ ${colorConfig
 
 const ChartTooltip = RechartsPrimitive.Tooltip
 
-type ChartTooltipContentProps = RechartsTooltipContentProps<
+type ChartTooltipContentProps = TooltipProps<
   string | number | (string | number)[],
   string | number
 > &
@@ -120,6 +125,7 @@ type ChartTooltipContentProps = RechartsTooltipContentProps<
     indicator?: "line" | "dot" | "dashed"
     nameKey?: string
     labelKey?: string
+    color?: string
   }
 
 function ChartTooltipContent({

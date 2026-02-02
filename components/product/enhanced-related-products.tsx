@@ -23,6 +23,7 @@ interface EnhancedRelatedProductsProps {
   products: Product[];
   locale: "en" | "ar";
   title?: string;
+  collectionHandle?: string;
 }
 
 interface ProductCardProps {
@@ -254,6 +255,7 @@ export function EnhancedRelatedProducts({
   products,
   locale,
   title,
+  collectionHandle,
 }: EnhancedRelatedProductsProps) {
   const t = useTranslations('product');
   const [currentPage, setCurrentPage] = useState(0);
@@ -419,7 +421,7 @@ export function EnhancedRelatedProducts({
             size="lg"
             className="bg-atp-gold hover:bg-atp-black text-atp-black hover:text-atp-gold font-semibold px-8 py-3 rounded-full transition-all duration-300 shadow-lg hover:shadow-xl"
           >
-            <Link href={`/${locale}/products`}>
+            <Link href={collectionHandle ? `/${locale}/collections/${collectionHandle}` : `/${locale}/search`}>
               {t('viewAllProducts')}
             </Link>
           </Button>

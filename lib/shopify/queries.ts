@@ -383,6 +383,15 @@ export const getCollectionProductsQuery = `
             }
             tags
             updatedAt
+            # Collections that include this product (for "View All" button)
+            collections(first: 1) {
+              edges {
+                node {
+                  handle
+                  title
+                }
+              }
+            }
           }
         }
       }
@@ -572,6 +581,15 @@ export const getProductQuery = `
       }
       tags
       updatedAt
+      # Collections that include this product (for "View All" button)
+      collections(first: 1) {
+        edges {
+          node {
+            handle
+            title
+          }
+        }
+      }
     }
   }
 `

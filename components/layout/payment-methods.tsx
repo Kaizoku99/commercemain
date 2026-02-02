@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { m, AnimatePresence } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
@@ -10,6 +9,7 @@ import {
   getPaymentMethodsByLocale,
   type PaymentMethodConfig,
 } from "@/lib/shopify/payment-methods-config";
+import { getPaymentIcon } from "@/components/icons/payment-icons";
 
 interface PaymentMethodsProps {
   className?: string;
@@ -65,21 +65,21 @@ export default function PaymentMethods({
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
+        staggerChildren: 0.05,
+        delayChildren: 0.1,
       },
     },
   };
 
   const itemVariants = {
-    hidden: { opacity: 0, y: 20, scale: 0.9 },
+    hidden: { opacity: 0, y: 10, scale: 0.95 },
     visible: {
       opacity: 1,
       y: 0,
       scale: 1,
       transition: {
-        duration: 0.3,
-        ease: [0.4, 0, 0.2, 1] as const, // easeOut as cubic bezier tuple
+        duration: 0.25,
+        ease: [0.4, 0, 0.2, 1] as const,
       },
     },
   };
@@ -91,13 +91,14 @@ export default function PaymentMethods({
           {paymentMethodsText}
         </h4>
         <div
-          className={`flex flex-wrap gap-3 justify-center ${isRTL ? "flex-row-reverse" : ""
+          className={`flex flex-wrap gap-2 justify-center ${isRTL ? "flex-row-reverse" : ""
             }`}
         >
-          {Array.from({ length: 6 }).map((_, index) => (
+          {Array.from({ length: 8 }).map((_, index) => (
             <div
               key={index}
-              className="bg-neutral-700 rounded-md animate-pulse w-12 h-8"
+              className="bg-neutral-700 rounded-md animate-pulse"
+              style={{ width: 38, height: 24 }}
             />
           ))}
         </div>
@@ -118,9 +119,6 @@ export default function PaymentMethods({
     );
   }
 
-  // Helper to check if URL is external (CDN) or data URL
-  const isExternalUrl = (url: string) => url.startsWith('http://') || url.startsWith('https://');
-
   return (
     <div className={className}>
       <h4 className="text-sm font-medium text-neutral-400 mb-4 text-center">
@@ -128,76 +126,35 @@ export default function PaymentMethods({
       </h4>
       <AnimatePresence>
         <m.div
-          className={`flex flex-wrap gap-2.5 justify-center items-center ${isRTL ? "flex-row-reverse" : ""
+          className={`flex flex-wrap gap-2 justify-center items-center ${isRTL ? "flex-row-reverse" : ""
             }`}
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
           {paymentMethods
-            .filter((method) => method.enabled && method.logo)
-            .map((method, index) => (
-              <m.div
-                key={`${method.name}-${index}`}
-                className="bg-white rounded-md p-1.5 flex items-center justify-center w-12 h-8 hover:scale-105 transition-transform duration-200"
-                variants={itemVariants}
-                whileHover={{ scale: 1.08 }}
-                whileTap={{ scale: 0.95 }}
-                data-payment-method={method.name}
-              >
-                {isExternalUrl(method.logo) ? (
-                  <img
-                    src={method.logo}
-                    alt={method.name}
-                    className="object-contain w-8 h-5"
-                    loading="lazy"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      const container = target.closest(
-                        "[data-payment-method]"
-                      ) as HTMLElement;
-                      if (container) {
-                        container.style.display = "none";
-                      }
-                    }}
-                  />
-                ) : method.logo.startsWith('data:') ? (
-                  <img
-                    src={method.logo}
-                    alt={method.name}
-                    className="object-contain w-8 h-5"
-                    loading="lazy"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      const container = target.closest(
-                        "[data-payment-method]"
-                      ) as HTMLElement;
-                      if (container) {
-                        container.style.display = "none";
-                      }
-                    }}
-                  />
-                ) : (
-                  <Image
-                    src={method.logo}
-                    alt={method.name}
-                    width={32}
-                    height={20}
-                    className="object-contain w-8 h-5"
-                    loading="lazy"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      const container = target.closest(
-                        "[data-payment-method]"
-                      ) as HTMLElement;
-                      if (container) {
-                        container.style.display = "none";
-                      }
-                    }}
-                  />
-                )}
-              </m.div>
-            ))}
+            .filter((method) => method.enabled && method.iconKey)
+            .map((method, index) => {
+              const IconComponent = getPaymentIcon(method.iconKey);
+              
+              if (!IconComponent) {
+                return null;
+              }
+
+              return (
+                <m.div
+                  key={`${method.name}-${index}`}
+                  className="flex items-center justify-center hover:scale-105 transition-transform duration-200 cursor-default"
+                  variants={itemVariants}
+                  whileHover={{ scale: 1.08 }}
+                  whileTap={{ scale: 0.95 }}
+                  data-payment-method={method.name}
+                  title={method.name}
+                >
+                  <IconComponent width={38} height={24} />
+                </m.div>
+              );
+            })}
         </m.div>
       </AnimatePresence>
 

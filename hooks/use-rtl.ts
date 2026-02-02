@@ -1,8 +1,10 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useEffect, useCallback } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { type Locale, locales, defaultLocale, getLocaleConfig, getOppositeLocale } from "@/lib/i18n/config"
+import { useLocale } from "next-intl"
+import { type Locale, locales, getLocaleConfig, getOppositeLocale } from "@/lib/i18n/config"
+import { useDirection } from "@/components/ui/direction"
 
 export type Language = Locale
 export type Direction = "ltr" | "rtl"
@@ -21,28 +23,16 @@ export function useRTL(): RTLState & {
 } {
   const router = useRouter()
   const pathname = usePathname()
-  const [language, setLanguageState] = useState<Language>(defaultLocale)
-
-  // Extract current locale from pathname
-  const getCurrentLocale = useCallback((): Language => {
-    if (typeof window === 'undefined') {
-      // Server-side: try to get from pathname
-      const segments = pathname.split('/')
-      const potentialLocale = segments[1]
-      return locales.includes(potentialLocale as Locale) ? (potentialLocale as Locale) : defaultLocale
-    }
-    
-    // Client-side: get from pathname
-    const segments = window.location.pathname.split('/')
-    const potentialLocale = segments[1]
-    return locales.includes(potentialLocale as Locale) ? (potentialLocale as Locale) : defaultLocale
-  }, [pathname])
+  
+  // Use next-intl's useLocale for reliable, hydration-safe locale detection
+  const language = useLocale() as Language
+  
+  // Use shadcn's useDirection hook if available (from DirectionProvider context)
+  const radixDirection = useDirection()
 
   useEffect(() => {
-    const currentLocale = getCurrentLocale()
-    setLanguageState(currentLocale)
-    updateDocumentDirection(currentLocale)
-  }, [getCurrentLocale])
+    updateDocumentDirection(language)
+  }, [language])
 
   const updateDocumentDirection = (lang: Language) => {
     const config = getLocaleConfig(lang)
@@ -60,9 +50,7 @@ export function useRTL(): RTLState & {
   }
 
   const switchToLocale = useCallback((locale: Locale) => {
-    const currentLocale = getCurrentLocale()
-    
-    if (currentLocale === locale) return
+    if (language === locale) return
 
     // Remove current locale from pathname and add new locale
     const segments = pathname.split('/')
@@ -78,13 +66,12 @@ export function useRTL(): RTLState & {
       newPathname = `/${locale}${pathname}`
     }
 
-    // Update state immediately for UI responsiveness
-    setLanguageState(locale)
+    // Update document direction immediately for UI responsiveness
     updateDocumentDirection(locale)
     
-    // Navigate to new locale
+    // Navigate to new locale - next-intl will handle the language state update
     router.push(newPathname)
-  }, [pathname, router, getCurrentLocale])
+  }, [pathname, router, language])
 
   const setLanguage = useCallback((lang: Language) => {
     switchToLocale(lang)
@@ -96,7 +83,8 @@ export function useRTL(): RTLState & {
   }, [language, switchToLocale])
 
   const config = getLocaleConfig(language)
-  const direction = config.dir
+  // Prefer shadcn's useDirection value if available, fallback to config
+  const direction = radixDirection || config.dir
   const isRTL = direction === "rtl"
 
   return {

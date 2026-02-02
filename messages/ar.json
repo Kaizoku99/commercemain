@@ -572,5 +572,13 @@
   "comparison": {
     "before": "قبل",
     "after": "بعد"
+  },
+  "instagram": {
+    "title": "تابعنا على انستغرام",
+    "subtitle": "اكتشف قصصنا وأحدث منتجاتنا ونصائح العافية",
+    "viewMore": "عرض المزيد على انستغرام",
+    "viewOnInstagram": "عرض على انستغرام",
+    "demoMode": "وضع العرض - أضف INSTAGRAM_ACCESS_TOKEN للبيانات الحقيقية",
+    "demoPostPreview": "معاينة منشور تجريبي"
   }
 }

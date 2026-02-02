@@ -109,6 +109,16 @@ const productFragment = /* GraphQL */ `
     descriptionHtmlAr: metafield(namespace: "i18n", key: "description_html_ar") {
       value
     }
+    
+    # Collections that include this product (for "View All" button)
+    collections(first: 1) {
+      edges {
+        node {
+          handle
+          title
+        }
+      }
+    }
   }
   ${imageFragment}
   ${seoFragment}

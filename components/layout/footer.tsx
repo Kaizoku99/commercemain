@@ -52,7 +52,7 @@ export default function Footer() {
 
   return (
     <footer
-      className={`bg-neutral-900 text-neutral-300 ${
+      className={`bg-neutral-900 text-neutral-300 pb-20 md:pb-0 ${
         isRTL ? "font-arabic" : ""
       }`}
       dir={isRTL ? "rtl" : "ltr"}

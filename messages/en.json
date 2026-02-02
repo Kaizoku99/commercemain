@@ -572,5 +572,13 @@
   "comparison": {
     "before": "Before",
     "after": "After"
+  },
+  "instagram": {
+    "title": "Follow Us on Instagram",
+    "subtitle": "Discover our stories, latest products, and wellness tips",
+    "viewMore": "View More on Instagram",
+    "viewOnInstagram": "View on Instagram",
+    "demoMode": "Demo mode - Add INSTAGRAM_ACCESS_TOKEN for live data",
+    "demoPostPreview": "Demo post preview"
   }
 }

@@ -46,7 +46,7 @@ interface InstagramFeedProps {
 }
 
 export function InstagramFeed({ limit = 8, className }: InstagramFeedProps) {
-  const t = useTranslations("common");
+  const t = useTranslations("instagram");
   const { isRTL } = useRTL();
   const prefersReducedMotion = useReducedMotion();
   
@@ -149,16 +149,14 @@ export function InstagramFeed({ limit = 8, className }: InstagramFeedProps) {
               "text-3xl md:text-4xl font-serif text-atp-black",
               isRTL && "font-arabic"
             )}>
-              {isRTL ? "تابعنا على انستغرام" : "Follow Us on Instagram"}
+              {t("title")}
             </h2>
           </div>
           <p className={cn(
             "text-lg text-atp-charcoal max-w-2xl mx-auto",
             isRTL && "font-arabic"
           )}>
-            {isRTL 
-              ? "اكتشف قصصنا وأحدث منتجاتنا ونصائح العافية"
-              : "Discover our stories, latest products, and wellness tips"}
+            {t("subtitle")}
           </p>
           
           <m.a
@@ -183,9 +181,7 @@ export function InstagramFeed({ limit = 8, className }: InstagramFeedProps) {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            {isRTL 
-              ? "وضع العرض - أضف INSTAGRAM_ACCESS_TOKEN للبيانات الحقيقية"
-              : "Demo mode - Add INSTAGRAM_ACCESS_TOKEN for live data"}
+            {t("demoMode")}
           </m.div>
         )}
 
@@ -324,7 +320,7 @@ export function InstagramFeed({ limit = 8, className }: InstagramFeedProps) {
             >
               <Instagram className="w-5 h-5" />
               <span className={isRTL ? "font-arabic" : ""}>
-                {isRTL ? "عرض المزيد على انستغرام" : "View More on Instagram"}
+                {t("viewMore")}
               </span>
             </m.a>
           </m.div>
@@ -410,7 +406,7 @@ export function InstagramFeed({ limit = 8, className }: InstagramFeedProps) {
                   /* CSS placeholder for demo mode */
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-500/30 via-pink-500/30 to-orange-400/30 flex flex-col items-center justify-center gap-4">
                     <Instagram className="w-20 h-20 text-white/50" />
-                    <p className="text-white/70 text-sm">Demo post preview</p>
+                    <p className="text-white/70 text-sm">{t("demoPostPreview")}</p>
                   </div>
                 )}
               </div>
@@ -457,7 +453,7 @@ export function InstagramFeed({ limit = 8, className }: InstagramFeedProps) {
                   )}
                   whileHover={{ x: isRTL ? -3 : 3 }}
                 >
-                  <span>{isRTL ? "عرض على انستغرام" : "View on Instagram"}</span>
+                  <span>{t("viewOnInstagram")}</span>
                   <ExternalLink className="w-4 h-4" />
                 </m.a>
               </div>

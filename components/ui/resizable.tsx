@@ -3,11 +3,11 @@
 import * as React from "react"
 import { GripVerticalIcon } from "lucide-react"
 import {
-  Group,
+  PanelGroup,
   Panel,
-  Separator,
-  type GroupProps,
-  type SeparatorProps,
+  PanelResizeHandle as Separator,
+  type PanelGroupProps as GroupProps,
+  type PanelResizeHandleProps as SeparatorProps,
 } from "react-resizable-panels"
 
 import { cn } from "@/lib/utils"
@@ -17,7 +17,7 @@ function ResizablePanelGroup({
   ...props
 }: GroupProps) {
   return (
-    <Group
+    <PanelGroup
       data-slot="resizable-panel-group"
       className={cn(
         "flex h-full w-full data-[panel-group-direction=vertical]:flex-col",

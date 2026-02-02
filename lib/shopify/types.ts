@@ -250,6 +250,11 @@ export type ShopifyProduct = {
   descriptionHtmlAr?: {
     value: string;
   };
+  // Collections that include this product
+  collections?: Connection<{
+    handle: string;
+    title: string;
+  }>;
 };
 
 export type ShopifyCartOperation = {
