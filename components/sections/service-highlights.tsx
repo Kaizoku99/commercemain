@@ -88,8 +88,8 @@ export default function ServiceHighlights() {
         t("supplements.benefit4"),
         t("supplements.benefit5"),
       ],
-      image: "/vitamin-c-supplement.png",
-      link: "/collections/skincare-supplements",
+      image: "/supplements-thai.jpg",
+      link: "/collections/amazing-thai-products",
       gradient: "from-emerald-400 via-green-500 to-teal-600",
       badge: t("supplements.badge"),
       stats: {
@@ -116,8 +116,8 @@ export default function ServiceHighlights() {
         t("beauty.benefit4"),
         t("beauty.benefit5"),
       ],
-      image: "/anti-aging-serum.png",
-      link: "/collections/skincare-supplements",
+      image: "/supplements-thai.jpg",
+      link: "/collections/amazing-thai-products",
       gradient: "from-rose-400 via-pink-500 to-purple-600",
       badge: t("beauty.badge"),
       stats: {

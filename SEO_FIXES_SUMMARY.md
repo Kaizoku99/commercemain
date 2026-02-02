@@ -155,10 +155,10 @@ openGraph: {
   description,
   type: 'website',
   locale: isArabic ? 'ar_AE' : 'en_AE',
-  url: `https://atpgroupservices.com/${locale}/about`,
+  url: `https://atpgroupservices.ae/${locale}/about`,
   siteName: isArabic ? 'مجموعة ATP' : 'ATP Group Services',
   images: [{
-    url: 'https://atpgroupservices.com/og-about.jpg',
+    url: 'https://atpgroupservices.ae/og-about.jpg',
     width: 1200,
     height: 630,
     alt: title,
@@ -168,7 +168,7 @@ twitter: {
   card: 'summary_large_image',
   title,
   description,
-  images: ['https://atpgroupservices.com/og-about.jpg'],
+  images: ['https://atpgroupservices.ae/og-about.jpg'],
 },
 ```
 
@@ -208,14 +208,14 @@ twitter: {
 author: {
   "@type": "Organization",
   name: "ATP Group Services",
-  url: "https://atpgroupservices.com",
+  url: "https://atpgroupservices.ae",
 },
 publisher: {
   "@type": "Organization",
   name: "ATP Group Services",
   logo: {
     "@type": "ImageObject",
-    url: "https://atpgroupservices.com/logo.png",
+    url: "https://atpgroupservices.ae/logo.png",
   },
 },
 ```

@@ -58,7 +58,7 @@ export default function WaterSoilTechnologyPage() {
           name: "Water & Soil Technology Solutions",
           description:
             "Advanced water and soil technology solutions for environmental sustainability",
-          url: "https://atpgroupservices.com/water-soil-technology",
+          url: "https://atpgroupservices.ae/water-soil-technology",
         }}
       />
 

@@ -34,13 +34,13 @@ interface StructuredDataProps {
 const ATP_COMPANY = {
   name: "ATP Group Services",
   legalName: "ATP Group Services LLC",
-  url: "https://atpgroupservices.com",
-  logo: "https://atpgroupservices.com/logo.png",
-  image: "https://atpgroupservices.com/og-image.jpg",
+  url: "https://atpgroupservices.ae",
+  logo: "https://atpgroupservices.ae/logo.png",
+  image: "https://atpgroupservices.ae/og-image.jpg",
   description: "Premium wellness and technology solutions including EMS Training, Skincare, Supplements, and Water Technology with exclusive ATP membership benefits in UAE.",
   foundingDate: "2010",
   telephone: "+971-4-XXX-XXXX",
-  email: "info@atpgroupservices.com",
+  email: "info@atpgroupservices.ae",
   address: {
     "@type": "PostalAddress",
     streetAddress: "Business Bay",

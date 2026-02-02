@@ -73,17 +73,17 @@ export async function generateMetadata(props: {
       },
     },
     alternates: {
-      canonical: `https://atpgroupservices.com/${params.locale}/product/${params.handle}`,
+      canonical: `https://atpgroupservices.ae/${params.locale}/product/${params.handle}`,
       languages: {
-        'en': `https://atpgroupservices.com/en/product/${params.handle}`,
-        'ar': `https://atpgroupservices.com/ar/product/${params.handle}`,
+        'en': `https://atpgroupservices.ae/en/product/${params.handle}`,
+        'ar': `https://atpgroupservices.ae/ar/product/${params.handle}`,
       },
     },
     openGraph: url
       ? {
           title: product.seo.title || title,
           description: product.seo.description || generateMetaDescription(product, params.locale as "en" | "ar"),
-          url: `https://atpgroupservices.com/${params.locale}/product/${params.handle}`,
+          url: `https://atpgroupservices.ae/${params.locale}/product/${params.handle}`,
           type: 'website',
           images: [
             {
@@ -122,7 +122,7 @@ export default async function ProductPage(props: {
     description: localizedDescription,
     image: product.images.map((img: Image) => img.url),
     sku: product.id, // Use product ID as SKU fallback
-    url: `https://atpgroupservices.com/${params.locale}/product/${params.handle}`,
+    url: `https://atpgroupservices.ae/${params.locale}/product/${params.handle}`,
     price: product.priceRange.minVariantPrice.amount,
     priceCurrency: product.priceRange.minVariantPrice.currencyCode,
     availability: product.availableForSale ? "InStock" as const : "OutOfStock" as const,
@@ -132,11 +132,11 @@ export default async function ProductPage(props: {
   const breadcrumbItems = [
     { 
       name: params.locale === "ar" ? "الرئيسية" : "Home", 
-      url: `https://atpgroupservices.com/${params.locale}` 
+      url: `https://atpgroupservices.ae/${params.locale}` 
     },
     { 
       name: params.locale === "ar" ? "المنتجات" : "Products", 
-      url: `https://atpgroupservices.com/${params.locale}/collections` 
+      url: `https://atpgroupservices.ae/${params.locale}/collections` 
     },
     { 
       name: localizedTitle, 

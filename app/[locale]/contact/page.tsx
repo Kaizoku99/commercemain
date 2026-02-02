@@ -55,17 +55,17 @@ export default function ContactPage() {
           <div className="space-y-4">
             <div>
               <h3 className="font-semibold text-lg mb-2">General Inquiries</h3>
-              <p className="text-gray-600">info@atpgroupservices.com</p>
+              <p className="text-gray-600">info@atpgroupservices.ae</p>
             </div>
             
             <div>
               <h3 className="font-semibold text-lg mb-2">Customer Support</h3>
-              <p className="text-gray-600">support@atpgroupservices.com</p>
+              <p className="text-gray-600">support@atpgroupservices.ae</p>
             </div>
             
             <div>
               <h3 className="font-semibold text-lg mb-2">Sales Team</h3>
-              <p className="text-gray-600">sales@atpgroupservices.com</p>
+              <p className="text-gray-600">sales@atpgroupservices.ae</p>
             </div>
             
             <div>
