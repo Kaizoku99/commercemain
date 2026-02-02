@@ -173,25 +173,25 @@ export default function Footer() {
               className="flex items-center gap-4"
             >
               <Link
-                href="/privacy"
+                href={`/${locale}/policies/privacy-policy`}
                 className="hover:text-white transition-colors"
               >
                 {t('privacyPolicy')}
               </Link>
               <Link
-                href="/refund"
+                href={`/${locale}/policies/refund-policy`}
                 className="hover:text-white transition-colors"
               >
                 {t('refundPolicy')}
               </Link>
               <Link
-                href="/contact"
+                href={`/${locale}/contact`}
                 className="hover:text-white transition-colors"
               >
                 {t('contactInformation')}
               </Link>
               <Link
-                href="/terms"
+                href={`/${locale}/policies/terms-of-service`}
                 className="hover:text-white transition-colors"
               >
                 {t('termsOfService')}

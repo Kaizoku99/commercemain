@@ -7,18 +7,15 @@ import { AboutTeam } from "@/components/about/about-team";
 import { AboutCTA } from "@/components/about/about-cta";
 import { StructuredData } from "@/components/structured-data";
 
-// Note: generateMetadata should be handled via parent layout
-// since this is now a Server Component. 
-
 export default function AboutPage() {
   return (
     <div className="bg-atp-white">
       {/* Organization Schema for About page */}
-      <StructuredData 
-        type="Organization" 
+      <StructuredData
+        type="Organization"
         data={{
           description: "Learn about ATP Group Services - premium wellness and technology solutions including EMS Training, Skincare, Supplements, and Water Technology with exclusive ATP membership benefits in UAE.",
-        }} 
+        }}
       />
 
       {/* Hero Section - Brand introduction */}
@@ -35,9 +32,6 @@ export default function AboutPage() {
 
       {/* Values Section - What we stand for */}
       <AboutValues />
-
-      {/* Team Section - Meet the people behind ATP */}
-      <AboutTeam />
 
       {/* Call to Action - Convert interest to action */}
       <AboutCTA />

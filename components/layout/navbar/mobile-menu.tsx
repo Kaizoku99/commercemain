@@ -120,6 +120,12 @@ export default function MobileMenu({ menuItems, fallbackMenu }: MobileMenuProps)
   }
 
   const getMenuPath = (item: ShopifyMenuItem) => {
+    // Map Shopify page handles to actual route paths
+    const handleToRoute: Record<string, string> = {
+      'about-us': '/about',
+      'contact-us': '/contact',
+    }
+
     const resource = item.resource
     if (resource?.__typename === "Collection" && "handle" in resource) {
       return `/collections/${resource.handle}`
@@ -128,7 +134,8 @@ export default function MobileMenu({ menuItems, fallbackMenu }: MobileMenuProps)
       return `/product/${resource.handle}`
     }
     if (resource?.__typename === "Page" && "handle" in resource) {
-      return `/${resource.handle}`
+      const handle = resource.handle as string
+      return handleToRoute[handle] || `/${handle}`
     }
 
     const urlPath = normalizeMenuUrl(item.url)
@@ -142,7 +149,10 @@ export default function MobileMenu({ menuItems, fallbackMenu }: MobileMenuProps)
     }
     if (urlPath.startsWith("/pages/")) {
       const handle = urlPath.split("/")[2]
-      return handle ? `/${handle}` : urlPath
+      if (handle) {
+        return handleToRoute[handle] || `/${handle}`
+      }
+      return urlPath
     }
     return urlPath || "/"
   }

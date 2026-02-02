@@ -645,6 +645,79 @@ export const getProductRecommendationsQuery = `
   }
 `
 
+// Query for fetching newest products sorted by creation date (for New Arrivals)
+export const getNewestProductsQuery = `
+  query getNewestProducts(
+    $first: Int!
+    $sortKey: ProductSortKeys
+    $reverse: Boolean
+    $language: LanguageCode
+    $country: CountryCode
+  ) @inContext(language: $language, country: $country) {
+    products(first: $first, sortKey: $sortKey, reverse: $reverse) {
+      edges {
+        node {
+          id
+          handle
+          title
+          description
+          tags
+          createdAt
+          priceRange {
+            maxVariantPrice {
+              amount
+              currencyCode
+            }
+            minVariantPrice {
+              amount
+              currencyCode
+            }
+          }
+          featuredImage {
+            id
+            altText
+            url
+            width
+            height
+          }
+          images(first: 5) {
+            edges {
+              node {
+                id
+                altText
+                url
+                width
+                height
+              }
+            }
+          }
+          variants(first: 10) {
+            edges {
+              node {
+                id
+                title
+                availableForSale
+                selectedOptions {
+                  name
+                  value
+                }
+                price {
+                  amount
+                  currencyCode
+                }
+                compareAtPrice {
+                  amount
+                  currencyCode
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
+
 export const getProductsQuery = `
   query getProducts(
     $sortKey: ProductSortKeys

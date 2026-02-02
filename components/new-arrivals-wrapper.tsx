@@ -1,4 +1,4 @@
-import { getCollectionProducts, getFeaturedProducts } from "@/lib/shopify/server"
+import { getCollectionProducts, getFeaturedProducts, getNewestProducts } from "@/lib/shopify/server"
 import { NewArrivalsCarousel } from "./new-arrivals-carousel"
 import { type Locale } from "@/lib/i18n/config"
 
@@ -15,8 +15,10 @@ export async function NewArrivalsWrapper({ locale }: NewArrivalsWrapperProps) {
     limit: 5,
   })
 
-  const carouselProducts = await getCollectionProducts({
-    collection: "water-soil-technology-solutions",
+  // Fetch newest products for the carousel - automatically sorted by creation date (newest first)
+  // This uses the Shopify Storefront API with sortKey: CREATED_AT and reverse: true
+  const carouselProducts = await getNewestProducts({
+    limit: 10,
   })
 
   // Fallback to amazing-thai-products if featured-products collection is empty

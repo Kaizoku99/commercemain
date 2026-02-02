@@ -45,6 +45,8 @@ import {
   ShopifyProduct,
   PaymentSettings,
   ShopifyShopPaymentSettingsOperation,
+  ShopPolicy,
+  ShopPolicyOperation,
 } from "./types"
 import {
   addToCartMutation,
@@ -62,8 +64,9 @@ import {
   getProductsQuery,
   removeFromCartMutation,
   getFeaturedProductsQuery,
+  getNewestProductsQuery,
 } from "./queries"
-import { getShopPaymentSettingsQuery } from "./queries/shop"
+import { getShopPaymentSettingsQuery, getShopPolicyQuery } from "./queries/shop"
 
 import {
   removeEdgesAndNodes,
@@ -750,6 +753,35 @@ export async function getPages(): Promise<Page[]> {
   return removeEdgesAndNodes(res.body.data.pages);
 }
 
+// Get shop policy from Shopify
+export async function getShopPolicy(
+  policyType: 'privacyPolicy' | 'refundPolicy' | 'shippingPolicy' | 'termsOfService',
+  locale?: { language?: string; country?: string }
+): Promise<ShopPolicy | null> {
+  try {
+    const variables: ShopPolicyOperation['variables'] = {
+      privacyPolicy: policyType === 'privacyPolicy',
+      refundPolicy: policyType === 'refundPolicy',
+      shippingPolicy: policyType === 'shippingPolicy',
+      termsOfService: policyType === 'termsOfService',
+    };
+
+    if (locale?.language) variables.language = locale.language.toUpperCase();
+    if (locale?.country) variables.country = locale.country.toUpperCase();
+
+    const res = await shopifyFetch<ShopPolicyOperation>({
+      query: getShopPolicyQuery,
+      variables
+    });
+
+    const policy = res.body.data.shop[policyType];
+    return policy || null;
+  } catch (error) {
+    console.warn(`[Shopify] Failed to fetch ${policyType}:`, error);
+    return null;
+  }
+}
+
 export async function getProduct(
   handle: string,
   locale?: { language?: string; country?: string }
@@ -827,6 +859,51 @@ export async function getProducts({
   } catch (error) {
     console.warn('[Shopify] Using mock products data due to error:', error)
     return mockProducts
+  }
+}
+
+/**
+ * Get the newest products sorted by creation date (descending).
+ * Uses the products query with sortKey: CREATED_AT and reverse: true.
+ * Perfect for "New Arrivals" sections that automatically show the latest products.
+ * 
+ * @param limit - Maximum number of products to return (default: 10)
+ * @param locale - Optional locale for translations
+ */
+export async function getNewestProducts({
+  limit = 10,
+  locale
+}: {
+  limit?: number;
+  locale?: { language?: string; country?: string };
+}): Promise<Product[]> {
+  try {
+    const variables: {
+      first: number;
+      sortKey: string;
+      reverse: boolean;
+      language?: string;
+      country?: string;
+    } = {
+      first: limit,
+      sortKey: 'CREATED_AT',
+      reverse: true  // newest first
+    };
+
+    if (locale?.language) variables.language = locale.language.toUpperCase();
+    if (locale?.country) variables.country = locale.country.toUpperCase();
+
+    console.log('[Shopify] getNewestProducts variables:', JSON.stringify(variables));
+
+    const res = await shopifyFetch<ShopifyProductsOperation>({
+      query: getNewestProductsQuery,
+      variables
+    });
+
+    return reshapeProducts(removeEdgesAndNodes(res.body.data.products));
+  } catch (error) {
+    console.warn('[Shopify] getNewestProducts failed, returning empty array:', error);
+    return [];
   }
 }
 

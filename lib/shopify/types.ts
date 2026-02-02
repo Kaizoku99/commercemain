@@ -798,3 +798,33 @@ export const getWarningCategory = (code: CartWarningCode): CartWarningCategory =
   if (code.startsWith('PAYMENTS_')) return 'payment';
   return 'other';
 };
+
+// Shop Policy Types
+export type ShopPolicy = {
+  body: string;
+  handle: string;
+  id: string;
+  title: string;
+  url: string;
+};
+
+export type ShopPolicyType = 'privacyPolicy' | 'refundPolicy' | 'shippingPolicy' | 'termsOfService';
+
+export type ShopPolicyOperation = {
+  data: {
+    shop: {
+      privacyPolicy?: ShopPolicy;
+      refundPolicy?: ShopPolicy;
+      shippingPolicy?: ShopPolicy;
+      termsOfService?: ShopPolicy;
+    };
+  };
+  variables: {
+    privacyPolicy: boolean;
+    refundPolicy: boolean;
+    shippingPolicy: boolean;
+    termsOfService: boolean;
+    country?: string;
+    language?: string;
+  };
+};

@@ -227,6 +227,12 @@ export function NavbarLinks({ locale, menuItems, fallbackMenu }: NavbarLinksProp
         return key ? t(key) : item.title;
     }, [getMenuSlug, t]);
 
+    // Map Shopify page handles to actual route paths
+    const handleToRoute: Record<string, string> = useMemo(() => ({
+        'about-us': '/about',
+        'contact-us': '/contact',
+    }), []);
+
     const getMenuPath = useCallback((item: ShopifyMenuItem) => {
         const resource = item.resource;
         if (resource?.__typename === "Collection" && "handle" in resource) {
@@ -236,7 +242,8 @@ export function NavbarLinks({ locale, menuItems, fallbackMenu }: NavbarLinksProp
             return `/product/${resource.handle}`;
         }
         if (resource?.__typename === "Page" && "handle" in resource) {
-            return `/${resource.handle}`;
+            const handle = resource.handle as string;
+            return handleToRoute[handle] || `/${handle}`;
         }
 
         const urlPath = normalizeMenuUrl(item.url);
@@ -250,10 +257,13 @@ export function NavbarLinks({ locale, menuItems, fallbackMenu }: NavbarLinksProp
         }
         if (urlPath.startsWith("/pages/")) {
             const handle = urlPath.split("/")[2];
-            return handle ? `/${handle}` : urlPath;
+            if (handle) {
+                return handleToRoute[handle] || `/${handle}`;
+            }
+            return urlPath;
         }
         return urlPath || "/";
-    }, [normalizeMenuUrl]);
+    }, [normalizeMenuUrl, handleToRoute]);
 
     const buildNavItem = useCallback((item: ShopifyMenuItem): NavMenuItem => {
         const handle = getMenuSlug(item);
@@ -291,7 +301,7 @@ export function NavbarLinks({ locale, menuItems, fallbackMenu }: NavbarLinksProp
                 },
                 {
                     title: aboutUsText,
-                    path: `/${locale}/about-us`,
+                    path: `/${locale}/about`,
                     handle: "about",
                 },
                 {
