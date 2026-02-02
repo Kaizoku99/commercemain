@@ -36,7 +36,7 @@ export async function generateMetadata({
   const description = isAr
     ? ingredient.descriptionAr
     : ingredient.metaDescription;
-  const url = `https://atpgroupservices.com/${locale}/ingredients/${slug}`;
+  const url = `https://atpgroupservices.ae/${locale}/ingredients/${slug}`;
 
   return {
     title,
@@ -44,8 +44,8 @@ export async function generateMetadata({
     alternates: {
       canonical: url,
       languages: {
-        en: `https://atpgroupservices.com/en/ingredients/${slug}`,
-        ar: `https://atpgroupservices.com/ar/ingredients/${slug}`,
+        en: `https://atpgroupservices.ae/en/ingredients/${slug}`,
+        ar: `https://atpgroupservices.ae/ar/ingredients/${slug}`,
       },
     },
     openGraph: {
@@ -64,7 +64,7 @@ function generateIngredientStructuredData(
   locale: string
 ) {
   const isAr = locale === "ar";
-  const url = `https://atpgroupservices.com/${locale}/ingredients/${slug}`;
+  const url = `https://atpgroupservices.ae/${locale}/ingredients/${slug}`;
 
   return {
     "@context": "https://schema.org",
@@ -78,14 +78,14 @@ function generateIngredientStructuredData(
         author: {
           "@type": "Organization",
           name: "ATP Group Services",
-          url: "https://atpgroupservices.com",
+          url: "https://atpgroupservices.ae",
         },
         publisher: {
           "@type": "Organization",
           name: "ATP Group Services",
           logo: {
             "@type": "ImageObject",
-            url: "https://atpgroupservices.com/logo.png",
+            url: "https://atpgroupservices.ae/logo.png",
           },
         },
         datePublished: new Date().toISOString(),
@@ -103,13 +103,13 @@ function generateIngredientStructuredData(
             "@type": "ListItem",
             position: 1,
             name: isAr ? "الرئيسية" : "Home",
-            item: `https://atpgroupservices.com/${locale}`,
+            item: `https://atpgroupservices.ae/${locale}`,
           },
           {
             "@type": "ListItem",
             position: 2,
             name: isAr ? "المكونات" : "Ingredients",
-            item: `https://atpgroupservices.com/${locale}/ingredients`,
+            item: `https://atpgroupservices.ae/${locale}/ingredients`,
           },
           {
             "@type": "ListItem",

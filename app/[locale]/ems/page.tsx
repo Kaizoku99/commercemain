@@ -43,7 +43,7 @@ export default function EMSPage() {
         data={{
           name: "EMS Training",
           description: "Professional EMS training equipment and solutions",
-          url: "https://atpgroupservices.com/ems",
+          url: "https://atpgroupservices.ae/ems",
         }}
       />
 

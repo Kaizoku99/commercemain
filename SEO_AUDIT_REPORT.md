@@ -1,7 +1,7 @@
 # ATP Group Services - Comprehensive SEO Audit Report
 
 **Date:** January 30, 2026  
-**Site:** atpgroupservices.com  
+**Site:** atpgroupservices.ae  
 **Auditor:** AI SEO Assistant  
 **Scope:** Full Technical, On-Page, and Content Audit
 
@@ -133,10 +133,10 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
     openGraph: {
       title: isAr ? 'مجموعة ATP للخدمات' : 'ATP Group Services',
       description: isAr ? 'حلول العافية المتميزة' : 'Premium wellness solutions',
-      url: `https://atpgroupservices.com/${locale}`,
+      url: `https://atpgroupservices.ae/${locale}`,
       type: 'website',
       images: [{
-        url: 'https://atpgroupservices.com/og-image.jpg',
+        url: 'https://atpgroupservices.ae/og-image.jpg',
         width: 1200,
         height: 630,
         alt: isAr ? 'مجموعة ATP للخدمات' : 'ATP Group Services',
@@ -177,7 +177,7 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
 **Fix:** Standardize across all URLs
 ```typescript
 // Choose one and stick to it (recommended: no trailing slash)
-const canonicalUrl = `https://atpgroupservices.com/${locale}/contact`; // Consistent
+const canonicalUrl = `https://atpgroupservices.ae/${locale}/contact`; // Consistent
 ```
 
 ---
@@ -351,10 +351,10 @@ return locale === "ar"
 ```typescript
 // Product page example
 alternates: {
-  canonical: `https://atpgroupservices.com/${params.locale}/product/${params.handle}`,
+  canonical: `https://atpgroupservices.ae/${params.locale}/product/${params.handle}`,
   languages: {
-    'en': `https://atpgroupservices.com/en/product/${params.handle}`,
-    'ar': `https://atpgroupservices.com/ar/product/${params.handle}`,
+    'en': `https://atpgroupservices.ae/en/product/${params.handle}`,
+    'ar': `https://atpgroupservices.ae/ar/product/${params.handle}`,
   },
 }
 ```
@@ -763,8 +763,8 @@ export default function robots() {
         allow: '/',
       },
     ],
-    sitemap: 'https://atpgroupservices.com/sitemap.xml',
-    host: 'https://atpgroupservices.com',
+    sitemap: 'https://atpgroupservices.ae/sitemap.xml',
+    host: 'https://atpgroupservices.ae',
   };
 }
 ```
@@ -790,21 +790,21 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
       ? ['EMS', 'عافية', 'بشرة', 'مكملات', 'مياه قلوية', 'دبي']
       : ['EMS training', 'wellness', 'skincare', 'supplements', 'alkaline water', 'Dubai'],
     alternates: {
-      canonical: `https://atpgroupservices.com/${locale}`,
+      canonical: `https://atpgroupservices.ae/${locale}`,
       languages: {
-        'en': 'https://atpgroupservices.com/en',
-        'ar': 'https://atpgroupservices.com/ar',
+        'en': 'https://atpgroupservices.ae/en',
+        'ar': 'https://atpgroupservices.ae/ar',
       },
     },
     openGraph: {
       title,
       description,
-      url: `https://atpgroupservices.com/${locale}`,
+      url: `https://atpgroupservices.ae/${locale}`,
       type: 'website',
       siteName: isAr ? 'مجموعة ATP' : 'ATP Group Services',
       locale: isAr ? 'ar_AE' : 'en_AE',
       images: [{
-        url: 'https://atpgroupservices.com/og-image.jpg',
+        url: 'https://atpgroupservices.ae/og-image.jpg',
         width: 1200,
         height: 630,
         alt: title,
@@ -814,7 +814,7 @@ export async function generateMetadata({ params }: HomePageProps): Promise<Metad
       card: 'summary_large_image',
       title,
       description,
-      images: ['https://atpgroupservices.com/og-image.jpg'],
+      images: ['https://atpgroupservices.ae/og-image.jpg'],
     },
   };
 }
