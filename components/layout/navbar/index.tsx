@@ -17,7 +17,8 @@ export async function Navbar() {
   let menuItems: ShopifyMenuItem[] = [];
 
   try {
-    menuItems = await getMenuItems(menuHandle);
+    // Pass locale to get translated menu items from Shopify via @inContext directive
+    menuItems = await getMenuItems(menuHandle, { language: locale });
   } catch (error) {
     console.warn('[Navbar] Failed to fetch Shopify menu:', error);
   }

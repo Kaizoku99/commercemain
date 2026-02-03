@@ -61,7 +61,7 @@ export default function MobileMenu({ menuItems, fallbackMenu }: MobileMenuProps)
       path: `/${locale}/water-soil-technology`,
     },
     {
-      title: isRTL ? "قصتنا" : "Our Story",
+      title: t('aboutUs'),
       path: `/${locale}/about`,
       icon: InformationCircleIcon,
     },
@@ -84,11 +84,19 @@ export default function MobileMenu({ menuItems, fallbackMenu }: MobileMenuProps)
   const translationKeyByHandle: Record<string, string> = {
     "atp-membership": "atpMembership",
     "skincare-supplements": "skincareSupplements",
+    "skincare": "skincareSupplements",
+    "supplements": "skincareSupplements",
     "water-soil-technology": "waterSoilTechnology",
+    "water-technology": "waterSoilTechnology",
+    "soil-technology": "waterSoilTechnology",
     "ems": "emsTraining",
     "ems-training": "emsTraining",
     "about": "aboutUs",
+    "about-us": "aboutUs",
+    "our-story": "aboutUs",
     "contact": "contactUs",
+    "contact-us": "contactUs",
+    "home": "home",
   }
 
   const getMenuSlug = (item: ShopifyMenuItem) => {
@@ -224,7 +232,7 @@ export default function MobileMenu({ menuItems, fallbackMenu }: MobileMenuProps)
     {
       name: "Instagram",
       icon: FaInstagram,
-      href: "https://www.instagram.com/atp_group_services",
+      href: "https://www.instagram.com/atp_trading/",
       label: "Instagram",
     },
     {
@@ -397,7 +405,7 @@ export default function MobileMenu({ menuItems, fallbackMenu }: MobileMenuProps)
                   {/* Social Media */}
                   <div>
                     <h3 className="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">
-                      Follow Us
+                      {t('followUs')}
                     </h3>
                     <div className={`flex gap-3 ${isRTL ? "flex-row-reverse" : ""}`}>
                       {socialLinks.map((social) => {

@@ -4,6 +4,8 @@ import { useCart } from "@/components/cart/cart-context";
 import { useMembership } from "@/hooks/use-membership";
 import { useTranslations } from "@/hooks/use-translations";
 import { useRTL } from "@/hooks/use-rtl";
+import { useLocale } from "next-intl";
+import { getLocalizedProductTitle } from "@/lib/shopify/i18n-queries";
 import { 
     ShoppingCartIcon, 
     Crown, 
@@ -146,6 +148,7 @@ export function CartPageContent() {
     const { t: tProduct } = useTranslations("product");
     const { t: tMembership } = useTranslations("membership");
     const { isRTL } = useRTL();
+    const locale = useLocale() as 'en' | 'ar';
 
     // Calculate member savings - Memoized
     const memberSavings = useMemo(() => {
@@ -408,7 +411,7 @@ export function CartPageContent() {
                                                                     height={112}
                                                                     alt={
                                                                         item.merchandise.product.featuredImage?.altText || 
-                                                                        item.merchandise.product.title
+                                                                        getLocalizedProductTitle(item.merchandise.product, locale)
                                                                     }
                                                                     src={
                                                                         item.merchandise.product.featuredImage?.url ||
@@ -431,7 +434,7 @@ export function CartPageContent() {
                                                                 className="block group"
                                                             >
                                                                 <h3 className="text-base lg:text-lg font-medium text-white group-hover:text-[#d4af37] transition-colors line-clamp-2">
-                                                                    {item.merchandise.product.title}
+                                                                    {getLocalizedProductTitle(item.merchandise.product, locale)}
                                                                 </h3>
                                                                 {item.merchandise.title !== DEFAULT_OPTION && (
                                                                     <p className="text-sm text-neutral-500 mt-1">

@@ -21,7 +21,7 @@ import { ChevronRight, Sparkles, ArrowRight, Tag } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRTL } from "@/hooks/use-rtl";
 import { DirhamSymbol } from "@/components/icons/dirham-symbol";
-import { getLocalizedProductHandle } from "@/lib/shopify/i18n-queries";
+import { getLocalizedProductHandle, getLocalizedProductTitle } from "@/lib/shopify/i18n-queries";
 import { menuVariants, easing } from "@/lib/animations/variants";
 import type { Product } from "@/lib/shopify/types";
 
@@ -206,37 +206,41 @@ export function MegaMenu({
                       ))}
                     </div>
                   ) : (
-                    <div className="grid grid-cols-4 gap-4">
-                      {regularProducts.map((product) => {
-                        const productHandle = getLocalizedProductHandle(
-                          product,
-                          locale as "en" | "ar"
-                        );
-                        return (
-                        <Link
-                          key={product.id}
-                          href={withLocale(`/product/${productHandle}`)}
-                          className="group"
-                          onClick={onClose}
-                        >
-                          <div className="relative aspect-square rounded-xl overflow-hidden bg-neutral-900 ring-1 ring-neutral-800 group-hover:ring-atp-gold/50 transition-all duration-300">
-                            {product.featuredImage?.url && (
-                              <Image
-                                src={product.featuredImage.url}
-                                alt={product.title}
-                                fill
-                                className="object-cover group-hover:scale-105 transition-transform duration-500"
-                                sizes="(max-width: 768px) 25vw, 150px"
-                              />
-                            )}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                          </div>
-                          <h5 className={cn(
-                            "mt-3 text-xs text-neutral-300 group-hover:text-white line-clamp-2 transition-colors",
-                            isRTL && "text-right font-arabic"
-                          )}>
-                            {product.title}
-                          </h5>
+                                    <div className="grid grid-cols-4 gap-4">
+                                      {regularProducts.map((product) => {
+                                        const productHandle = getLocalizedProductHandle(
+                                          product,
+                                          locale as "en" | "ar"
+                                        );
+                                        const productTitle = getLocalizedProductTitle(
+                                          product,
+                                          locale as "en" | "ar"
+                                        );
+                                        return (
+                                        <Link
+                                          key={product.id}
+                                          href={withLocale(`/product/${productHandle}`)}
+                                          className="group"
+                                          onClick={onClose}
+                                        >
+                                          <div className="relative aspect-square rounded-xl overflow-hidden bg-neutral-900 ring-1 ring-neutral-800 group-hover:ring-atp-gold/50 transition-all duration-300">
+                                            {product.featuredImage?.url && (
+                                              <Image
+                                                src={product.featuredImage.url}
+                                                alt={productTitle}
+                                                fill
+                                                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                                sizes="(max-width: 768px) 25vw, 150px"
+                                              />
+                                            )}
+                                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                                          </div>
+                                          <h5 className={cn(
+                                            "mt-3 text-xs text-neutral-300 group-hover:text-white line-clamp-2 transition-colors",
+                                            isRTL && "text-right font-arabic"
+                                          )}>
+                                            {productTitle}
+                                          </h5>
                           <div className={cn(
                             "flex items-center gap-1 mt-1 text-atp-gold text-sm font-medium",
                             isRTL && "flex-row-reverse"
@@ -255,7 +259,12 @@ export function MegaMenu({
               )}
 
               {/* Right side: Featured product spotlight */}
-              {featuredProduct && !isLoading && (
+              {featuredProduct && !isLoading && (() => {
+                const featuredProductTitle = getLocalizedProductTitle(
+                  featuredProduct,
+                  locale as "en" | "ar"
+                );
+                return (
                 <div className="col-span-3">
                   <div className="relative h-full rounded-2xl overflow-hidden bg-gradient-to-br from-atp-gold/10 to-transparent border border-atp-gold/20">
                     {/* Featured badge */}
@@ -272,7 +281,7 @@ export function MegaMenu({
                       {featuredProduct.featuredImage?.url && (
                         <Image
                           src={featuredProduct.featuredImage.url}
-                          alt={featuredProduct.title}
+                          alt={featuredProductTitle}
                           fill
                           className="object-cover"
                           sizes="300px"
@@ -287,7 +296,7 @@ export function MegaMenu({
                         "text-white font-medium line-clamp-2",
                         isRTL && "font-arabic"
                       )}>
-                        {featuredProduct.title}
+                        {featuredProductTitle}
                       </h4>
                       
                       <div className={cn(
@@ -326,7 +335,8 @@ export function MegaMenu({
                     </div>
                   </div>
                 </div>
-              )}
+                );
+              })()}
             </div>
 
             {/* Promotional banner */}

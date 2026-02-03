@@ -114,17 +114,32 @@ export function ATPProductDescription({
             {localizedTitle}
           </h1>
 
-          {/* Enhanced ATP Member Pricing Display */}
-          <div className={`mb-6 ${isRTL ? "text-right" : ""}`}>
-            <EnhancedMemberPricing
-              originalPrice={price.amount}
-              serviceId="cosmetics-supplements"
-              currencyCode={price.currencyCode}
-              showFreeDelivery={true}
-              showMembershipCTA={true}
-              productType="product"
-            />
-          </div>
+          {/* Enhanced ATP Member Pricing Display - Hidden for membership product */}
+          {!isMembershipProduct ? (
+            <div className={`mb-6 ${isRTL ? "text-right" : ""}`}>
+              <EnhancedMemberPricing
+                originalPrice={price.amount}
+                serviceId="cosmetics-supplements"
+                currencyCode={price.currencyCode}
+                showFreeDelivery={true}
+                showMembershipCTA={true}
+                productType="product"
+              />
+            </div>
+          ) : (
+            /* Simple price display for membership product */
+            <div className={`mb-6 ${isRTL ? "text-right" : ""}`}>
+              <div className="flex items-center gap-2">
+                <span className="text-2xl font-bold text-atp-gold">
+                  <Price
+                    amount={price.amount}
+                    currencyCode={price.currencyCode}
+                  />
+                </span>
+                <span className="text-sm text-muted-foreground">/year</span>
+              </div>
+            </div>
+          )}
 
           {/* Tabby Promo - Buy Now, Pay Later */}
           <div className={`mb-4 ${isRTL ? "text-right" : ""}`}>

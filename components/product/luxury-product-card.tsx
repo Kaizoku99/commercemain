@@ -60,6 +60,9 @@ export function LuxuryProductCard({
 
   const price = priceRange.minVariantPrice;
 
+  // Check if this is the EMS PRO ONE SUIT product that should redirect externally
+  const isEMSProOneSuit = handle === "ems-pro-one-suit";
+
   // 3D Tilt Effect using mouse position
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
@@ -181,178 +184,358 @@ export function LuxuryProductCard({
         }}
         className="flex flex-col h-full"
       >
-        <Link href={`/product/${handle}`} className="flex flex-col h-full">
-          {/* Image Container */}
-          <div className="relative aspect-[4/5] w-full overflow-hidden bg-neutral-50">
-            {/* Badges */}
-            <div className="absolute top-3 left-3 z-20 flex flex-col gap-2">
-              {!availableForSale && (
-                <span className="bg-neutral-900 text-white px-3 py-1 text-xs font-medium uppercase tracking-wider rounded-sm">
-                  Sold Out
-                </span>
-              )}
-            </div>
-
-            {/* Wishlist Button */}
-            <m.button
-              onClick={handleWishlist}
-              className={cn(
-                "absolute top-3 right-3 z-20 p-2 rounded-full",
-                "bg-white/80 backdrop-blur-sm shadow-sm",
-                "transition-all duration-300",
-                "opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0",
-                "hover:bg-white hover:scale-110",
-                "md:opacity-0 md:translate-y-2",
-                // On mobile, always show
-                "max-md:opacity-100 max-md:translate-y-0"
-              )}
-              whileTap={{ scale: 0.9 }}
-              aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-            >
-              <Heart
-                className={cn(
-                  "w-4 h-4 transition-colors",
-                  isWishlisted
-                    ? "fill-red-500 text-red-500"
-                    : "text-neutral-600 hover:text-red-500"
-                )}
-              />
-            </m.button>
-
-            {/* Product Image with 3D depth effect */}
-            {featuredImage ? (
-              <m.div
-                className="h-full w-full"
-                style={{
-                  translateZ: enable3DTilt ? 50 : 0,
-                }}
-                variants={cardImageVariants}
-                initial="rest"
-                whileHover="hover"
-              >
-                <Image
-                  src={featuredImage.url}
-                  alt={featuredImage.altText || title}
-                  fill
-                  sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
-                  priority={priority}
-                  className={cn(
-                    "object-cover transition-all duration-700",
-                    imageLoaded ? "opacity-100 scale-100" : "opacity-0 scale-105"
-                  )}
-                  onLoad={() => setImageLoaded(true)}
-                />
-              </m.div>
-            ) : (
-              <div className="flex h-full w-full items-center justify-center bg-neutral-100">
-                <span className="text-neutral-400 text-sm">No Image</span>
-              </div>
-            )}
-
-            {/* Skeleton Shimmer */}
-            {!imageLoaded && featuredImage && (
-              <div className="skeleton-gold absolute inset-0 z-10" />
-            )}
-
-            {/* Hover Actions Overlay */}
-            <div
-              className={cn(
-                "absolute bottom-0 left-0 right-0 z-20 p-4",
-                "bg-gradient-to-t from-black/60 via-black/30 to-transparent",
-                "transition-all duration-300 ease-out",
-                "opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0",
-                "md:opacity-0 md:translate-y-4",
-                // Mobile: always visible
-                "max-md:opacity-100 max-md:translate-y-0 max-md:bg-gradient-to-t max-md:from-black/40 max-md:via-transparent max-md:to-transparent"
-              )}
-            >
-              <div className="flex gap-2">
-                {/* Quick Add Button */}
-                {onQuickAdd && availableForSale && (
-                  <m.button
-                    onClick={handleQuickAdd}
-                    disabled={isAddingToCart}
-                    className={cn(
-                      "flex-1 flex items-center justify-center gap-2 py-3 px-4",
-                      "bg-white text-black text-sm font-medium",
-                      "rounded-lg shadow-lg",
-                      "transition-all duration-300",
-                      "hover:bg-[var(--atp-gold)] hover:text-black",
-                      "disabled:opacity-70 disabled:cursor-not-allowed"
-                    )}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    {isAddingToCart ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <>
-                        <ShoppingBag className="w-4 h-4" />
-                        <span>Add to Cart</span>
-                      </>
-                    )}
-                  </m.button>
-                )}
-
-                {/* Quick View Button */}
-                {onQuickView && (
-                  <m.button
-                    onClick={handleQuickView}
-                    className={cn(
-                      "p-3 bg-white/90 backdrop-blur-sm text-black",
-                      "rounded-lg shadow-lg",
-                      "transition-all duration-300",
-                      "hover:bg-[var(--atp-gold)]"
-                    )}
-                    whileTap={{ scale: 0.95 }}
-                    aria-label="Quick view"
-                  >
-                    <Eye className="w-4 h-4" />
-                  </m.button>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Product Info */}
-          <div
-            className={cn(
-              "flex flex-col gap-2 p-4 flex-grow",
-              isRTL ? "text-right" : "text-left"
-            )}
+        {isEMSProOneSuit ? (
+          <a
+            href="https://emsproone.com/?ref=ATPTRADING"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-col h-full"
           >
-            {/* Rating */}
-            {showRating && reviewCount > 0 && (
+            {/* Image Container */}
+            <div className="relative aspect-[4/5] w-full overflow-hidden bg-neutral-50">
+              {/* Badges */}
+              <div className="absolute top-3 left-3 z-20 flex flex-col gap-2">
+                {!availableForSale && (
+                  <span className="bg-neutral-900 text-white px-3 py-1 text-xs font-medium uppercase tracking-wider rounded-sm">
+                    Sold Out
+                  </span>
+                )}
+              </div>
+
+              {/* Wishlist Button */}
+              <m.button
+                onClick={handleWishlist}
+                className={cn(
+                  "absolute top-3 right-3 z-20 p-2 rounded-full",
+                  "bg-white/80 backdrop-blur-sm shadow-sm",
+                  "transition-all duration-300",
+                  "opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0",
+                  "hover:bg-white hover:scale-110",
+                  "md:opacity-0 md:translate-y-2",
+                  // On mobile, always show
+                  "max-md:opacity-100 max-md:translate-y-0"
+                )}
+                whileTap={{ scale: 0.9 }}
+                aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+              >
+                <Heart
+                  className={cn(
+                    "w-4 h-4 transition-colors",
+                    isWishlisted
+                      ? "fill-red-500 text-red-500"
+                      : "text-neutral-600 hover:text-red-500"
+                  )}
+                />
+              </m.button>
+
+              {/* Product Image with 3D depth effect */}
+              {featuredImage ? (
+                <m.div
+                  className="h-full w-full"
+                  style={{
+                    translateZ: enable3DTilt ? 50 : 0,
+                  }}
+                  variants={cardImageVariants}
+                  initial="rest"
+                  whileHover="hover"
+                >
+                  <Image
+                    src={featuredImage.url}
+                    alt={featuredImage.altText || title}
+                    fill
+                    sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+                    priority={priority}
+                    className={cn(
+                      "object-cover transition-all duration-700",
+                      imageLoaded ? "opacity-100 scale-100" : "opacity-0 scale-105"
+                    )}
+                    onLoad={() => setImageLoaded(true)}
+                  />
+                </m.div>
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-neutral-100">
+                  <span className="text-neutral-400 text-sm">No Image</span>
+                </div>
+              )}
+
+              {/* Skeleton Shimmer */}
+              {!imageLoaded && featuredImage && (
+                <div className="skeleton-gold absolute inset-0 z-10" />
+              )}
+
+              {/* Hover Actions Overlay */}
               <div
                 className={cn(
-                  "flex items-center gap-1.5",
+                  "absolute bottom-0 left-0 right-0 z-20 p-4",
+                  "bg-gradient-to-t from-black/60 via-black/30 to-transparent",
+                  "transition-all duration-300 ease-out",
+                  "opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0",
+                  "md:opacity-0 md:translate-y-4",
+                  // Mobile: always visible
+                  "max-md:opacity-100 max-md:translate-y-0 max-md:bg-gradient-to-t max-md:from-black/40 max-md:via-transparent max-md:to-transparent"
+                )}
+              >
+                <div className="flex gap-2">
+                  {/* Quick Add Button */}
+                  {onQuickAdd && availableForSale && (
+                    <m.button
+                      onClick={handleQuickAdd}
+                      disabled={isAddingToCart}
+                      className={cn(
+                        "flex-1 flex items-center justify-center gap-2 py-3 px-4",
+                        "bg-white text-black text-sm font-medium",
+                        "rounded-lg shadow-lg",
+                        "transition-all duration-300",
+                        "hover:bg-[var(--atp-gold)] hover:text-black",
+                        "disabled:opacity-70 disabled:cursor-not-allowed"
+                      )}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {isAddingToCart ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <>
+                          <ShoppingBag className="w-4 h-4" />
+                          <span>Add to Cart</span>
+                        </>
+                      )}
+                    </m.button>
+                  )}
+
+                  {/* Quick View Button */}
+                  {onQuickView && (
+                    <m.button
+                      onClick={handleQuickView}
+                      className={cn(
+                        "p-3 bg-white/90 backdrop-blur-sm text-black",
+                        "rounded-lg shadow-lg",
+                        "transition-all duration-300",
+                        "hover:bg-[var(--atp-gold)]"
+                      )}
+                      whileTap={{ scale: 0.95 }}
+                      aria-label="Quick view"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </m.button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Product Info */}
+            <div
+              className={cn(
+                "flex flex-col gap-2 p-4 flex-grow",
+                isRTL ? "text-right" : "text-left"
+              )}
+            >
+              {/* Rating */}
+              {showRating && reviewCount > 0 && (
+                <div
+                  className={cn(
+                    "flex items-center gap-1.5",
+                    isRTL && "flex-row-reverse justify-end"
+                  )}
+                >
+                  <div className="flex">{renderStars()}</div>
+                  <span className="text-xs text-neutral-500">({reviewCount})</span>
+                </div>
+              )}
+
+              {/* Title */}
+              <h3 className="font-medium text-neutral-900 text-sm md:text-base leading-snug line-clamp-2 min-h-[2.5em]">
+                {title}
+              </h3>
+
+              {/* Price */}
+              <div
+                className={cn(
+                  "flex items-center gap-2 mt-auto",
                   isRTL && "flex-row-reverse justify-end"
                 )}
               >
-                <div className="flex">{renderStars()}</div>
-                <span className="text-xs text-neutral-500">({reviewCount})</span>
+                <Price
+                  amount={price.amount}
+                  currencyCode={price.currencyCode}
+                  className="text-neutral-900 font-semibold text-base"
+                />
               </div>
-            )}
+            </div>
+          </a>
+        ) : (
+          <Link href={`/product/${handle}`} className="flex flex-col h-full">
+            {/* Image Container */}
+            <div className="relative aspect-[4/5] w-full overflow-hidden bg-neutral-50">
+              {/* Badges */}
+              <div className="absolute top-3 left-3 z-20 flex flex-col gap-2">
+                {!availableForSale && (
+                  <span className="bg-neutral-900 text-white px-3 py-1 text-xs font-medium uppercase tracking-wider rounded-sm">
+                    Sold Out
+                  </span>
+                )}
+              </div>
 
-            {/* Title */}
-            <h3 className="font-medium text-neutral-900 text-sm md:text-base leading-snug line-clamp-2 min-h-[2.5em]">
-              {title}
-            </h3>
+              {/* Wishlist Button */}
+              <m.button
+                onClick={handleWishlist}
+                className={cn(
+                  "absolute top-3 right-3 z-20 p-2 rounded-full",
+                  "bg-white/80 backdrop-blur-sm shadow-sm",
+                  "transition-all duration-300",
+                  "opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0",
+                  "hover:bg-white hover:scale-110",
+                  "md:opacity-0 md:translate-y-2",
+                  // On mobile, always show
+                  "max-md:opacity-100 max-md:translate-y-0"
+                )}
+                whileTap={{ scale: 0.9 }}
+                aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+              >
+                <Heart
+                  className={cn(
+                    "w-4 h-4 transition-colors",
+                    isWishlisted
+                      ? "fill-red-500 text-red-500"
+                      : "text-neutral-600 hover:text-red-500"
+                  )}
+                />
+              </m.button>
 
-            {/* Price */}
+              {/* Product Image with 3D depth effect */}
+              {featuredImage ? (
+                <m.div
+                  className="h-full w-full"
+                  style={{
+                    translateZ: enable3DTilt ? 50 : 0,
+                  }}
+                  variants={cardImageVariants}
+                  initial="rest"
+                  whileHover="hover"
+                >
+                  <Image
+                    src={featuredImage.url}
+                    alt={featuredImage.altText || title}
+                    fill
+                    sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
+                    priority={priority}
+                    className={cn(
+                      "object-cover transition-all duration-700",
+                      imageLoaded ? "opacity-100 scale-100" : "opacity-0 scale-105"
+                    )}
+                    onLoad={() => setImageLoaded(true)}
+                  />
+                </m.div>
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-neutral-100">
+                  <span className="text-neutral-400 text-sm">No Image</span>
+                </div>
+              )}
+
+              {/* Skeleton Shimmer */}
+              {!imageLoaded && featuredImage && (
+                <div className="skeleton-gold absolute inset-0 z-10" />
+              )}
+
+              {/* Hover Actions Overlay */}
+              <div
+                className={cn(
+                  "absolute bottom-0 left-0 right-0 z-20 p-4",
+                  "bg-gradient-to-t from-black/60 via-black/30 to-transparent",
+                  "transition-all duration-300 ease-out",
+                  "opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0",
+                  "md:opacity-0 md:translate-y-4",
+                  // Mobile: always visible
+                  "max-md:opacity-100 max-md:translate-y-0 max-md:bg-gradient-to-t max-md:from-black/40 max-md:via-transparent max-md:to-transparent"
+                )}
+              >
+                <div className="flex gap-2">
+                  {/* Quick Add Button */}
+                  {onQuickAdd && availableForSale && (
+                    <m.button
+                      onClick={handleQuickAdd}
+                      disabled={isAddingToCart}
+                      className={cn(
+                        "flex-1 flex items-center justify-center gap-2 py-3 px-4",
+                        "bg-white text-black text-sm font-medium",
+                        "rounded-lg shadow-lg",
+                        "transition-all duration-300",
+                        "hover:bg-[var(--atp-gold)] hover:text-black",
+                        "disabled:opacity-70 disabled:cursor-not-allowed"
+                      )}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {isAddingToCart ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <>
+                          <ShoppingBag className="w-4 h-4" />
+                          <span>Add to Cart</span>
+                        </>
+                      )}
+                    </m.button>
+                  )}
+
+                  {/* Quick View Button */}
+                  {onQuickView && (
+                    <m.button
+                      onClick={handleQuickView}
+                      className={cn(
+                        "p-3 bg-white/90 backdrop-blur-sm text-black",
+                        "rounded-lg shadow-lg",
+                        "transition-all duration-300",
+                        "hover:bg-[var(--atp-gold)]"
+                      )}
+                      whileTap={{ scale: 0.95 }}
+                      aria-label="Quick view"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </m.button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Product Info */}
             <div
               className={cn(
-                "flex items-center gap-2 mt-auto",
-                isRTL && "flex-row-reverse justify-end"
+                "flex flex-col gap-2 p-4 flex-grow",
+                isRTL ? "text-right" : "text-left"
               )}
             >
-              <Price
-                amount={price.amount}
-                currencyCode={price.currencyCode}
-                className="text-neutral-900 font-semibold text-base"
-              />
+              {/* Rating */}
+              {showRating && reviewCount > 0 && (
+                <div
+                  className={cn(
+                    "flex items-center gap-1.5",
+                    isRTL && "flex-row-reverse justify-end"
+                  )}
+                >
+                  <div className="flex">{renderStars()}</div>
+                  <span className="text-xs text-neutral-500">({reviewCount})</span>
+                </div>
+              )}
+
+              {/* Title */}
+              <h3 className="font-medium text-neutral-900 text-sm md:text-base leading-snug line-clamp-2 min-h-[2.5em]">
+                {title}
+              </h3>
+
+              {/* Price */}
+              <div
+                className={cn(
+                  "flex items-center gap-2 mt-auto",
+                  isRTL && "flex-row-reverse justify-end"
+                )}
+              >
+                <Price
+                  amount={price.amount}
+                  currencyCode={price.currencyCode}
+                  className="text-neutral-900 font-semibold text-base"
+                />
+              </div>
             </div>
-          </div>
-        </Link>
+          </Link>
+        )}
       </m.div>
 
       {/* Subtle gold glow on hover */}

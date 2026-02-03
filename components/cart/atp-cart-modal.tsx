@@ -25,7 +25,8 @@ import {
   useAtpMembership,
   useMembershipDiscount,
 } from "@/hooks/use-atp-membership";
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
+import { getLocalizedProductTitle } from "@/lib/shopify/i18n-queries";
 
 import { useRTL } from "@/hooks/use-rtl";
 import Image from "next/image";
@@ -50,6 +51,7 @@ function ATPCartModal() {
     useMembershipDiscount();
   const { isRTL } = useRTL();
   const t = useTranslations('cart');
+  const locale = useLocale() as 'en' | 'ar';
 
   // Helper function for price formatting
   const formatPrice = (amount: number) => {
@@ -221,11 +223,11 @@ function ATPCartModal() {
                     <AnimatePresence mode="popLayout">
                     {Array.isArray(cart.lines) ? (
                       cart.lines
-                        .sort((a: CartItem, b: CartItem) =>
-                          a.merchandise.product.title.localeCompare(
-                            b.merchandise.product.title
-                          )
-                        )
+                        .sort((a: CartItem, b: CartItem) => {
+                          const titleA = getLocalizedProductTitle(a.merchandise.product, locale);
+                          const titleB = getLocalizedProductTitle(b.merchandise.product, locale);
+                          return titleA.localeCompare(titleB);
+                        })
                         .map((item: CartItem, i: number) => {
                           const merchandiseSearchParams =
                             {} as MerchandiseSearchParams;
@@ -291,7 +293,7 @@ function ATPCartModal() {
                                       alt={
                                         item.merchandise.product.featuredImage
                                           .altText ||
-                                        item.merchandise.product.title
+                                        getLocalizedProductTitle(item.merchandise.product, locale)
                                       }
                                       src={
                                         item.merchandise.product.featuredImage
@@ -310,7 +312,7 @@ function ATPCartModal() {
                                         }`}
                                     >
                                       <span className="leading-tight">
-                                        {item.merchandise.product.title}
+                                        {getLocalizedProductTitle(item.merchandise.product, locale)}
                                       </span>
                                       {item.merchandise.title !==
                                         DEFAULT_OPTION ? (

@@ -380,6 +380,99 @@ export const mockProducts: Product[] = [
     tags: ['coffee', 'arabica', 'functional', 'beauty', 'beverage'],
     updatedAt: new Date().toISOString(),
   },
+  // ATP Membership Product
+  {
+    id: 'atp-membership',
+    handle: 'atp-membership',
+    availableForSale: true,
+    title: 'ATP Membership',
+    description: 'Exclusive Membership Benefits. Join the ATP Group Services Membership for AED 99 per year and enjoy 15% discount on all products and free delivery on all orders.',
+    descriptionHtml: `<h2>Exclusive Membership Benefits</h2>
+<p>Join the ATP Group Services Membership for AED 99 per year and enjoy:</p>
+<h3>Benefits:</h3>
+<ul>
+<li>15% discount on all products</li>
+<li>Free delivery on all orders</li>
+</ul>
+<h3>How It Works:</h3>
+<ol>
+<li>Sign up and pay AED 99 per year</li>
+<li>Enjoy instant discounts and free delivery</li>
+<li>Renew annually and keep saving</li>
+</ol>
+<h3>Why Join?</h3>
+<ul>
+<li>Save on every purchase</li>
+<li>No delivery fees</li>
+<li>Membership pays for itself quickly</li>
+</ul>
+<p><strong>Join today and start saving.</strong></p>`,
+    // Arabic content via metafields structure
+    titleAr: { value: 'عضوية ATP' },
+    descriptionAr: { value: 'مزايا حصرية لعملائنا المميزين. انضم إلى عضوية ATP Group Services مقابل 99 درهم سنوياً واستمتع بخصم 15% على جميع المنتجات وتوصيل مجاني على كل الطلبات.' },
+    descriptionHtmlAr: { value: `<h2>مزايا حصرية لعملائنا المميزين</h2>
+<p>انضم إلى عضوية ATP Group Services مقابل 99 درهم سنوياً واستمتع بالمزايا التالية:</p>
+<h3>المزايا:</h3>
+<ul>
+<li>خصم 15% على جميع المنتجات</li>
+<li>توصيل مجاني على كل الطلبات</li>
+</ul>
+<h3>طريقة الاشتراك:</h3>
+<ol>
+<li>اشترك وادفع 99 درهم سنوياً</li>
+<li>استمتع بالخصم والتوصيل المجاني فوراً</li>
+<li>جدّد سنوياً واستمر في التوفير</li>
+</ol>
+<h3>ليش تشترك؟</h3>
+<ul>
+<li>توفر مع كل عملية شراء</li>
+<li>بدون رسوم توصيل</li>
+<li>قيمة العضوية ترجع لك بسرعة</li>
+</ul>
+<p><strong>اشترك اليوم وابدأ التوفير</strong></p>` },
+    options: [
+      {
+        id: 'option-membership-plan',
+        name: 'Plan',
+        values: ['Annual Membership'],
+      },
+    ],
+    priceRange: {
+      maxVariantPrice: { amount: '99.00', currencyCode: 'AED' },
+      minVariantPrice: { amount: '99.00', currencyCode: 'AED' },
+    },
+    variants: [
+      {
+        id: 'variant-atp-membership-annual',
+        title: 'Annual Membership',
+        availableForSale: true,
+        selectedOptions: [{ name: 'Plan', value: 'Annual Membership' }],
+        price: { amount: '99.00', currencyCode: 'AED' },
+      },
+    ],
+    featuredImage: {
+      id: 'image-atp-membership',
+      altText: 'ATP Membership',
+      url: 'https://cdn.shopify.com/s/files/1/0723/0744/1902/files/atp-membership-card.jpg',
+      width: 800,
+      height: 600,
+    },
+    images: [
+      {
+        id: 'image-atp-membership-1',
+        altText: 'ATP Membership Card',
+        url: 'https://cdn.shopify.com/s/files/1/0723/0744/1902/files/atp-membership-card.jpg',
+        width: 800,
+        height: 600,
+      },
+    ],
+    seo: {
+      title: 'ATP Membership - Exclusive Benefits & Savings',
+      description: 'Join ATP Membership for AED 99/year. Get 15% off all products and free delivery.',
+    },
+    tags: ['membership', 'atp', 'discount', 'free-delivery'],
+    updatedAt: new Date().toISOString(),
+  },
   // Personal Care
   {
     id: 'dna-hya-facial-cleanser',

@@ -37,30 +37,55 @@ export default function ProductGridItems({
           product.tags?.includes("atp") ||
           localizedTitle.toLowerCase().includes("atp");
 
+        // Check if this is the EMS PRO ONE SUIT product that should redirect externally
+        const isEMSProOneSuit = product.handle === "ems-pro-one-suit";
+
         return (
           <Grid.Item
             key={product.handle}
             index={index}
             className="animate-fadeIn"
           >
-            <Link
-              className="relative inline-block h-full w-full min-h-[400px] overflow-hidden"
-              href={`/${locale}/product/${localizedHandle}`}
-              prefetch={true}
-            >
-              <GridTileImage
-                alt={localizedTitle}
-                label={{
-                  title: localizedTitle,
-                  amount,
-                  currencyCode,
-                  isATPMember,
-                }}
-                src={product.featuredImage?.url}
-                fill
-                sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 50vw"
-              />
-            </Link>
+            {isEMSProOneSuit ? (
+              <a
+                className="relative inline-block h-full w-full min-h-[400px] overflow-hidden"
+                href="https://emsproone.com/?ref=ATPTRADING"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <GridTileImage
+                  alt={localizedTitle}
+                  label={{
+                    title: localizedTitle,
+                    amount,
+                    currencyCode,
+                    isATPMember,
+                  }}
+                  src={product.featuredImage?.url}
+                  fill
+                  sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 50vw"
+                />
+              </a>
+            ) : (
+              <Link
+                className="relative inline-block h-full w-full min-h-[400px] overflow-hidden"
+                href={`/${locale}/product/${localizedHandle}`}
+                prefetch={true}
+              >
+                <GridTileImage
+                  alt={localizedTitle}
+                  label={{
+                    title: localizedTitle,
+                    amount,
+                    currencyCode,
+                    isATPMember,
+                  }}
+                  src={product.featuredImage?.url}
+                  fill
+                  sizes="(min-width: 1280px) 25vw, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 50vw"
+                />
+              </Link>
+            )}
           </Grid.Item>
         );
       })}

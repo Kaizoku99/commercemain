@@ -160,7 +160,7 @@ export function InstagramFeed({ limit = 8, className }: InstagramFeedProps) {
           </p>
           
           <m.a
-            href="https://instagram.com/atpgroupservices"
+              href="https://www.instagram.com/atp_trading/"
             target="_blank"
             rel="noopener noreferrer"
             className={cn(
@@ -307,7 +307,7 @@ export function InstagramFeed({ limit = 8, className }: InstagramFeedProps) {
             transition={{ delay: 0.3 }}
           >
             <m.a
-              href="https://instagram.com/atpgroupservices"
+            href="https://www.instagram.com/atp_trading/"
               target="_blank"
               rel="noopener noreferrer"
               className={cn(

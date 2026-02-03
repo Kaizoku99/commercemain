@@ -5,14 +5,18 @@ import type { Product } from "@/lib/shopify/types";
 import { VariantSelector } from "./variant-selector";
 import { QuantitySelector, QuantityProvider } from "./quantity-selector";
 import { useSelectedVariant } from "@/hooks/use-selected-variant";
+import { getLocalizedProductTitle } from "@/lib/shopify/i18n-queries";
+import { useLocale } from "next-intl";
 
 export function ProductDescription({ product }: { product: Product }) {
   const { price } = useSelectedVariant(product);
+  const locale = useLocale() as "en" | "ar";
+  const localizedTitle = getLocalizedProductTitle(product, locale);
 
   return (
     <QuantityProvider>
       <div className="mb-6 flex flex-col border-b border-atp-light-gray pb-6">
-        <h1 className="mb-4 text-5xl font-medium">{product.title}</h1>
+        <h1 className="mb-4 text-5xl font-medium">{localizedTitle}</h1>
         <div className="mb-6">
           <div className="flex items-baseline gap-2">
             <Price

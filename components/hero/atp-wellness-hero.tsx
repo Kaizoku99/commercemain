@@ -3,6 +3,7 @@
 import { m, useScroll, useTransform, useInView, useSpring } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
 import React from "react";
+import Image from "next/image";
 import { ChevronDown, Users, Award, Sparkles, Shield } from "lucide-react";
 import { Link } from "@/src/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -23,7 +24,7 @@ interface ATPWellnessHeroProps {
 
 export default function ATPWellnessHero({
   videoSrc,
-  imageSrc = "/images/hero-wellness.jpg",
+  imageSrc = "/ATPBG.PNG",
   imageAlt = "ATP Group Services - Luxury Wellness",
 }: ATPWellnessHeroProps) {
   const t = useTranslations("hero");
@@ -114,18 +115,28 @@ export default function ATPWellnessHero({
           </video>
         )}
 
-        {/* Image Fallback */}
-        {(!videoSrc || isMobile) && imageSrc && (
-          <div
-            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-            style={{ backgroundImage: `url(${imageSrc})` }}
-            role="img"
-            aria-label={imageAlt}
-          />
+        {/* Fallback gradient if no media */}
+        {!videoSrc && !imageSrc && (
+          <div className="absolute inset-0 bg-gradient-to-br from-black via-neutral-900 to-black" />
         )}
 
-        {/* Fallback gradient if no media */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black via-neutral-900 to-black" />
+        {/* Image Background - Optimized with Next.js Image */}
+        {(!videoSrc || isMobile) && imageSrc && (
+          <div className="absolute inset-0">
+            <Image
+              src={imageSrc}
+              alt={imageAlt}
+              fill
+              priority
+              quality={90}
+              sizes="100vw"
+              className="object-cover object-center md:object-top"
+              style={{
+                objectPosition: isMobile ? 'center 20%' : 'center top',
+              }}
+            />
+          </div>
+        )}
 
         {/* Gradient Mesh Overlay */}
         <div className="absolute inset-0 gradient-mesh-hero" />

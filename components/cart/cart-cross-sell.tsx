@@ -10,7 +10,7 @@
  */
 
 import { m, AnimatePresence, useReducedMotion } from "framer-motion";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useRTL } from "@/hooks/use-rtl";
 import { Sparkles, Plus, ChevronLeft, ChevronRight } from "lucide-react";
 import { transitions, easing } from "@/lib/animations/variants";
@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Price from "@/components/price";
 import { useState, useRef } from "react";
+import { getLocalizedProductTitle } from "@/lib/shopify/i18n-queries";
 
 interface CrossSellProduct {
   id: string;
@@ -30,6 +31,15 @@ interface CrossSellProduct {
   image?: {
     url: string;
     altText: string;
+  };
+  // Localization fields
+  translations?: Array<{
+    key: string;
+    value: string;
+    locale: string;
+  }>;
+  titleAr?: {
+    value: string;
   };
 }
 
@@ -47,6 +57,7 @@ export function CartCrossSell({
   className,
 }: CartCrossSellProps) {
   const t = useTranslations("cart");
+  const locale = useLocale() as 'en' | 'ar';
   const { isRTL } = useRTL();
   const prefersReducedMotion = useReducedMotion();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -161,7 +172,7 @@ export function CartCrossSell({
                     {product.image?.url ? (
                       <Image
                         src={product.image.url}
-                        alt={product.image.altText || product.title}
+                        alt={product.image.altText || getLocalizedProductTitle(product, locale)}
                         fill
                         className="object-cover"
                         sizes="140px"
@@ -176,7 +187,7 @@ export function CartCrossSell({
                   {/* Product Info */}
                   <div className={cn("p-2", isRTL && "text-right")}>
                     <h4 className="text-xs font-medium line-clamp-2 mb-1 leading-tight">
-                      {product.title}
+                      {getLocalizedProductTitle(product, locale)}
                     </h4>
                     <div className={cn("flex items-center justify-between gap-1", isRTL && "flex-row-reverse")}>
                       <div className="flex flex-col">
@@ -199,7 +210,7 @@ export function CartCrossSell({
                         disabled={addingId === product.id}
                         whileHover={prefersReducedMotion ? {} : { scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
-                        aria-label={`Add ${product.title} to cart`}
+                        aria-label={`Add ${getLocalizedProductTitle(product, locale)} to cart`}
                       >
                         {addingId === product.id ? (
                           <m.div

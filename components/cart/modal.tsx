@@ -16,8 +16,9 @@ import { useCart } from "./cart-context"
 import { DeleteItemButton } from "./delete-item-button"
 import { EditItemQuantityButton } from "./edit-item-quantity-button"
 import OpenCart from "./open-cart"
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { DiscountCodeInput, DiscountSummary } from "./discount-code-input"
+import { getLocalizedProductTitle } from "@/lib/shopify/i18n-queries"
 import { applyDiscountCode, removeDiscountCode } from "./discount-actions"
 import { CartEnhancements, StockIndicator, CartItemPriceEnhanced } from "./cart-enhancements"
 import { updateCartNoteAction, updateCartAttributesAction } from "./cart-enhancement-actions"
@@ -28,6 +29,7 @@ type MerchandiseSearchParams = {
 
 export default function CartModal() {
   const t = useTranslations('cart')
+  const locale = useLocale() as 'en' | 'ar'
   const { cart, updateCartItem } = useCart()
   const [isOpen, setIsOpen] = useState(false)
   const quantityRef = useRef(cart?.totalQuantity)
@@ -92,7 +94,11 @@ export default function CartModal() {
                 <div className="flex h-full flex-col justify-between overflow-hidden p-1">
                   <ul className="grow overflow-auto py-4">
                     {cart.lines
-                      .sort((a, b) => a.merchandise.product.title.localeCompare(b.merchandise.product.title))
+                      .sort((a, b) => {
+                        const titleA = getLocalizedProductTitle(a.merchandise.product, locale)
+                        const titleB = getLocalizedProductTitle(b.merchandise.product, locale)
+                        return titleA.localeCompare(titleB)
+                      })
                       .map((item, i) => {
                         const merchandiseSearchParams = {} as MerchandiseSearchParams
 
@@ -123,7 +129,7 @@ export default function CartModal() {
                                     width={64}
                                     height={64}
                                     alt={
-                                      item.merchandise.product.featuredImage.altText || item.merchandise.product.title
+                                      item.merchandise.product.featuredImage.altText || getLocalizedProductTitle(item.merchandise.product, locale)
                                     }
                                     src={item.merchandise.product.featuredImage.url || "/placeholder.svg"}
                                   />
@@ -134,7 +140,7 @@ export default function CartModal() {
                                   className="z-30 ml-2 flex flex-row space-x-4"
                                 >
                                   <div className="flex flex-1 flex-col text-base">
-                                    <span className="leading-tight">{item.merchandise.product.title}</span>
+                                    <span className="leading-tight">{getLocalizedProductTitle(item.merchandise.product, locale)}</span>
                                     {item.merchandise.title !== DEFAULT_OPTION ? (
                                       <p className="text-sm text-neutral-500 dark:text-neutral-400">
                                         {item.merchandise.title}

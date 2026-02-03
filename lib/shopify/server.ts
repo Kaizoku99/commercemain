@@ -707,19 +707,32 @@ export async function getCollections(
   }
 }
 
-export async function getMenuItems(handle: string): Promise<ShopifyMenuItem[]> {
+export async function getMenuItems(
+  handle: string,
+  locale?: { language?: string; country?: string }
+): Promise<ShopifyMenuItem[]> {
+  const variables: {
+    handle: string;
+    language?: string;
+    country?: string;
+  } = { handle };
+
+  if (locale?.language) variables.language = locale.language.toUpperCase();
+  if (locale?.country) variables.country = locale.country.toUpperCase();
+
   const res = await shopifyFetch<ShopifyMenuOperation>({
     query: getMenuQuery,
-    variables: {
-      handle
-    }
+    variables
   });
 
   return res.body?.data?.menu?.items || [];
 }
 
-export async function getMenu(handle: string): Promise<Menu[]> {
-  const items = await getMenuItems(handle);
+export async function getMenu(
+  handle: string,
+  locale?: { language?: string; country?: string }
+): Promise<Menu[]> {
+  const items = await getMenuItems(handle, locale);
 
   return items.map((item) => {
     const url = item.url || '';

@@ -33,7 +33,7 @@ export default function Footer() {
     {
       name: "Instagram",
       icon: FaInstagram,
-      href: "https://www.instagram.com/atp_group_services",
+      href: "https://www.instagram.com/atp_trading/",
       label: "Instagram",
     },
     {

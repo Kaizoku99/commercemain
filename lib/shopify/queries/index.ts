@@ -457,7 +457,7 @@ export const getMenuQuery = `
     }
   }
 
-  query getMenu($handle: String!) {
+  query getMenu($handle: String!, $language: LanguageCode, $country: CountryCode) @inContext(language: $language, country: $country) {
     menu(handle: $handle) {
       handle
       title

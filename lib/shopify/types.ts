@@ -17,6 +17,15 @@ export type CartProduct = {
   handle: string;
   title: string;
   featuredImage: Image;
+  // Localization fields (from product fragment)
+  translations?: Array<{
+    key: string;
+    value: string;
+    locale: string;
+  }>;
+  titleAr?: {
+    value: string;
+  };
 };
 
 // Cart attribute for custom data

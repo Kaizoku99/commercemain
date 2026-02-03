@@ -4,12 +4,13 @@ import { useState, useEffect, useCallback } from 'react';
 import { m, AnimatePresence, useReducedMotion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { X, Minus, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { modalVariants, overlayVariants, transitions } from '@/lib/animations/variants';
 import { useCart } from '@/components/cart/cart-context';
 import type { Product, ProductVariant } from '@/lib/shopify/types';
+import { getLocalizedProductTitle, getLocalizedProductHandle } from '@/lib/shopify/i18n-queries';
 
 export interface QuickViewModalProps {
   product: Product | null;
@@ -29,6 +30,7 @@ export function QuickViewModal({
   className,
 }: QuickViewModalProps) {
   const t = useTranslations('quickViewModal');
+  const locale = useLocale() as 'en' | 'ar';
   const shouldReduceMotion = useReducedMotion();
   const { addCartItem } = useCart();
   
@@ -119,6 +121,9 @@ export function QuickViewModal({
 
   const images = product?.images || (product?.featuredImage ? [product.featuredImage] : []);
 
+  // Get localized product title
+  const localizedTitle = product ? getLocalizedProductTitle(product, locale) : '';
+
   if (!product) return null;
 
   return (
@@ -174,7 +179,7 @@ export function QuickViewModal({
                   <>
                     <Image
                       src={images[currentImageIndex]?.url || '/placeholder.svg'}
-                      alt={images[currentImageIndex]?.altText || product.title}
+                      alt={images[currentImageIndex]?.altText || localizedTitle}
                       fill
                       className="object-contain p-8"
                       sizes="(max-width: 768px) 100vw, 50vw"
@@ -228,7 +233,7 @@ export function QuickViewModal({
               {/* Product info */}
               <div className="flex flex-col w-full md:w-1/2 p-6 md:p-8">
                 <h2 className="text-2xl md:text-3xl font-serif text-atp-white mb-4">
-                  {product.title}
+                  {localizedTitle}
                 </h2>
 
                 {/* Price */}
@@ -322,7 +327,7 @@ export function QuickViewModal({
                   </button>
 
                   <Link
-                    href={`/product/${product.handle}`}
+                    href={`/${locale}/product/${getLocalizedProductHandle(product, locale)}`}
                     className="block w-full py-3 text-center rounded-xl font-medium text-atp-white glass border border-white/20 hover:border-atp-gold/50 transition-colors"
                     onClick={onClose}
                   >

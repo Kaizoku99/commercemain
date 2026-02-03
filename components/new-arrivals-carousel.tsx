@@ -12,7 +12,7 @@ import { QuickViewModal } from "@/components/ui/quick-view-modal";
 import Price from "@/components/price";
 import type { Product } from "@/lib/shopify/types";
 import { type Locale } from "@/lib/i18n/config";
-import { getLocalizedProductHandle } from "@/lib/shopify/i18n-queries";
+import { getLocalizedProductHandle, getLocalizedProductTitle } from "@/lib/shopify/i18n-queries";
 import {
   containerVariants,
   cardVariants,
@@ -163,7 +163,7 @@ export function NewArrivalsCarousel({
                     <div className="relative w-48 h-72 sm:w-60 sm:h-96 md:w-72 md:h-[28rem]">
                       <Image
                         src={product.featuredImage?.url || "/placeholder.svg"}
-                        alt={product.title}
+                        alt={getLocalizedProductTitle(product, locale)}
                         fill
                         className="object-contain filter drop-shadow-2xl"
                         sizes="(max-width: 640px) 192px, (max-width: 768px) 240px, 288px"
@@ -261,7 +261,7 @@ export function NewArrivalsCarousel({
                   >
                     <Image
                       src={product.featuredImage?.url || "/placeholder.svg"}
-                      alt={product.featuredImage?.altText || product.title}
+                      alt={product.featuredImage?.altText || getLocalizedProductTitle(product, locale)}
                       fill
                       className="object-cover transition-transform duration-500 group-hover:scale-105"
                       sizes={isLarge
@@ -297,7 +297,7 @@ export function NewArrivalsCarousel({
                       "font-semibold text-atp-white mb-2 line-clamp-2",
                       isLarge ? "text-lg md:text-xl" : "text-sm md:text-base"
                     )}>
-                      {product.title}
+                      {getLocalizedProductTitle(product, locale)}
                     </h3>
 
                     <div className="flex items-center justify-between">
