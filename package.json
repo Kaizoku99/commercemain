@@ -96,6 +96,7 @@
     "react-hook-form": "latest",
     "react-icons": "^5.5.0",
     "react-resizable-panels": "^2.1.7",
+    "react-zoom-pan-pinch": "^3.7.0",
     "recharts": "^2.15.0",
     "server-only": "^0.0.1",
     "sonner": "latest",

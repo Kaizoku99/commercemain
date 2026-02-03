@@ -551,7 +551,10 @@
     "nextImage": "الصورة التالية",
     "zoomIn": "تكبير",
     "zoomOut": "تصغير",
-    "thumbnailLabel": "عرض الصورة"
+    "resetZoom": "إعادة ضبط التكبير",
+    "fitToScreen": "ملاءمة الشاشة",
+    "thumbnailLabel": "عرض الصورة",
+    "keyboardShortcuts": "+/- للتكبير، 0 لإعادة الضبط، الأسهم للتنقل"
   },
   "badges": {
     "bestseller": "الأكثر مبيعاً",

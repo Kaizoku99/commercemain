@@ -551,7 +551,10 @@
     "nextImage": "Next image",
     "zoomIn": "Zoom in",
     "zoomOut": "Zoom out",
-    "thumbnailLabel": "View image"
+    "resetZoom": "Reset zoom",
+    "fitToScreen": "Fit to screen",
+    "thumbnailLabel": "View image",
+    "keyboardShortcuts": "+/- to zoom, 0 to reset, arrows to navigate"
   },
   "badges": {
     "bestseller": "Bestseller",
