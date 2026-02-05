@@ -795,15 +795,30 @@ export async function getShopPolicy(
   }
 }
 
+/**
+ * Get a product by handle with fallback for translated handles.
+ * 
+ * IMPORTANT: Shopify's Storefront API with @inContext returns translated handles
+ * in product listings, but the product(handle: "...") query may not find products
+ * by their translated handle. This function implements a fallback strategy:
+ * 
+ * 1. Try fetching by the given handle (works for most products)
+ * 2. If not found and handle contains non-ASCII characters (Arabic/translated),
+ *    search for the product by querying all products and matching the handle
+ * 
+ * This handles the edge case where Shopify's Translate & Adapt app creates
+ * translated handles that don't resolve correctly in the Storefront API.
+ */
 export async function getProduct(
   handle: string,
   locale?: { language?: string; country?: string }
 ): Promise<Product | undefined> {
+  const decodedHandle = decodeURIComponent(handle);
   const variables: {
     handle: string;
     language?: string;
     country?: string;
-  } = { handle };
+  } = { handle: decodedHandle };
 
   if (locale?.language) variables.language = locale.language.toUpperCase();
   if (locale?.country) variables.country = locale.country.toUpperCase();
@@ -813,7 +828,46 @@ export async function getProduct(
     variables
   });
 
-  return reshapeProduct(res.body.data.product, false);
+  // If product found, return it
+  if (res.body.data.product) {
+    return reshapeProduct(res.body.data.product, false);
+  }
+
+  // Check if handle contains non-ASCII characters (translated handle)
+  const hasNonAscii = /[^\x00-\x7F]/.test(decodedHandle);
+  
+  if (hasNonAscii) {
+    console.log(`[Shopify] Product not found with translated handle "${decodedHandle}", attempting fallback search...`);
+    
+    // Fallback: Search for product by querying with the translated handle
+    // The handle field in the response should match when using @inContext
+    try {
+      const searchRes = await shopifyFetch<ShopifyProductsOperation>({
+        query: getProductsQuery,
+        variables: {
+          first: 250,
+          language: locale?.language?.toUpperCase(),
+          country: locale?.country?.toUpperCase()
+        }
+      });
+      
+      const products = removeEdgesAndNodes(searchRes.body.data.products);
+      
+      // Find product with matching handle (Shopify returns translated handles with @inContext)
+      const matchedProduct = products.find((p: any) => p.handle === decodedHandle);
+      
+      if (matchedProduct) {
+        console.log(`[Shopify] Found product via fallback search: "${matchedProduct.title}"`);
+        return reshapeProduct(matchedProduct, false);
+      }
+      
+      console.warn(`[Shopify] Product with translated handle "${decodedHandle}" not found even in fallback search`);
+    } catch (error) {
+      console.error('[Shopify] Fallback search failed:', error);
+    }
+  }
+
+  return undefined;
 }
 
 export async function getProductRecommendations(

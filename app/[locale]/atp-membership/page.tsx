@@ -96,7 +96,7 @@ export default async function AtpMembershipPage({ params }: AtpMembershipPagePro
             </p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="space-y-8 max-w-3xl mx-auto">
             {/* Benefits List */}
             <div className="space-y-8">
               <div className="flex items-start gap-4">
@@ -142,49 +142,7 @@ export default async function AtpMembershipPage({ params }: AtpMembershipPagePro
               </div>
             </div>
 
-            {/* ROI Calculation */}
-            <div className="bg-gradient-to-br from-atp-gold/10 to-atp-gold/5 rounded-2xl p-8">
-              <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-                {t('membershipROI')}
-              </h3>
-
-              <div className="space-y-4 mb-6">
-                <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                  <span className="text-gray-600">{t('annualMembershipFee')}</span>
-                  <span className="font-semibold flex items-center gap-1">
-                    99 <DirhamSymbol size={16} />
-                  </span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                  <span className="text-gray-600">{t('averageServiceBooking')}</span>
-                  <span className="font-semibold flex items-center gap-1">
-                    500 <DirhamSymbol size={16} />
-                  </span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                  <span className="text-gray-600">{t('discountSavings')}</span>
-                  <span className="font-semibold text-green-600 flex items-center gap-1">
-                    75 <DirhamSymbol size={16} />
-                  </span>
-                </div>
-                <div className="flex justify-between items-center py-2 border-b border-gray-200">
-                  <span className="text-gray-600">{t('deliverySavingsAvg')}</span>
-                  <span className="font-semibold text-blue-600 flex items-center gap-1">
-                    25 <DirhamSymbol size={16} />
-                  </span>
-                </div>
-              </div>
-
-              <div className="bg-white rounded-lg p-4 text-center">
-                <p className="text-sm text-gray-600 mb-2">{t('breakEvenAfter')}</p>
-                <p className="text-3xl font-bold text-atp-gold">{t('oneBooking')}</p>
-                <p className="text-sm text-gray-600 mt-2">
-                  {t.rich('saveAnnually', {
-                    strong: (chunks) => <strong>{chunks}</strong>
-                  })}
-                </p>
-              </div>
-            </div>
+            {/* ROI Calculation - Removed */}
           </div>
         </div>
       </section>
@@ -198,26 +156,6 @@ export default async function AtpMembershipPage({ params }: AtpMembershipPagePro
           <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
             {t('readyToSaveDesc')}
           </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-gray-900 flex items-center justify-center gap-2">
-                99 <DirhamSymbol size={20} />
-              </div>
-              <div className="text-sm text-gray-600">{t('perYear')}</div>
-            </div>
-            <div className="text-gray-400">•</div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600 flex items-center justify-center gap-2">
-                500+ <DirhamSymbol size={20} />
-              </div>
-              <div className="text-sm text-gray-600">{t('potentialSavings')}</div>
-            </div>
-            <div className="text-gray-400">•</div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{t('free')}</div>
-              <div className="text-sm text-gray-600">{t('deliveryAlways')}</div>
-            </div>
-          </div>
         </div>
       </section>
     </main>

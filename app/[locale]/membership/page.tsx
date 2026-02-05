@@ -83,8 +83,7 @@ export default function MembershipPage({ params }: MembershipPageProps) {
               </div>
               <h3 className="text-xl font-semibold mb-2">Service Discounts</h3>
               <p className="text-gray-600">
-                Save 15% on all premium services including massage, EMS training, 
-                yoga sessions, and health supplements.
+                Save 15% on all premium services.
               </p>
             </div>
 

@@ -339,30 +339,17 @@ export function getLocalizedList(product: MultilingualProduct, locale: 'en' | 'a
 }
 
 // Helper function to get localized handle
-// Note: Shopify's @inContext directive should return the translated handle automatically
-// if the product has a translated handle set in Translate & Adapt.
-// This function is a fallback for cases where the handle might not be translated.
+// IMPORTANT: Shopify's Storefront API with @inContext does NOT automatically translate handles.
+// Handle translations must be manually registered via Admin API's TranslationsRegister mutation.
+// Since product URLs should remain consistent across locales (the content is what changes),
+// we ALWAYS return the original English handle. The @inContext directive handles content translation.
+// 
+// Why this matters:
+// - URL: /ar/product/advanced-damage-hair-shampoo (same handle for all locales)
+// - Content: Title, description, etc. are translated via @inContext(language: AR)
+// - This ensures product links work correctly regardless of locale
 export function getLocalizedProductHandle(product: any, locale: 'en' | 'ar'): string {
-  // First, check if the handle already contains Arabic characters (already localized)
-  if (locale === 'ar' && /[\u0600-\u06FF]/.test(product.handle)) {
-    return product.handle;
-  }
-  
-  // Check if there's a handle translation in the translations array
-  if (locale === 'ar' && product.translations && Array.isArray(product.translations)) {
-    const handleTranslation = product.translations.find(
-      (t: any) => t.key === 'handle' && t.locale === 'ar'
-    );
-    if (handleTranslation?.value) {
-      return handleTranslation.value;
-    }
-  }
-  
-  // Check for handle metafield (manual translation)
-  if (locale === 'ar' && product.handleAr?.value) {
-    return product.handleAr.value;
-  }
-  
-  // Return the original handle (Shopify should have returned the correct one via @inContext)
+  // Always return the original handle - URLs should be consistent across locales
+  // The @inContext directive handles content translation, not URL translation
   return product.handle;
 }

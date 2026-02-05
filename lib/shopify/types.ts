@@ -402,6 +402,9 @@ export type ShopifyProductsOperation = {
     query?: string;
     reverse?: boolean;
     sortKey?: string;
+    first?: number;
+    language?: string;
+    country?: string;
   };
 };
 
