@@ -1,4 +1,4 @@
-import { SignupForm } from '@/components/auth/signup-form'
+import { SignupFormOAuth } from '@/components/auth/signup-form-oauth'
 import { Suspense } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -8,7 +8,7 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <Suspense fallback={<RegisterFormSkeleton />}>
-          <SignupForm />
+          <SignupFormOAuth />
         </Suspense>
       </div>
     </div>

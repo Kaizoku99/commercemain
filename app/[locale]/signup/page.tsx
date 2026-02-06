@@ -1,4 +1,4 @@
-import { SignupForm } from "@/components/auth/signup-form";
+import { SignupFormOAuth } from "@/components/auth/signup-form-oauth";
 import { Link } from "@/src/i18n/navigation";
 import { ArrowLeft } from "lucide-react";
 
@@ -22,7 +22,7 @@ export default function SignupPage() {
           </Link>
         </div>
 
-        <SignupForm />
+        <SignupFormOAuth />
 
         <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground mb-4">

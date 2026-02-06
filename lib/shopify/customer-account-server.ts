@@ -209,14 +209,33 @@ export async function createCustomerServer(input: any): Promise<any> {
 
 export async function createCustomerAccessTokenServer(input: any): Promise<any> {
   try {
+    console.log('[CustomerAuth] Attempting to create access token for:', input.email)
+    
     const data = await storefrontFetch<{ customerAccessTokenCreate: any }>(
       CUSTOMER_ACCESS_TOKEN_CREATE_MUTATION,
       { input }
     )
     
+    console.log('[CustomerAuth] Shopify response:', JSON.stringify(data.customerAccessTokenCreate, null, 2))
+    
+    // Check for specific error codes and provide helpful guidance
+    const errors = data.customerAccessTokenCreate?.customerUserErrors || []
+    if (errors.length > 0) {
+      const errorCode = errors[0]?.code
+      console.log('[CustomerAuth] Error code:', errorCode)
+      
+      if (errorCode === 'UNIDENTIFIED_CUSTOMER') {
+        console.log('[CustomerAuth] UNIDENTIFIED_CUSTOMER - This can mean:')
+        console.log('  1. Email/password combination is incorrect')
+        console.log('  2. Account exists but was never activated with a password')
+        console.log('  3. Store uses "New Customer Accounts" (OAuth) instead of "Legacy Customer Accounts"')
+        console.log('  Check Shopify Admin → Settings → Customer accounts for configuration')
+      }
+    }
+    
     return data.customerAccessTokenCreate
   } catch (error) {
-    console.error('Error creating customer access token:', error)
+    console.error('[CustomerAuth] Error creating customer access token:', error)
     throw error
   }
 }

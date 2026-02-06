@@ -269,8 +269,11 @@ export async function getCart(): Promise<Cart | undefined> {
   const cartId = (await cookies()).get('cartId')?.value;
 
   if (!cartId) {
+    console.log('[Cart] No cartId cookie found');
     return undefined;
   }
+
+  console.log('[Cart] Fetching cart with ID:', cartId.substring(0, 30) + '...');
 
   const res = await shopifyFetch<ShopifyCartOperation>({
     query: getCartQuery,
@@ -279,8 +282,20 @@ export async function getCart(): Promise<Cart | undefined> {
 
   // Old carts becomes `null` when you checkout.
   if (!res.body.data.cart) {
+    console.log('[Cart] Cart not found or expired for ID:', cartId.substring(0, 30) + '...');
     return undefined;
   }
+
+  // Diagnostic logging for production debugging
+  const rawCart = res.body.data.cart;
+  const rawLines = rawCart.lines?.edges || [];
+  console.log('[Cart] Raw cart data:', {
+    id: rawCart.id?.substring(0, 30) + '...',
+    totalQuantity: rawCart.totalQuantity,
+    lineCount: rawLines.length,
+    linesWithProduct: rawLines.filter((e: any) => e.node?.merchandise?.product?.handle).length,
+    linesWithoutProduct: rawLines.filter((e: any) => !e.node?.merchandise?.product?.handle).length,
+  });
 
   return reshapeCart(res.body.data.cart);
 }

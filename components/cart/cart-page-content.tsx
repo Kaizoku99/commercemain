@@ -141,6 +141,22 @@ function CartStockIndicator({
     );
 }
 
+// Validates that a cart item has all required data for rendering
+function isValidCartItem(item: CartItem): boolean {
+    try {
+        return Boolean(
+            item &&
+            item.merchandise &&
+            item.merchandise.product &&
+            item.merchandise.product.handle &&
+            item.cost &&
+            item.cost.totalAmount
+        );
+    } catch {
+        return false;
+    }
+}
+
 export function CartPageContent() {
     const { cart, updateCartItem } = useCart();
     const { membership, isMember, getMemberPrice } = useMembership();
@@ -160,13 +176,15 @@ export function CartPageContent() {
 
         const safeLines = Array.isArray(cart.lines) ? cart.lines : [];
 
-        safeLines.forEach((item: CartItem) => {
-            const itemPrice = Number.parseFloat(item.cost.totalAmount.amount);
-            const pricing = getMemberPrice((itemPrice / item.quantity).toString());
+        safeLines
+            .filter(isValidCartItem)
+            .forEach((item: CartItem) => {
+                const itemPrice = Number.parseFloat(item.cost.totalAmount.amount);
+                const pricing = getMemberPrice((itemPrice / item.quantity).toString());
 
-            originalTotal += pricing.originalPrice * item.quantity;
-            memberTotal += pricing.memberPrice * item.quantity;
-        });
+                originalTotal += pricing.originalPrice * item.quantity;
+                memberTotal += pricing.memberPrice * item.quantity;
+            });
 
         return {
             originalTotal,
@@ -175,7 +193,13 @@ export function CartPageContent() {
         };
     }, [cart, isMember, getMemberPrice]);
 
-    if (!cart || !Array.isArray(cart.lines) || cart.lines.length === 0) {
+    // Get only valid cart items for rendering
+    const validCartItems = useMemo(() => {
+        if (!cart || !Array.isArray(cart.lines)) return [];
+        return cart.lines.filter(isValidCartItem);
+    }, [cart]);
+
+    if (!cart || validCartItems.length === 0) {
         const BackArrow = isRTL ? ArrowRight : ArrowLeft;
         
         return (
@@ -251,7 +275,7 @@ export function CartPageContent() {
     }
 
     const BackArrow = isRTL ? ArrowRight : ArrowLeft;
-    const itemCount = cart.lines.length;
+    const itemCount = validCartItems.length;
     const cartItemVariants = {
         ...cartItemVariantsBase,
         exit: {
@@ -365,15 +389,17 @@ export function CartPageContent() {
                                 
                                 <m.div 
                                     variants={cartContainerVariants}
-                                    initial="hidden"
+                                    initial={false}
                                     animate="visible"
                                     className="divide-y divide-neutral-800/50"
                                 >
                                     <AnimatePresence mode="popLayout">
-                                        {cart.lines.map((item: CartItem, i: number) => {
+                                        {validCartItems.map((item: CartItem, i: number) => {
                                             const merchandiseSearchParams = {} as MerchandiseSearchParams;
 
-                                            item.merchandise.selectedOptions.forEach(
+                                            // Safe iteration over selectedOptions
+                                            const selectedOptions = item.merchandise.selectedOptions || [];
+                                            selectedOptions.forEach(
                                                 ({ name, value }) => {
                                                     if (value !== DEFAULT_OPTION) {
                                                         merchandiseSearchParams[name.toLowerCase()] = value;
@@ -381,8 +407,9 @@ export function CartPageContent() {
                                                 }
                                             );
 
+                                            const productHandle = item.merchandise.product.handle || '';
                                             const merchandiseUrl = createUrl(
-                                                `/product/${item.merchandise.product.handle}`,
+                                                `/product/${productHandle}`,
                                                 new URLSearchParams(merchandiseSearchParams)
                                             );
 
@@ -548,7 +575,7 @@ export function CartPageContent() {
                                     {isMember && memberSavings.totalSavings > 0 && (
                                         <m.div
                                             variants={summaryItemVariants}
-                                            initial="hidden"
+                                            initial={false}
                                             animate="visible"
                                             className="p-4 rounded-xl bg-gradient-to-br from-[#d4af37]/10 to-transparent border border-[#d4af37]/20"
                                         >

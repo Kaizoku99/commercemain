@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getCustomerServer, updateCustomerServer } from '@/lib/shopify/customer-account-server'
-import { cookies } from 'next/headers'
 import { z } from 'zod'
+import { 
+  getValidAccessToken, 
+  queryCustomerAccountApi,
+  isLoggedIn 
+} from '@/lib/shopify/customer-account-oauth'
 
 // Validation schema for profile updates
 const updateProfileSchema = z.object({
@@ -12,39 +15,223 @@ const updateProfileSchema = z.object({
   acceptsMarketing: z.boolean().optional(),
 })
 
-// Get customer profile
-export async function GET(request: NextRequest) {
-  try {
-    const cookieStore = await cookies()
-    const customerAccessToken = cookieStore.get('customerAccessToken')?.value
+// GraphQL query to get customer profile
+const CUSTOMER_PROFILE_QUERY = `
+  query getCustomer {
+    customer {
+      id
+      firstName
+      lastName
+      emailAddress {
+        emailAddress
+      }
+      phoneNumber {
+        phoneNumber
+      }
+      defaultAddress {
+        id
+        firstName
+        lastName
+        company
+        address1
+        address2
+        city
+        provinceCode
+        countryCode
+        zip
+        phone
+      }
+      addresses(first: 10) {
+        edges {
+          node {
+            id
+            firstName
+            lastName
+            company
+            address1
+            address2
+            city
+            provinceCode
+            countryCode
+            zip
+            phone
+          }
+        }
+      }
+      orders(first: 10) {
+        edges {
+          node {
+            id
+            number
+            processedAt
+            totalPrice {
+              amount
+              currencyCode
+            }
+            lineItems(first: 5) {
+              edges {
+                node {
+                  title
+                  quantity
+                  image {
+                    url
+                    altText
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`
 
-    if (!customerAccessToken) {
-      // This is expected behavior for unauthenticated users
-      // No need to log this as an error
+// GraphQL mutation to update customer
+const CUSTOMER_UPDATE_MUTATION = `
+  mutation customerUpdate($input: CustomerUpdateInput!) {
+    customerUpdate(input: $input) {
+      customer {
+        id
+        firstName
+        lastName
+        emailAddress {
+          emailAddress
+        }
+        phoneNumber {
+          phoneNumber
+        }
+      }
+      userErrors {
+        field
+        message
+        code
+      }
+    }
+  }
+`
+
+interface CustomerData {
+  customer: {
+    id: string
+    firstName: string | null
+    lastName: string | null
+    emailAddress: { emailAddress: string } | null
+    phoneNumber: { phoneNumber: string } | null
+    defaultAddress: Address | null
+    addresses: { edges: Array<{ node: Address }> }
+    orders: { edges: Array<{ node: Order }> }
+  } | null
+}
+
+interface Address {
+  id: string
+  firstName: string | null
+  lastName: string | null
+  company: string | null
+  address1: string | null
+  address2: string | null
+  city: string | null
+  provinceCode: string | null
+  countryCode: string | null
+  zip: string | null
+  phone: string | null
+}
+
+interface Order {
+  id: string
+  number: number
+  processedAt: string
+  totalPrice: { amount: string; currencyCode: string }
+  lineItems: { edges: Array<{ node: LineItem }> }
+}
+
+interface LineItem {
+  title: string
+  quantity: number
+  image: { url: string; altText: string | null } | null
+}
+
+// Get customer profile
+export async function GET() {
+  try {
+    const loggedIn = await isLoggedIn()
+    
+    if (!loggedIn) {
       return NextResponse.json(
         { error: 'Not authenticated' },
         { status: 401 }
       )
     }
 
-    // Get customer data from Shopify
-    const customer = await getCustomerServer(customerAccessToken)
+    const accessToken = await getValidAccessToken()
 
-    if (!customer) {
-      console.error('Customer not found for valid token')
+    if (!accessToken) {
       return NextResponse.json(
-        { error: 'Customer not found' },
-        { status: 404 }
+        { error: 'Session expired' },
+        { status: 401 }
       )
     }
 
-    return NextResponse.json({
-      success: true,
-      customer
-    })
+    // Get customer data from Customer Account API
+    try {
+      const { data, errors } = await queryCustomerAccountApi<CustomerData>(
+        accessToken,
+        CUSTOMER_PROFILE_QUERY
+      )
+
+      if (errors?.length || !data?.customer) {
+        console.error('[Profile] Failed to fetch customer:', errors)
+        return NextResponse.json(
+          { error: 'Customer not found' },
+          { status: 404 }
+        )
+      }
+
+      // Transform to a cleaner format compatible with the existing frontend
+      const customer = {
+        id: data.customer.id,
+        firstName: data.customer.firstName,
+        lastName: data.customer.lastName,
+        email: data.customer.emailAddress?.emailAddress,
+        phone: data.customer.phoneNumber?.phoneNumber,
+        defaultAddress: data.customer.defaultAddress,
+        addresses: data.customer.addresses.edges.map(e => e.node),
+        orders: data.customer.orders.edges.map(e => ({
+          ...e.node,
+          orderNumber: e.node.number,
+          processedAt: e.node.processedAt,
+          totalPriceV2: e.node.totalPrice,
+          lineItems: {
+            edges: e.node.lineItems.edges.map(li => ({
+              node: {
+                title: li.node.title,
+                quantity: li.node.quantity,
+                variant: {
+                  title: '',
+                  image: li.node.image
+                }
+              }
+            }))
+          }
+        })),
+      }
+
+      return NextResponse.json({
+        success: true,
+        customer
+      })
+    } catch (apiError) {
+      // Handle API errors gracefully - if the API fails, treat as unauthenticated
+      console.error('[Profile] Customer Account API error:', apiError)
+      return NextResponse.json(
+        { error: apiError instanceof Error ? apiError.message : 'Failed to fetch customer data' },
+        { status: 401 }
+      )
+    }
 
   } catch (error) {
-    console.error('Get customer profile error:', error)
+    console.error('[Profile] Get customer profile error:', error)
 
     return NextResponse.json(
       { error: 'Internal server error' },
@@ -56,12 +243,20 @@ export async function GET(request: NextRequest) {
 // Update customer profile
 export async function PUT(request: NextRequest) {
   try {
-    const cookieStore = await cookies()
-    const customerAccessToken = cookieStore.get('customerAccessToken')?.value
-
-    if (!customerAccessToken) {
+    const loggedIn = await isLoggedIn()
+    
+    if (!loggedIn) {
       return NextResponse.json(
         { error: 'Not authenticated' },
+        { status: 401 }
+      )
+    }
+
+    const accessToken = await getValidAccessToken()
+
+    if (!accessToken) {
+      return NextResponse.json(
+        { error: 'Session expired' },
         { status: 401 }
       )
     }
@@ -71,12 +266,31 @@ export async function PUT(request: NextRequest) {
     // Validate input
     const validatedData = updateProfileSchema.parse(body)
 
-    // Update customer using Shopify Customer Account API
-    const result = await updateCustomerServer(customerAccessToken, validatedData)
+    // Build the input for the Customer Account API
+    const input: Record<string, unknown> = {}
+    if (validatedData.firstName) input.firstName = validatedData.firstName
+    if (validatedData.lastName) input.lastName = validatedData.lastName
+    // Note: Email and phone updates may require different mutations in Customer Account API
 
-    // Check for errors
-    if (result.customerUserErrors && result.customerUserErrors.length > 0) {
-      const error = result.customerUserErrors[0]
+    // Update customer using Customer Account API
+    const { data, errors } = await queryCustomerAccountApi<{
+      customerUpdate: {
+        customer: CustomerData['customer']
+        userErrors: Array<{ field: string[]; message: string; code: string }>
+      }
+    }>(accessToken, CUSTOMER_UPDATE_MUTATION, { input })
+
+    if (errors?.length) {
+      console.error('[Profile] Update failed:', errors)
+      return NextResponse.json(
+        { error: errors[0]?.message || 'Update failed' },
+        { status: 400 }
+      )
+    }
+
+    // Check for user errors
+    if (data?.customerUpdate?.userErrors?.length) {
+      const error = data.customerUpdate.userErrors[0]
       return NextResponse.json(
         {
           error: error.message,
@@ -87,14 +301,22 @@ export async function PUT(request: NextRequest) {
       )
     }
 
+    const customer = data?.customerUpdate?.customer
+    
     return NextResponse.json({
       success: true,
-      customer: result.customer,
+      customer: customer ? {
+        id: customer.id,
+        firstName: customer.firstName,
+        lastName: customer.lastName,
+        email: customer.emailAddress?.emailAddress,
+        phone: customer.phoneNumber?.phoneNumber,
+      } : null,
       message: 'Profile updated successfully'
     })
 
   } catch (error) {
-    console.error('Update customer profile error:', error)
+    console.error('[Profile] Update customer profile error:', error)
 
     if (error instanceof z.ZodError) {
       return NextResponse.json(

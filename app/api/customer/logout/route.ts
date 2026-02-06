@@ -1,38 +1,23 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { deleteCustomerAccessTokenServer } from '@/lib/shopify/customer-account-server'
-import { cookies } from 'next/headers'
+import { NextResponse } from 'next/server'
 
-export async function POST(request: NextRequest) {
-  try {
-    const cookieStore = await cookies()
-    const customerAccessToken = cookieStore.get('customerAccessToken')?.value
-    
-    if (customerAccessToken) {
-      // Delete access token from Shopify
-      try {
-        await deleteCustomerAccessTokenServer(customerAccessToken)
-      } catch (error) {
-        console.error('Error deleting customer access token:', error)
-        // Continue with logout even if Shopify call fails
-      }
-    }
-    
-    // Clear the cookie
-    cookieStore.delete('customerAccessToken')
-    
-    return NextResponse.json({
-      success: true,
-      message: 'Logout successful'
-    })
-    
-  } catch (error) {
-    console.error('Customer logout error:', error)
-    
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
-  }
+/**
+ * DEPRECATED: This endpoint is for Legacy Customer Accounts (password-based).
+ * 
+ * This Shopify store uses "New Customer Accounts" (OAuth-based, passwordless).
+ * Logout is now handled through:
+ * - /api/auth/logout - Clears tokens and redirects to Shopify's logout endpoint
+ * 
+ * The OAuth logout properly invalidates both local tokens and the Shopify session.
+ */
+export async function POST() {
+  return NextResponse.json(
+    { 
+      error: 'This logout endpoint is deprecated',
+      message: 'Please use the new logout endpoint at /api/auth/logout',
+      redirect: '/api/auth/logout'
+    },
+    { status: 410 } // 410 Gone
+  )
 }
 
 export const dynamic = 'force-dynamic'

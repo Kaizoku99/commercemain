@@ -290,6 +290,11 @@ export function getLocalizedProductContent(
 
 // Helper function to get localized product title
 export function getLocalizedProductTitle(product: any, locale: 'en' | 'ar'): string {
+  // Defensive null check - return empty string if product is missing
+  if (!product) {
+    console.warn('[i18n] getLocalizedProductTitle called with null/undefined product');
+    return '';
+  }
   return getLocalizedProductContent(product, locale, 'title')
 }
 

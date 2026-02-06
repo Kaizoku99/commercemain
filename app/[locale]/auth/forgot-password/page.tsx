@@ -1,14 +1,25 @@
-import { ForgotPasswordForm } from '@/components/auth/forgot-password-form'
+import { ForgotPasswordFormOAuth } from '@/components/auth/forgot-password-form-oauth'
 import { Suspense } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Link } from '@/src/i18n/navigation'
+import { ArrowLeft } from 'lucide-react'
 
 export default function ForgotPasswordPage() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-b from-atp-gray-light to-white dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
+        <div className="mb-8">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back to Home
+          </Link>
+        </div>
         <Suspense fallback={<ForgotPasswordFormSkeleton />}>
-          <ForgotPasswordForm />
+          <ForgotPasswordFormOAuth />
         </Suspense>
       </div>
     </div>

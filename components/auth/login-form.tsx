@@ -164,7 +164,7 @@ export function LoginForm() {
             </Link>
             <div className="text-sm text-gray-600">
               {t('noAccount')}{' '}
-              <Link href="/auth/register" className="text-blue-600 hover:underline">
+              <Link href="/signup" className="text-blue-600 hover:underline">
                 {t('signUpHere')}
               </Link>
             </div>

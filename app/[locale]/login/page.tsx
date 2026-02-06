@@ -1,4 +1,4 @@
-import { LoginForm } from "@/components/auth/login-form";
+import { LoginFormOAuth } from "@/components/auth/login-form-oauth";
 import { Link } from "@/src/i18n/navigation";
 import { ArrowLeft } from "lucide-react";
 
@@ -22,7 +22,7 @@ export default function LoginPage() {
           </Link>
         </div>
 
-        <LoginForm />
+        <LoginFormOAuth />
 
         <div className="mt-8 text-center">
           <p className="text-sm text-muted-foreground mb-4">

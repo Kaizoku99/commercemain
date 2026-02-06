@@ -149,7 +149,7 @@ export default function CartModal() {
                                   </div>
                                 </Link>
                               </div>
-                              <div className="flex h-16 flex-col justify-between">
+                              <div className="flex min-h-16 flex-col justify-between gap-1">
                                 {/* Enhanced price display with compare-at price */}
                                 <CartItemPriceEnhanced
                                   amount={item.cost.amountPerQuantity?.amount ?? item.cost.totalAmount.amount}

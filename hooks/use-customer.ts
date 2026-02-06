@@ -25,9 +25,22 @@ interface RegisterData {
   acceptsMarketing?: boolean
 }
 
-export function useCustomer(): UseCustomerReturn {
+interface UseCustomerOptions {
+  /** 
+   * If true, automatically fetch customer data on mount.
+   * Default: false (to avoid unnecessary 401 errors when OAuth is used)
+   */
+  autoFetch?: boolean
+}
+
+/**
+ * @deprecated Use useCustomerOAuth hook instead for new OAuth-based authentication.
+ * This hook is for legacy password-based authentication.
+ */
+export function useCustomer(options: UseCustomerOptions = {}): UseCustomerReturn {
+  const { autoFetch = false } = options
   const [customer, setCustomer] = useState<CustomerResponse | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(autoFetch) // Only show loading if auto-fetching
   const [error, setError] = useState<string | null>(null)
 
   // Fetch customer profile
@@ -205,10 +218,12 @@ export function useCustomer(): UseCustomerReturn {
     await fetchCustomer()
   }, [fetchCustomer])
 
-  // Load customer on mount
+  // Load customer on mount only if autoFetch is true
   useEffect(() => {
-    fetchCustomer()
-  }, [fetchCustomer])
+    if (autoFetch) {
+      fetchCustomer()
+    }
+  }, [fetchCustomer, autoFetch])
 
   return {
     customer,

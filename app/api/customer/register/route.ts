@@ -1,65 +1,28 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { createCustomerServer } from '@/lib/shopify/customer-account-server'
-import { z } from 'zod'
+import { NextResponse } from 'next/server'
 
-// Validation schema
-const registerSchema = z.object({
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
-  phone: z.string().optional(),
-  acceptsMarketing: z.boolean().optional().default(false),
-})
-
-export async function POST(request: NextRequest) {
-  try {
-    const body = await request.json()
-    
-    // Validate input
-    const validatedData = registerSchema.parse(body)
-    
-    // Create customer using Shopify Customer Account API
-    const result = await createCustomerServer(validatedData)
-    
-    // Check for errors
-    if (result.customerUserErrors && result.customerUserErrors.length > 0) {
-      const error = result.customerUserErrors[0]
-      return NextResponse.json(
-        { 
-          error: error.message,
-          code: error.code,
-          field: error.field 
-        },
-        { status: 400 }
-      )
-    }
-    
-    // Success
-    return NextResponse.json({
-      success: true,
-      customer: result.customer,
-      message: 'Customer account created successfully'
-    })
-    
-  } catch (error) {
-    console.error('Customer registration error:', error)
-    
-    if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { 
-          error: 'Validation error',
-          details: error.errors 
-        },
-        { status: 400 }
-      )
-    }
-    
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
-  }
+/**
+ * DEPRECATED: This endpoint is for Legacy Customer Accounts (password-based).
+ * 
+ * This Shopify store uses "New Customer Accounts" (OAuth-based, passwordless).
+ * 
+ * With the new OAuth flow:
+ * - There is no separate registration process
+ * - Users sign up and sign in using the same flow
+ * - Enter email → receive one-time code → enter code
+ * - Account is automatically created on first login
+ * 
+ * Redirect users to /auth/login or /signup (both use the same OAuth flow).
+ */
+export async function POST() {
+  return NextResponse.json(
+    { 
+      error: 'This registration endpoint is deprecated',
+      message: 'This store uses passwordless authentication. Account creation happens automatically during the sign-in process.',
+      redirect: '/signup',
+      help: 'Visit /signup to create an account. Enter your email address and you will receive a secure one-time code.'
+    },
+    { status: 410 } // 410 Gone
+  )
 }
 
 export const dynamic = 'force-dynamic'

@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Separator } from '@/components/ui/separator'
 import { Progress } from '@/components/ui/progress'
-import { useCustomer } from '@/hooks/use-customer'
+import { useCustomerOAuth } from '@/hooks/use-customer-oauth'
 import { cn } from '@/lib/utils'
 import { useTranslations, useLocale } from 'next-intl'
 import { overlayVariants, modalVariants, transitions } from '@/lib/animations/variants'
@@ -68,7 +68,7 @@ export function ProductReviews({ productId, productTitle, className }: ProductRe
   const [lightboxIndex, setLightboxIndex] = useState(0)
   const prefersReducedMotion = useReducedMotion()
 
-  const { customer } = useCustomer()
+  const { customer } = useCustomerOAuth()
   const t = useTranslations('reviews')
   const locale = useLocale()
   const isRTL = locale === 'ar'

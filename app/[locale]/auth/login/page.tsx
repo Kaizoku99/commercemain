@@ -1,14 +1,25 @@
-import { LoginForm } from '@/components/auth/login-form'
+import { LoginFormOAuth } from '@/components/auth/login-form-oauth'
 import { Suspense } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { ArrowLeft } from 'lucide-react'
+import Link from 'next/link'
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col items-center justify-center p-4">
       <div className="w-full max-w-md">
+        {/* Back to Home link */}
+        <Link 
+          href="/" 
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6 transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back to Home
+        </Link>
+        
         <Suspense fallback={<LoginFormSkeleton />}>
-          <LoginForm />
+          <LoginFormOAuth />
         </Suspense>
       </div>
     </div>
