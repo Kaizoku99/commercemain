@@ -165,6 +165,7 @@ export function CartPageContent() {
     const { t: tMembership } = useTranslations("membership");
     const { isRTL } = useRTL();
     const locale = useLocale() as 'en' | 'ar';
+    const membershipTierForBadge = membership?.tier;
 
     // Calculate member savings - Memoized
     const memberSavings = useMemo(() => {
@@ -319,9 +320,10 @@ export function CartPageContent() {
                                 <h1 className="text-3xl lg:text-4xl font-bold leading-tight bg-gradient-to-r from-white via-neutral-200 to-neutral-400 bg-clip-text text-transparent">
                                     {tCart("shoppingCart")}
                                 </h1>
-                                {isMember && membership?.tier && (
+                                {isMember && membershipTierForBadge && (
                                     <MembershipBadge 
-                                        tier={membership.tier as "premium" | "elite" | "essential" | "atp"} 
+                                        tier={membershipTierForBadge}
+                                        discount={Math.round(membership.discountRate * 100)}
                                         className="text-sm" 
                                     />
                                 )}

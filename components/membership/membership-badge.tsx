@@ -11,7 +11,7 @@ import { useRTL } from "@/hooks/use-rtl"
 import { cn } from "@/lib/utils"
 
 interface MembershipBadgeProps {
-  tier?: "essential" | "premium" | "elite" | "atp" | null
+  tier?: "basic" | "essential" | "premium" | "elite" | "atp" | null
   discount?: number
   className?: string
   showStatus?: boolean
@@ -54,7 +54,7 @@ export function MembershipBadge({
       color: "bg-atp-gold",
       discount: Math.round(MEMBERSHIP_CONFIG.SERVICE_DISCOUNT_PERCENTAGE * 100),
     },
-  };
+  } as const;
 
   // Status-based translations
   const getStatusText = (status: string) => {
@@ -104,12 +104,15 @@ export function MembershipBadge({
   // Default tier-based badge
   if (!tier) return null;
 
-  const config = tierConfig[tier];
+  const normalizedTier = tier === 'basic' ? 'essential' : tier;
+  const config = tierConfig[normalizedTier];
+  if (!config) return null;
+
   const IconComponent = config.icon;
   const memberDiscount = discount || config.discount;
 
   // For ATP tier, show additional styling if expiring soon
-  const badgeColor = tier === 'atp' && isExpiringSoon 
+  const badgeColor = normalizedTier === 'atp' && isExpiringSoon 
     ? "bg-yellow-600" 
     : config.color;
 

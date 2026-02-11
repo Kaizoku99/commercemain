@@ -57,13 +57,6 @@ const productFragment = /* GraphQL */ `
     tags
     updatedAt
     
-    # Native Shopify translations - fetch all languages
-    translations(locales: ["ar", "en"]) {
-      key
-      value
-      locale
-    }
-    
     # Enhanced metafields using identifiers for better performance
     metafields(identifiers: [
       # Internationalization metafields

@@ -36,10 +36,12 @@ const CUSTOMER_PROFILE_QUERY = `
         address1
         address2
         city
-        provinceCode
-        countryCode
+        province
+        country
+        territoryCode
+        zoneCode
         zip
-        phone
+        phoneNumber
       }
       addresses(first: 10) {
         edges {
@@ -51,10 +53,12 @@ const CUSTOMER_PROFILE_QUERY = `
             address1
             address2
             city
-            provinceCode
-            countryCode
+            province
+            country
+            territoryCode
+            zoneCode
             zip
-            phone
+            phoneNumber
           }
         }
       }
@@ -132,10 +136,12 @@ interface Address {
   address1: string | null
   address2: string | null
   city: string | null
-  provinceCode: string | null
-  countryCode: string | null
+  province: string | null
+  country: string | null
+  territoryCode: string | null
+  zoneCode: string | null
   zip: string | null
-  phone: string | null
+  phoneNumber: string | null
 }
 
 interface Order {
@@ -195,26 +201,42 @@ export async function GET() {
         lastName: data.customer.lastName,
         email: data.customer.emailAddress?.emailAddress,
         phone: data.customer.phoneNumber?.phoneNumber,
-        defaultAddress: data.customer.defaultAddress,
-        addresses: data.customer.addresses.edges.map(e => e.node),
-        orders: data.customer.orders.edges.map(e => ({
+        defaultAddress: data.customer.defaultAddress
+          ? {
+              ...data.customer.defaultAddress,
+              phone: data.customer.defaultAddress.phoneNumber,
+              provinceCode: data.customer.defaultAddress.zoneCode,
+              countryCode: data.customer.defaultAddress.territoryCode,
+            }
+          : null,
+        addresses: data.customer.addresses.edges.map(e => ({
           ...e.node,
-          orderNumber: e.node.number,
-          processedAt: e.node.processedAt,
-          totalPriceV2: e.node.totalPrice,
-          lineItems: {
-            edges: e.node.lineItems.edges.map(li => ({
-              node: {
-                title: li.node.title,
-                quantity: li.node.quantity,
-                variant: {
-                  title: '',
-                  image: li.node.image
-                }
-              }
-            }))
-          }
+          phone: e.node.phoneNumber,
+          provinceCode: e.node.zoneCode,
+          countryCode: e.node.territoryCode,
         })),
+        orders: {
+          edges: data.customer.orders.edges.map(e => ({
+            node: {
+              ...e.node,
+              orderNumber: e.node.number,
+              processedAt: e.node.processedAt,
+              totalPriceV2: e.node.totalPrice,
+              lineItems: {
+                edges: e.node.lineItems.edges.map(li => ({
+                  node: {
+                    title: li.node.title,
+                    quantity: li.node.quantity,
+                    variant: {
+                      title: '',
+                      image: li.node.image,
+                    },
+                  },
+                })),
+              },
+            },
+          })),
+        },
       }
 
       return NextResponse.json({

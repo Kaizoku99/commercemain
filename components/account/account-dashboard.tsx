@@ -15,9 +15,11 @@ import Link from 'next/link'
 import { formatDirhamWithSymbol } from '@/lib/utils'
 import { AtpMembershipWidget } from '@/components/membership/atp-membership-widget'
 import { MembershipProvider } from '@/hooks/use-atp-membership-context'
+import { useMembership } from '@/hooks/use-membership'
 
 export function AccountDashboard() {
-    const { customer, isLoading, logout } = useCustomer()
+    const { customer, isLoading, logout } = useCustomer({ autoFetch: true })
+    const { isMember, isLoading: membershipLoading } = useMembership()
     const router = useRouter()
 
     useEffect(() => {
@@ -114,7 +116,9 @@ export function AccountDashboard() {
                                 <div className="flex items-center justify-between">
                                     <div>
                                         <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Membership</p>
-                                        <p className="text-xl font-bold">ATP Member</p>
+                                        <p className="text-xl font-bold">
+                                            {membershipLoading ? 'Checking...' : isMember ? 'ATP Member' : 'Not a member yet'}
+                                        </p>
                                     </div>
                                     <div className="h-12 w-12 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center">
                                         <Award className="h-6 w-6 text-purple-600 dark:text-purple-400" />

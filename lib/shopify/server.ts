@@ -8,7 +8,7 @@ import { validateEnvironmentVariables } from "@/lib/config"
 import { mockCart, mockCollections, mockProducts, createMockResponse } from "./mock-data"
 import { revalidateTag } from "next/cache"
 import { NextRequest, NextResponse } from "next/server"
-import { cookies } from "next/headers"
+import { cookies, headers as requestHeaders } from "next/headers"
 import { config } from "@/lib/config"
 
 // Initialize Shopify Storefront API Client
@@ -39,6 +39,7 @@ import {
   ShopifyProductsOperation,
   ShopifyRemoveFromCartOperation,
   ShopifyUpdateCartOperation,
+  UpdateCartBuyerIdentityOperation,
   Connection,
   ShopifyCart,
   ShopifyCollection,
@@ -47,6 +48,7 @@ import {
   ShopifyShopPaymentSettingsOperation,
   ShopPolicy,
   ShopPolicyOperation,
+  CartBuyerIdentityInput,
 } from "./types"
 import {
   addToCartMutation,
@@ -88,6 +90,22 @@ const key = config.shopify.accessToken!
 
 type ExtractVariables<T> = T extends { variables: object } ? T["variables"] : never
 
+async function getBuyerIpForShopify(): Promise<string | null> {
+  try {
+    const headerStore = await requestHeaders()
+    const forwardedFor = headerStore.get('x-forwarded-for') || headerStore.get('x-vercel-forwarded-for')
+    const realIp =
+      headerStore.get('x-real-ip') ||
+      headerStore.get('cf-connecting-ip') ||
+      headerStore.get('x-client-ip')
+
+    const clientIp = forwardedFor?.split(',')[0]?.trim() || realIp?.trim()
+    return clientIp || null
+  } catch {
+    return null
+  }
+}
+
 export async function shopifyFetch<T>({
   headers,
   query,
@@ -106,11 +124,14 @@ export async function shopifyFetch<T>({
 
     console.log(`[Shopify] Making request to: ${endpoint}`)
 
+    const buyerIp = await getBuyerIpForShopify()
+
     const result = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "X-Shopify-Storefront-Access-Token": key,
+        ...(buyerIp ? { 'Shopify-Storefront-Buyer-IP': buyerIp } : {}),
         ...headers,
       },
       body: JSON.stringify({
@@ -265,6 +286,37 @@ export async function updateCart(
   return reshapeCart(res.body.data.cartLinesUpdate.cart);
 }
 
+export async function updateCartBuyerIdentity(
+  buyerIdentity: CartBuyerIdentityInput
+): Promise<{
+  cart: Cart | null;
+  userErrors: Array<{ field: string[]; message: string }>;
+}> {
+  const cartId = (await cookies()).get('cartId')?.value
+
+  if (!cartId) {
+    return {
+      cart: null,
+      userErrors: [{ field: ['cartId'], message: 'No cart found' }],
+    }
+  }
+
+  const res = await shopifyFetch<UpdateCartBuyerIdentityOperation>({
+    query: updateCartBuyerIdentityMutation,
+    variables: {
+      cartId,
+      buyerIdentity,
+    },
+  })
+
+  const payload = res.body.data.cartBuyerIdentityUpdate
+
+  return {
+    cart: payload.cart ? reshapeCart(payload.cart) : null,
+    userErrors: payload.userErrors || [],
+  }
+}
+
 export async function getCart(): Promise<Cart | undefined> {
   const cartId = (await cookies()).get('cartId')?.value;
 
@@ -310,6 +362,7 @@ import {
   createCartMutation as createCartWithWarningsMutation,
   editCartItemsMutation as editCartWithWarningsMutation,
   removeFromCartMutation as removeFromCartWithWarningsMutation,
+  updateCartBuyerIdentityMutation,
   updateCartDiscountCodesMutation,
   updateCartNoteMutation,
   updateCartAttributesMutation,

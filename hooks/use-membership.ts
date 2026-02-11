@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { useCustomerOAuth } from "./use-customer-oauth"
 
-export type MembershipTier = "basic" | "premium" | "elite" | null
+export type MembershipTier = "essential" | "premium" | "elite" | "atp" | null
 
 interface MembershipData {
   tier: MembershipTier
@@ -23,33 +23,75 @@ export function useMembership() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    if (customerLoading) {
-      setIsLoading(true)
-      return
-    }
+    let cancelled = false
 
-    if (isLoggedIn && customer) {
-      // With OAuth, we don't have order history from the basic customer query
-      // The membership would need to come from a separate API call or customer metafields
-      // For now, we'll set a default membership tier for logged-in users
-      // TODO: Fetch order history separately for membership calculation
-      
-      setMembership({
-        tier: "basic", // Default tier for authenticated users
-        isActive: true,
-        expiresAt: "2024-12-31",
-        discountRate: 0.05, // 5% discount for basic tier
-      })
-    } else {
+    const resetMembership = () => {
       setMembership({
         tier: null,
         isActive: false,
         discountRate: 0,
       })
     }
-    
-    setIsLoading(false)
-  }, [customer, customerLoading, isLoggedIn])
+
+    const loadMembership = async () => {
+      if (customerLoading) {
+        setIsLoading(true)
+        return
+      }
+
+      if (!isLoggedIn || !customer?.id) {
+        resetMembership()
+        setIsLoading(false)
+        return
+      }
+
+      setIsLoading(true)
+
+      try {
+        const response = await fetch(
+          `/api/membership/status?customerId=${encodeURIComponent(customer.id)}`,
+          {
+            credentials: 'include',
+            cache: 'no-store',
+          }
+        )
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch membership status')
+        }
+
+        const data = await response.json()
+
+        if (cancelled) return
+
+        if (data.isMember && data.membership) {
+          setMembership({
+            tier: data.tier,
+            isActive: true,
+            expiresAt: data.membership.expirationDate,
+            discountRate: typeof data.discountRate === 'number' ? data.discountRate : 0,
+          })
+        } else {
+          resetMembership()
+        }
+      } catch (error) {
+        console.warn('[useMembership] Failed to load membership status:', error)
+        if (!cancelled) {
+          resetMembership()
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false)
+        }
+      }
+    }
+
+    loadMembership()
+
+    return () => {
+      cancelled = true
+    }
+  }, [customer?.id, customerLoading, isLoggedIn])
 
   const applyMemberDiscount = (price: number): number => {
     if (!membership.isActive || !membership.tier) return price

@@ -6,6 +6,7 @@ import {
   storeTokens,
   getConfig,
 } from '@/lib/shopify/customer-account-oauth'
+import { updateCartBuyerIdentity } from '@/lib/shopify/server'
 
 export async function GET(request: NextRequest) {
   try {
@@ -84,6 +85,19 @@ export async function GET(request: NextRequest) {
 
     // Store tokens in cookies
     await storeTokens(tokens)
+
+    // Best-effort sync of buyer identity to existing cart for logged-in checkout persistence.
+    try {
+      const { userErrors } = await updateCartBuyerIdentity({
+        customerAccessToken: tokens.access_token,
+      })
+
+      if (userErrors.length > 0) {
+        console.warn('[Auth/Callback] Cart buyer identity sync reported errors:', userErrors)
+      }
+    } catch (syncError) {
+      console.warn('[Auth/Callback] Cart buyer identity sync failed (continuing):', syncError)
+    }
 
     // Clear OAuth state cookies
     await clearOAuthState()

@@ -573,12 +573,6 @@ export const getProductQuery = `
       }
       updatedAt
       createdAt
-      # Fetch translations for multilingual support
-      translations(locales: ["ar", "en"]) {
-        key
-        value
-        locale
-      }
       # Arabic metafield fallbacks
       titleAr: metafield(namespace: "i18n", key: "title_ar") {
         value
@@ -659,12 +653,6 @@ export const getProductRecommendationsQuery = `
           }
         }
       }
-      # Fetch translations for multilingual support
-      translations(locales: ["ar", "en"]) {
-        key
-        value
-        locale
-      }
     }
   }
 `
@@ -736,11 +724,6 @@ export const getFeaturedProductsQuery = `
                   }
                 }
               }
-            }
-            translations(locales: ["ar", "en"]) {
-              key
-              value
-              locale
             }
           }
         }
@@ -880,12 +863,6 @@ export const getProductsQuery = `
                 }
               }
             }
-          }
-          # Fetch translations for multilingual support
-          translations(locales: ["ar", "en"]) {
-            key
-            value
-            locale
           }
         }
       }

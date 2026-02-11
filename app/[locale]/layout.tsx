@@ -16,6 +16,7 @@ import { Cinzel, DM_Sans, Tajawal } from "next/font/google";
 import { StructuredData, LocalBusinessStructuredData } from "@/components/structured-data";
 import { SkipToContentSimple } from "@/components/ui/skip-navigation";
 import { PageTransitionProvider } from "@/components/ui/page-transition-provider";
+import { DirectionProvider } from "@/components/ui/direction";
 import { baseUrl } from "@/lib/utils";
 
 // Luxury display font for headings - elegant serif with refined character
@@ -144,41 +145,42 @@ export default async function LocaleLayout({
       />
 
       <div
-        className={`bg-atp-white text-atp-black selection:bg-atp-gold/20 selection:text-atp-black antialiased min-h-screen flex flex-col ${
-          isRTL ? "rtl arabic" : "ltr english"
-        } ${cinzel.variable} ${dmSans.variable} ${tajawal.variable}`}
+        className={`bg-atp-white text-atp-black selection:bg-atp-gold/20 selection:text-atp-black antialiased min-h-screen flex flex-col ${isRTL ? "rtl arabic" : "ltr english"
+          } ${cinzel.variable} ${dmSans.variable} ${tajawal.variable}`}
         dir={isRTL ? 'rtl' : 'ltr'}
       >
-        <NextIntlClientProvider messages={messages}>
-          <CartProvider initialCart={cart}>
-            <CartNotificationProvider>
-              <MembershipProvider>
-                <SkipToContentSimple label={isRTL ? 'انتقل إلى المحتوى الرئيسي' : 'Skip to main content'} />
-                <Navbar />
-                <main id="main-content" className="flex-1 pb-16 md:pb-0" tabIndex={-1}>
-                  <PageTransitionProvider>
-                    {children}
-                  </PageTransitionProvider>
-                  <Toaster
-                    closeButton
-                    theme="light"
-                    position={isRTL ? "bottom-left" : "bottom-right"}
-                    toastOptions={{
-                      style: {
-                        background: "var(--atp-white)",
-                        border: "1px solid var(--atp-light-gray)",
-                        color: "var(--atp-black)",
-                      },
-                    }}
-                  />
-                  <WelcomeToast />
-                </main>
-                <Footer />
-                <MobileBottomNav />
-              </MembershipProvider>
-            </CartNotificationProvider>
-          </CartProvider>
-        </NextIntlClientProvider>
+        <DirectionProvider direction={isRTL ? 'rtl' : 'ltr'}>
+          <NextIntlClientProvider messages={messages}>
+            <CartProvider initialCart={cart}>
+              <CartNotificationProvider>
+                <MembershipProvider>
+                  <SkipToContentSimple label={isRTL ? 'انتقل إلى المحتوى الرئيسي' : 'Skip to main content'} />
+                  <Navbar />
+                  <main id="main-content" className="flex-1 pb-16 md:pb-0" tabIndex={-1}>
+                    <PageTransitionProvider>
+                      {children}
+                    </PageTransitionProvider>
+                    <Toaster
+                      closeButton
+                      theme="light"
+                      position={isRTL ? "bottom-left" : "bottom-right"}
+                      toastOptions={{
+                        style: {
+                          background: "var(--atp-white)",
+                          border: "1px solid var(--atp-light-gray)",
+                          color: "var(--atp-black)",
+                        },
+                      }}
+                    />
+                    <WelcomeToast />
+                  </main>
+                  <Footer />
+                  <MobileBottomNav />
+                </MembershipProvider>
+              </CartNotificationProvider>
+            </CartProvider>
+          </NextIntlClientProvider>
+        </DirectionProvider>
       </div>
     </>
   );
