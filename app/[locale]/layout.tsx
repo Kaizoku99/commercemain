@@ -18,6 +18,8 @@ import { SkipToContentSimple } from "@/components/ui/skip-navigation";
 import { PageTransitionProvider } from "@/components/ui/page-transition-provider";
 import { DirectionProvider } from "@/components/ui/direction";
 import { baseUrl } from "@/lib/utils";
+import { MetaPixel } from "@/components/analytics/meta-pixel";
+import { WhatsAppButton } from "@/components/ui/whatsapp-button";
 
 // Luxury display font for headings - elegant serif with refined character
 const cinzel = Cinzel({
@@ -156,6 +158,7 @@ export default async function LocaleLayout({
                 <MembershipProvider>
                   <SkipToContentSimple label={isRTL ? 'انتقل إلى المحتوى الرئيسي' : 'Skip to main content'} />
                   <Navbar />
+                  <MetaPixel />
                   <main id="main-content" className="flex-1 pb-16 md:pb-0" tabIndex={-1}>
                     <PageTransitionProvider>
                       {children}
@@ -176,6 +179,7 @@ export default async function LocaleLayout({
                   </main>
                   <Footer />
                   <MobileBottomNav />
+                  <WhatsAppButton />
                 </MembershipProvider>
               </CartNotificationProvider>
             </CartProvider>
